@@ -16,14 +16,15 @@
 
 package connectors
 
-import models.ConversationHeader
+import models.{ Conversation, ConversationHeader, Message, ReadTime, SenderInformation }
 import org.joda.time.DateTime
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{ any, anyString }
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.libs.json.Writes
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpReads }
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpReads, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,6 +44,54 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
         .thenReturn(Future(List(ConversationHeader("cdcm", "123", "ABC", new DateTime(), None, true, 1))))
       private val result = await(connector.getConversationList())
       result.size mustBe 1
+    }
+  }
+
+  "SecureMessgaeConnector.getConversation" must {
+    "return a conversation" in new TestCase {
+      val testDate = DateTime.now()
+      when(
+        mockHttpClient
+          .GET[Conversation](any[String], any[Seq[(String, String)]], any[Seq[(String, String)]])(
+            any[HttpReads[Conversation]],
+            any[HeaderCarrier],
+            any[ExecutionContext]))
+        .thenReturn(
+          Future(
+            Conversation(
+              "client",
+              "conversationId",
+              "status",
+              Map.empty[String, String],
+              "subject",
+              "en",
+              List(Message(SenderInformation("name", testDate), None, "content")))))
+      private val result = await(connector.getConversation("client", "conversationId"))
+      result mustBe (
+        Conversation(
+          "client",
+          "conversationId",
+          "status",
+          Map.empty[String, String],
+          "subject",
+          "en",
+          List(Message(SenderInformation("name", testDate), None, "content"))
+        )
+      )
+    }
+  }
+
+  "SecureMessgaeConnector.recordReadTime" must {
+    "return " in new TestCase {
+      when(
+        mockHttpClient.POST[ReadTime, HttpResponse](anyString, any[ReadTime], any[Seq[(String, String)]])(
+          any[Writes[ReadTime]],
+          any[HttpReads[HttpResponse]],
+          any[HeaderCarrier],
+          any[ExecutionContext])).thenReturn(Future.successful(HttpResponse(OK, "")))
+
+      private val result = await(connector.recordReadTime("client", "conversationId"))
+      result.status must be(OK)
     }
   }
 

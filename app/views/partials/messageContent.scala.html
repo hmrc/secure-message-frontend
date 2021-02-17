@@ -15,11 +15,26 @@
  *@
 
 @import views.html._
+@import models.MessageView
+@import play.twirl.api.HtmlFormat
 
 @this(layout: Layout)
 
-@(content: Option[String])(implicit request: Request[_], messages: Messages)
-
-<p class="govuk-body">
-  @Html(content)
+@(message: MessageView)(implicit messages: Messages)
+<p>
+<span class="govuk-caption-m">
+    <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">@{message.sender} sent</span>  @message.sentText
+</span>
+    @message.firstRead.map{s =>
+    <span class="govuk-caption-m">
+   <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">First read</span> @s
+</span>
+    }
+    <span class="govuk-caption-m">
+    <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">You read</span>      @message.readText
+</span>
 </p>
+
+<div class="govuk-body">
+@HtmlFormat.raw(message.content)
+</div>

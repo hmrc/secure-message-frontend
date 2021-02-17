@@ -16,22 +16,23 @@
 
 @import views.html._
 @import play.twirl.api.HtmlFormat
+@import models.ConversationView
 @this(layout: Layout, govukPanel: GovukPanel,govukBackLink : GovukBackLink)
 
-@(message: HtmlFormat.Appendable, clientService: String, conversationId: String)(implicit request: Request[_], messages: Messages)
+@(conversation: ConversationView)(implicit messages: Messages)
 <div class="govuk-width-container">
-    <a href="/secure-message-stub/conversations" class="govuk-back-link">Back</a>
-
+    @conversation.backLink
     <main class="govuk-main-wrapper">
-
-        <div class="govuk-grid-row" style="width:100%">
-            <div>
-                <h3 class="govuk-heading-m">MRN 20GB16046891253600 needs action</h3>
-                <p>HMRC sent this message on 20 January 2021 at 8:23am</p>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-body-l">
+                @for(message <- conversation.messages) {
+                <h3 class="govuk-heading-m">@conversation.subject</h3>
                 @message
+                }
             </div>
+           </div>
         </div>
-
     </main>
 </div>
 

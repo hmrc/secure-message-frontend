@@ -16,17 +16,9 @@
 
 package models
 
-import org.scalatestplus.play.PlaySpec
-
-class FakeDataSpec extends PlaySpec {
-
-  "FakeData" must {
-    "must return 6 conversations" in {
-      FakeData.conversations("test").size mustBe 6
-    }
-    "must return 6 messages" in {
-      FakeData.messages.size mustBe 6
-    }
-  }
-
-}
+final case class MessageView(
+  sender: String,
+  sentText: String,
+  firstRead: Option[String],
+  readText: String,
+  content: String)

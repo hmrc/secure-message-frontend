@@ -16,25 +16,47 @@
 
 package controllers
 
-import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
+import connectors.SecureMessageConnector
+import models.{ ConversationView, Message, MessageView }
 import play.api.i18n.I18nSupport
 import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, Request }
+import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions }
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import views.html.partials.{ message, messageContent }
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import views.helpers.HtmlUtil.{ readableTime, _ }
+import views.html.partials.{ conversation, messageContent }
 import javax.inject.Singleton
-import models.FakeData
+import scala.concurrent.{ ExecutionContext, Future }
 
+@SuppressWarnings(Array("org.wartremover.warts.All"))
 @Singleton
 class ConversationController @Inject()(
   controllerComponents: MessagesControllerComponents,
+  secureMessageConnector: SecureMessageConnector,
   messageContent: messageContent,
-  message: message)
-    extends FrontendController(controllerComponents) with I18nSupport {
+  conversation: conversation,
+  val authConnector: AuthConnector
+)(implicit ec: ExecutionContext)
+    extends FrontendController(controllerComponents) with I18nSupport with AuthorisedFunctions {
 
-  def display(clientService: String, client: String, conversationId: String): Action[AnyContent] = Action {
+  def display(clientService: String, client: String, conversationId: String): Action[AnyContent] = Action.async {
     implicit request =>
-      Ok(message(messagePartial(client), clientService: String, conversationId: String))
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+      authorised() {
+        secureMessageConnector
+          .getConversation(client, conversationId)
+          .flatMap { conversationMessage =>
+            Future.successful(
+              Ok(
+                conversation(
+                  ConversationView(
+                    s"${conversationMessage.subject}",
+                    messagePartial(conversationMessage.messages),
+                    backToConversationsLink(clientService)))))
+          }
+      }
   }
 
   def saveReply(clientService: String, client: String, conversationId: String): Action[AnyContent] = Action {
@@ -47,6 +69,15 @@ class ConversationController @Inject()(
     Ok(s"$clientService with client $client with conversationId $conversationId")
   }
 
-  private def messageContent(messageId: String) = FakeData.messages.find(_.id === messageId).map(_.content)
-  private def messagePartial(id: String)(implicit request: Request[_]) = messageContent(messageContent(id))
+  private[controllers] def messagePartial(messages: List[Message])(implicit request: Request[_]) =
+    messages.map(
+      message =>
+        messageContent(
+          MessageView(
+            message.senderInformation.name,
+            sentMessageConversationText(readableTime(message.senderInformation.created)),
+            firstReadMessageConversationText(message.firstReader),
+            readMessageConversationText,
+            message.content
+          )))
 }

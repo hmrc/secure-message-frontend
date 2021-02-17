@@ -16,20 +16,20 @@
 
 package controllers
 
+import config.AppConfig
+import connectors.SecureMessageConnector
+import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{ MessagesControllerComponents, _ }
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions }
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import config.AppConfig
-
-import scala.concurrent.{ ExecutionContext, Future }
-import views.html.partials.conversationInbox
-import javax.inject.{ Inject, Singleton }
-import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import connectors.SecureMessageConnector
+import views.html.partials.conversationInbox
 import views.viewmodels.ConversationInbox
+
+import javax.inject.{ Inject, Singleton }
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class ConversationInboxController @Inject()(

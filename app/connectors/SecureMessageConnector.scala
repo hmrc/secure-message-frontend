@@ -17,10 +17,12 @@
 package connectors
 
 import javax.inject.Inject
-import models.ConversationHeader
+import models.{ Conversation, ConversationHeader, ReadTime }
+import org.joda.time.DateTime
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient }
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import models.ReadTime
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -31,5 +33,20 @@ class SecureMessageConnector @Inject()(httpClient: HttpClient, servicesConfig: S
   def getConversationList()(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[List[ConversationHeader]] =
     httpClient.GET[List[ConversationHeader]](
       s"$secureMessageBaseUrl/secure-messaging/conversations/HMRC-CUS-ORG/EORINumber")
+
+  def getConversation(clientName: String, conversationId: String)(
+    implicit ec: ExecutionContext,
+    hc: HeaderCarrier): Future[Conversation] =
+    httpClient.GET[Conversation](
+      s"$secureMessageBaseUrl/secure-messaging/conversation/$clientName/$conversationId/HMRC-CUS-ORG/EORINumber")
+
+  def recordReadTime(client: String, conversationId: String)(
+    implicit ec: ExecutionContext,
+    hc: HeaderCarrier): Future[HttpResponse] = {
+    val dateTime = ReadTime(DateTime.now)
+    httpClient.POST[ReadTime, HttpResponse](
+      s"$secureMessageBaseUrl/secure-messaging/conversation/add-read-time/$client/$conversationId",
+      dateTime)
+  }
 
 }

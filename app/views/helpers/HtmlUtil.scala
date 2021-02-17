@@ -16,13 +16,16 @@
 
 package views.helpers
 
-import models.ConversationHeader
+import models.{ ConversationHeader, FirstReader }
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import play.api.i18n.Messages
+import play.twirl.api.{ Html, HtmlFormat }
 
 object HtmlUtil {
 
   private val dtf = DateTimeFormat.forPattern("d MMMM yyyy")
+  private val conversationDateTimeFormat = DateTimeFormat.forPattern("d MMM yyyy 'at' HH:mm aa")
 
   def getSenderName(conversationHeader: ConversationHeader)(implicit messages: Messages): String =
     conversationHeader.senderName match {
@@ -35,5 +38,16 @@ object HtmlUtil {
 
   def getConversationUrl(clientService: String, conversationHeader: ConversationHeader): String =
     s"$clientService/conversation/${conversationHeader.client}/${conversationHeader.conversationId}"
+
+  def readableTime(dateTime: DateTime): String =
+    conversationDateTimeFormat.print(dateTime)
+
+  def sentMessageConversationText(time: String): String = s"this message on $time"
+  def readMessageConversationText: String = s"this message on ${readableTime(DateTime.now)}"
+  def firstReadMessageConversationText(firstReader: Option[FirstReader]): Option[String] =
+    firstReader.map(r => s"on ${readableTime(r.read)}")
+
+  def backToConversationsLink(callingService: String): Html =
+    HtmlFormat.raw(s"""<a href=/$callingService/conversations class="govuk-back-link">Back</a>""")
 
 }

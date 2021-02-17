@@ -28,7 +28,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "url-builder"                % "3.4.0-play-27",
     "com.typesafe.play" %% "play-json-joda"             % "2.9.1",
     "com.iheart"        %% "play-swagger"               % "0.10.2",
-    "org.typelevel"     %% "cats-core"                  % "2.4.1"
+    "org.typelevel"     %% "cats-core"                  % "2.4.2"
   )
 
   val test = Seq(
