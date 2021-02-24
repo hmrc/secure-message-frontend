@@ -34,8 +34,8 @@ class HtmlUtilSpec extends PlaySpec {
   }
 
   "construct conversationLink on message inbox list" in {
-    HtmlUtil.getConversationUrl(ConversationHeader("cdcm", "111", "subject", DateTime.now, None, false, 1)) must be(
-      "conversation/cdcm/111")
+    HtmlUtil.getConversationUrl(ConversationHeader("cdcm", "1111", "subject", DateTime.now, None, false, 1)) must be(
+      "conversation/cdcm/1111")
   }
 
   "firstReadMessageConversationText function returns correct first read message text" in {
