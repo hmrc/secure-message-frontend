@@ -38,8 +38,8 @@ object HtmlUtil {
   def getMessageDate(conversationHeader: ConversationHeader): String =
     dtf.print(conversationHeader.issueDate)
 
-  def getConversationUrl(clientService: String, conversationHeader: ConversationHeader): String =
-    s"$clientService/conversation/${conversationHeader.client}/${conversationHeader.conversationId}"
+  def getConversationUrl(conversationHeader: ConversationHeader): String =
+    s"conversation/${conversationHeader.client}/${conversationHeader.conversationId}"
 
   def readableTime(dateTime: DateTime): String =
     conversationDateTimeFormat.print(dateTime)

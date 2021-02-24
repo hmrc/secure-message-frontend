@@ -16,7 +16,7 @@
 
 package views.helpers
 
-import models.FirstReader
+import models.{ ConversationHeader, FirstReader }
 import org.joda.time.DateTime
 import org.scalatestplus.play.PlaySpec
 import views.helpers.HtmlUtil.{ backToConversationsLink, decodeBase64String, firstReadMessageConversationText, readMessageConversationText, readableTime, sentMessageConversationText }
@@ -31,6 +31,11 @@ class HtmlUtilSpec extends PlaySpec {
   "readMessageConversationText function returns correct read message text" in {
     val testTime = DateTime.now
     readMessageConversationText must be(s"this message on ${readableTime(testTime)}")
+  }
+
+  "construct conversationLink on message inbox list" in {
+    HtmlUtil.getConversationUrl(ConversationHeader("cdcm", "111", "subject", DateTime.now, None, false, 1)) must be(
+      "conversation/cdcm/111")
   }
 
   "firstReadMessageConversationText function returns correct first read message text" in {

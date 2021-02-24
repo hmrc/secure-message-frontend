@@ -102,7 +102,7 @@
         if(conversationHeader.unreadMessages) {
           val unreadSpan = <span class="dot-unread">Unread</span>
           Link.toInternalPage(
-            url = getConversationUrl(clientService,conversationHeader),
+            url = getConversationUrl(conversationHeader),
             Some(unreadSpan.mkString),
             None,
             Some("no--underline")
@@ -117,7 +117,7 @@
           <span class='black-text'>{getSenderName(conversationHeader)}</span>
         }
         Link.toInternalPage(
-          url = getConversationUrl(clientService,conversationHeader),
+          url = getConversationUrl(conversationHeader),
           Some(senderSpan.mkString),
           None,
           Some("no-underline")
@@ -141,7 +141,7 @@
             subjectMaybeRead
           }
           Link.toInternalPage(
-            url = getConversationUrl(clientService,conversationHeader),
+            url = getConversationUrl(conversationHeader),
             Some(subjectMaybeWithCount.mkString),
             None,
             Some("no-underline conversation-subject")
