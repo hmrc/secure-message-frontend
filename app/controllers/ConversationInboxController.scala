@@ -50,7 +50,7 @@ class ConversationInboxController @Inject()(
     customerEnrolments: Option[List[CustomerEnrolment]],
     tags: Option[List[Tag]]): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-    validateQueryParameters(request.queryString, "enrolment", "enrolmentKey", "tag") match {
+    validateQueryParameters(request.queryString, "enrolment", "enrolmentKey", "tag", "sent") match {
       case Left(e) => Future.successful(BadRequest(e.getMessage))
       case _ =>
         authorised() {
