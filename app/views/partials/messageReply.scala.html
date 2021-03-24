@@ -22,7 +22,7 @@
 @(reply: MessageReply)(implicit messages: Messages, requestHeader: RequestHeader)
 @import reply._
 @if(showReplyForm){
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
+    <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
     @formWithCSRF(Call(method = "POST", url = replyFormUrl)) {
         <div id="reply-form" class="govuk-form-group @if(formErrors.nonEmpty){govuk-form-group--error}">
             <h3 class="govuk-label-wrapper">

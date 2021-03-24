@@ -67,7 +67,7 @@ object HtmlUtil {
   // scalastyle:off
   def getReplyIcon(replyFormUrl: String): Html =
     Html.apply(Xhtml.toXhtml(Utility.trim(<span>
-      <a style="text-decoration:none;" href={replyFormUrl}>
+      <a aria-hidden="true" style="text-decoration:none;" href={replyFormUrl}>
         <svg style="vertical-align:text-top;padding-right:5px;" width="21px" height="20px" viewBox="0 0 33 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
           <title>Reply</title>
           <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

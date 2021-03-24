@@ -91,7 +91,7 @@
 <div class="govuk-body">
   <div class="messages" style="display:grid;grid-template-columns:auto auto auto auto auto auto;">
     <!-- status header -->
-    <div class="header-status"><span class="govuk-visually-hidden">@messages("conversation.inbox.heading.status")</span></div>
+    <div class="header-status"><span aria-hidden="true" class="govuk-visually-hidden" >@messages("conversation.inbox.heading.status")</span></div>
     <!-- sender header -->
     <div class="govuk-!-font-weight-bold header-subject">@messages("conversation.inbox.heading.subject")</div>
     <!-- date header -->
@@ -105,15 +105,15 @@
           </a>
           <span class="govuk-visually-hidden">unread message</span>
         } else {
-          <span class="govuk-visually-hidden">read previously</span>
+          <span class="govuk-visually-hidden">viewed previously</span>
         }
       }</div>
       <!-- sender -->
       <div class="last-message-sender">@{
         val senderSpan = if(conversationHeader.unreadMessages){
-          <span class="govuk-!-font-weight-bold black-text">{getSenderName(conversationHeader)}</span>
+          <span class="govuk-visually-hidden">from</span><span class="govuk-!-font-weight-bold black-text">{getSenderName(conversationHeader)}</span>
         } else {
-          <span class='black-text'>{getSenderName(conversationHeader)}</span>
+          <span class="govuk-visually-hidden">from</span><span class='black-text'>{getSenderName(conversationHeader)}</span>
         }
         Link.toInternalPage(
           url = getConversationUrl(clientService,conversationHeader),
@@ -130,9 +130,9 @@
       <div class="conversation-subject">
         <span>@{
           val subjectMaybeRead = if(conversationHeader.unreadMessages){
-            <span class="govuk-!-font-weight-bold underline black-text">{conversationHeader.subject}</span>
+            <span class="govuk-visually-hidden">Subject</span><span class="govuk-!-font-weight-bold underline black-text">{conversationHeader.subject}</span>
           } else {
-            <span class="underline black-text">{conversationHeader.subject}</span>
+            <span class="govuk-visually-hidden">Subject</span><span class="underline black-text">{conversationHeader.subject}</span>
           }
           val subjectMaybeWithCount = if(conversationHeader.count > 1){
             subjectMaybeRead ++ <span class="message-counter non-breaking">({conversationHeader.count})</span>
