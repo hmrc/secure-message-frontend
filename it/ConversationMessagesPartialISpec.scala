@@ -75,7 +75,7 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
         .futureValue
       response.status mustBe OK
 
-      dateRegex.findAllIn(response.body).size mustBe (6)
+      dateRegex.findAllIn(response.body).size mustBe (12)
       dateRegex.findFirstIn(response.body).get mustBe ("19 March 2021")
     }
   }
