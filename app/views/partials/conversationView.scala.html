@@ -25,13 +25,28 @@
 
 @(conversation: ConversationView)(implicit messages: Messages)
 <style>
+
+
+@@media screen and (max-width: 414px) {
+ 
+ .custom-caption {
+    font-size: 14px!important;
+ }
+
+}
+
     .govuk-heading-l {
      margin-bottom: -15px;
 }
-    .govuk-caption-m {
-     font-size: 16px;
-     padding-top: 2px;
+
+
+.custom-caption {
+    font-size: 16px;
+    color: #505a5f;
+    display: block;
+    padding-top: 2px;
 }
+
 
 .break-long  {
     word-break: break-word

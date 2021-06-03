@@ -16,9 +16,19 @@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
+  
 @this(govukPanel: GovukPanel)
 @(messageInboxUrl: String, panel: Panel)
+
+<style>
+   .govuk-panel--confirmation > * {
+        word-break: break-word;
+      }
+ </style>
+
 @govukPanel(panel)
+
+
 <h2 class="govuk-heading-m">What happens next</h2>
 <p class="govuk-body">You do not need to do anything now.</p>
 <p class="govuk-body">We will contact you if we need more information.</p>

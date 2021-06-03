@@ -26,13 +26,13 @@
 @(message: MessageView)(implicit messages: Messages, requestHeader: RequestHeader)
 @import message._
 <p>
-<span aria-hidden="true" class="govuk-caption-m">
-    <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">@sender sent</span>  @sentText
+<span aria-hidden="true" class="custom-caption">
+    <span class="govuk-!-font-weight-bold">@sender sent</span>  @sentText
 </span>
 <span class="govuk-visually-hidden">@sender sent  @sentText </span>
     @firstRead.map{s =>
-    <span aria-hidden="true" class="govuk-caption-m">
-   <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">First read</span> @s
+    <span aria-hidden="true" class="custom-caption">
+   <span class="govuk-!-font-weight-bold">First read</span> @s
 </span>
 <span class="govuk-visually-hidden">First viewed  @s</span>
     }
