@@ -16,31 +16,29 @@
 
 package views.partials
 
+import base.LanguageStubs
 import models.{ FirstReaderInformation, Letter, Sender }
 import org.joda.time.{ DateTime, LocalDate }
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.PlaySpec
-import play.api.i18n.{ Lang, MessagesApi, MessagesImpl }
-import play.api.mvc.Request
-import play.api.test.FakeRequest
 import uk.gov.hmrc.govukfrontend.views.html.components.{ GovukBackLink, GovukPanel }
 import views.helpers.HtmlUtil.{ readableDate, readableTime }
 import views.html.Layout
 import views.html.partials.letterView
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-class letterViewSpec extends PlaySpec {
+class letterViewSpec extends PlaySpec with LanguageStubs {
   "letterView template" must {
     "have message content with subject and sent date" in new TestClass {
       private val localDate = LocalDate.now()
       private val conversationContent =
         new letterView(layout, new GovukPanel, new GovukBackLink)(
           Letter("MRN 123", "CDS message", None, Sender("HMRC", localDate), None)
-        ).toString
+        )(messagesEn).toString
       conversationContent must include("MRN 123")
       conversationContent must include("CDS message")
       conversationContent must include("HMRC")
-      conversationContent must include(readableDate(localDate))
+      conversationContent must include(readableDate(localDate)(messagesEn))
     }
 
     "have message read time if it is available" in new TestClass {
@@ -54,15 +52,13 @@ class letterViewSpec extends PlaySpec {
             Some(FirstReaderInformation(None, dateTime)),
             Sender("HMRC", localDate),
             None)
-        ).toString
+        )(messagesEn).toString
 
-      conversationContent must include(readableTime(dateTime))
+      conversationContent must include(readableTime(dateTime)(messagesEn))
     }
   }
 
   class TestClass {
-    implicit val messages: MessagesImpl = MessagesImpl(Lang("en"), mock[MessagesApi])
-    implicit val request: Request[_] = FakeRequest("GET", "/")
     val layout: Layout = mock[Layout]
   }
 }

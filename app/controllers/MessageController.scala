@@ -23,9 +23,9 @@ import javax.inject.Singleton
 import models.{ Conversation, CustomerMessage, Message }
 import play.api.Logging
 import play.api.data.Form
-import play.api.i18n.I18nSupport
+import play.api.i18n.{ I18nSupport, Lang, Langs }
 import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, Request, Result }
-import play.twirl.api.Html
+import play.twirl.api.{ Html, HtmlFormat }
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions }
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.panel.Panel
@@ -35,6 +35,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.helpers.HtmlUtil._
 import views.html.partials.{ conversationView, letterView, messageContent, messageReply, messageResult }
 import views.viewmodels.{ ConversationView, MessageReply, MessageView }
+
 import scala.concurrent.{ ExecutionContext, Future }
 
 @SuppressWarnings(Array("org.wartremover.warts.All"))
@@ -48,8 +49,10 @@ class MessageController @Inject()(
   conversationView: conversationView,
   letterView: letterView,
   val authConnector: AuthConnector,
-  formProvider: MessageFormProvider)(implicit ec: ExecutionContext)
+  formProvider: MessageFormProvider)(implicit ec: ExecutionContext, langs: Langs)
     extends FrontendController(controllerComponents) with I18nSupport with AuthorisedFunctions with Logging {
+
+  implicit val lang: Lang = langs.availables.head
 
   def displayMessage(
     clientService: String,
@@ -234,41 +237,51 @@ class MessageController @Inject()(
       }
   }
 
-  def displayResult(clientService: String): Action[AnyContent] = Action {
-    Ok(
-      messageResult(
-        s"/$clientService/messages",
-        Panel(
-          title = Text("Message sent"),
-          content = Text("We received your message")
-        )))
+  def displayResult(clientService: String): Action[AnyContent] = Action.async { implicit request: Request[_] =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+    authorised() {
+      Future.successful(
+        Ok(
+          messageResult(
+            s"/$clientService/messages",
+            Panel(
+              title = Text(messagesApi("confirmation.panel.title")),
+              content = Text(messagesApi("confirmation.panel.content"))
+            ))))
+    }
   }
 
   //legacy
-  def result(clientService: String, client: String, conversationId: String): Action[AnyContent] = Action {
-    // FIXME - log statement is just to keep compiler happy - do we really need these parameters?
-    logger.debug(s"service: $clientService, client: $client, conversation: $conversationId")
-    Ok(
-      messageResult(
-        s"/$clientService/messages",
-        Panel(
-          title = Text("Message sent"),
-          content = Text("We received your message")
-        )))
+  def result(clientService: String, client: String, conversationId: String): Action[AnyContent] = Action.async {
+    implicit request: Request[_] =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+      authorised() {
+        // FIXME - log statement is just to keep compiler happy - do we really need these parameters?
+        logger.debug(s"service: $clientService, client: $client, conversation: $conversationId")
+        Future.successful(
+          Ok(
+            messageResult(
+              s"/$clientService/messages",
+              Panel(
+                title = Text(messagesApi("confirmation.panel.title")),
+                content = Text(messagesApi("confirmation.panel.content"))
+              ))))
+      }
   }
 
-  private[controllers] def messagePartial(messages: List[Message])(implicit request: Request[_]) =
+  private[controllers] def messagePartial(messages: List[Message])(
+    implicit request: Request[_]): List[HtmlFormat.Appendable] =
     messages
       .sortBy(_.senderInformation.sent.getMillis)(Ordering[Long].reverse)
-      .map(message =>
-        messageContent(MessageView(
-          senderName(message.senderInformation),
-          sentMessageConversationText(readableTime(message.senderInformation.sent)),
-          firstReadMessageConversationText(message.firstReader),
-          readMessageConversationText,
-          decodeBase64String(message.content),
-          message.senderInformation.self
-        )))
+      .map(
+        message =>
+          messageContent(
+            MessageView(
+              message.senderInformation.name,
+              message.senderInformation.sent,
+              message.firstReader.map(_.read),
+              decodeBase64String(message.content)
+            )))
 
   object Id {
     def apply(messageType: String, id: String): String =

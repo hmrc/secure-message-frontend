@@ -16,28 +16,25 @@
 
 package views.helpers
 
-import models.{ FirstReaderInformation, MessageHeader, MessageType }
+import models.{ MessageHeader, MessageType }
 import org.joda.time.format.DateTimeFormat
-import org.joda.time.{ DateTime }
+import org.joda.time.DateTime
 import org.scalatestplus.play.PlaySpec
+import play.api.i18n.{ DefaultMessagesApi, Lang, MessagesImpl }
 import views.helpers.HtmlUtil._
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 class HtmlUtilSpec extends PlaySpec {
+  val messagesApi = new DefaultMessagesApi()
+  implicit val messages = MessagesImpl(Lang("en"), messagesApi)
 
-  "conversation readableTime function returns correct readable timestamp" in {
-    readableTime(DateTime.parse("2021-02-19T10:29:47.275Z")) must be("19 February 2021 at 10:29am")
+  "conversation readableTime function returns correct readable timestamp in English" in {
+    readableTime(DateTime.parse("2021-02-19T10:29:47.275Z")) must be("19 February 2021 at 10:29AM")
   }
 
-  "readMessageConversationText function returns correct read message text" in {
-    val testTime = DateTime.now
-    readMessageConversationText must be(s"this on ${readableTime(testTime)}")
-  }
-
-  "firstReadMessageConversationText function returns correct first read message text" in {
-    val testTime = DateTime.now
-    val firstReader = Some(FirstReaderInformation(Some("Name"), testTime))
-    firstReadMessageConversationText(firstReader) must be(Some(s"on ${readableTime(testTime)}"))
+  "conversation readableTime function returns correct readable timestamp in Welsh" in {
+    val messagesCy = MessagesImpl(Lang("cy"), messagesApi)
+    readableTime(DateTime.parse("2021-02-19T10:29:47.275Z"))(messagesCy) must be("19 Chwefror 2021 am 10:29yb")
   }
 
   "decodeBase64String function should return decoded string" in {
@@ -63,7 +60,7 @@ class HtmlUtilSpec extends PlaySpec {
       val dateTime = DateTime.parse(s"${DateTime.now().toLocalDate}T05:29:47.275Z")
       val messageDateOrTime =
         getMessageDate(MessageHeader(MessageType.Conversation, "", "", dateTime, None, false, 1, Some(""), Some("")))
-      messageDateOrTime.takeRight(5) must be(":29am")
+      messageDateOrTime.takeRight(5) must be(":29AM")
     }
   }
 

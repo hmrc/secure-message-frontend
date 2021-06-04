@@ -18,6 +18,7 @@ package controllers
 
 import akka.stream.Materializer
 import akka.util.Timeout
+import base.LanguageStubs
 import config.AppConfig
 import connectors.SecureMessageConnector
 import forms.MessageFormProvider
@@ -28,8 +29,9 @@ import org.mockito.Mockito.when
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
-import play.api.i18n.Messages
-import play.api.test.Helpers.{ contentAsString, status, stubMessagesControllerComponents }
+import play.api.i18n.{ Langs, Messages }
+import play.api.test.Helpers.{ contentAsString, status }
+import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import play.api.test.{ FakeRequest, NoMaterializer }
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.panel.Panel
@@ -43,7 +45,7 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ ExecutionContext, Future }
 
 @SuppressWarnings(Array("org.wartremover.warts.All"))
-class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockAuthConnector {
+class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneAppPerSuite with MockAuthConnector {
 
   implicit val mat: Materializer = NoMaterializer
   implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -60,9 +62,8 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
 
       private val messagesContent = controller.messagePartial(messages).toString()
 
-      messagesContent must include("this on 19 February 2021 at 10:29am")
-      messagesContent must include("on 1 March 2021 at 10:29am")
-      messagesContent must include("senderName sent")
+      messagesContent must include("senderName sent this on 19 February 2021 at 10:29am")
+      messagesContent must include("First read on 1 March 2021 at 10:29am")
       messagesContent must include("Message body!")
     }
 
@@ -76,9 +77,8 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
 
       private val messagesContent = controller.messagePartial(messages).toString()
 
-      messagesContent must include("this on 19 February 2021 at 10:29am")
-      messagesContent must include("on 1 March 2021 at 10:29am")
-      messagesContent must include("You sent")
+      messagesContent must include("You sent this on 19 February 2021 at 10:29am")
+      messagesContent must include("First read on 1 March 2021 at 10:29am")
       messagesContent must include("Message body!")
     }
 
@@ -101,11 +101,8 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
 
       private val messagesContent = controller.messagePartial(messages).toString()
 
-      messagesContent must include("this on 19 February 2021 at 10:29am")
-      messagesContent must include("on 1 March 2021 at 10:29am")
-      messagesContent must include("Message body!")
-      messagesContent must include("this on 19 April 2021 at 11:29am")
-      messagesContent must include("on 1 May 2021 at 11:29am")
+      messagesContent must include("senderName sent this on 19 February 2021 at 10:29am")
+      messagesContent must include("First read on 1 March 2021 at 10:29am")
       messagesContent must include("Message body!")
 
     }
@@ -120,8 +117,8 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
         ))
 
       private val messagesContent = controller.messagePartial(messages).toString()
-      messagesContent must include("this on 19 February 2021 at 10:29am")
-      messagesContent must not include "First read"
+      messagesContent must include("senderName sent this on 19 February 2021 at 10:29am")
+      messagesContent must not include "First read on 19 February 2021 at 10:29am"
       messagesContent must include("Message body!")
     }
 
@@ -272,7 +269,7 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
 
     "return a result page HTML partial" in new TestCase {
       mockAuthorise[Unit]()(Future.successful(()))
-      when(mockMessageResult.apply(any[String], any[Panel])).thenReturn(Html("<div>result</div>"))
+      when(mockMessageResult.apply(any[String], any[Panel])(any[Messages])).thenReturn(Html("<div>result</div>"))
       private val result = controller.result("some-service", "111", "DA123")(
         FakeRequest("GET", "/some-service/conversation-message/111/DA123/result"))
       status(result) mustBe Status.OK
@@ -474,7 +471,7 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
     "displayResult" must {
       "return a result page HTML partial" in new TestCase {
         mockAuthorise[Unit]()(Future.successful(()))
-        when(mockMessageResult.apply(any[String], any[Panel])).thenReturn(Html("<div>result</div>"))
+        when(mockMessageResult.apply(any[String], any[Panel])(any[Messages])).thenReturn(Html("<div>result</div>"))
         private val result =
           controller.displayResult("some-service")(FakeRequest("GET", "/:clientService/messages/:id/result"))
         status(result) mustBe Status.OK
@@ -492,14 +489,15 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
 
     val conversationId = "conversationId"
 
-    val messageContent: messageContent = app.injector.instanceOf[messageContent]
+    implicit val langs: Langs = app.injector.instanceOf[Langs]
+    implicit val request: FakeRequest[_] = FakeRequest("POST", "/some-service/conversation-message/111/DA123")
 
+    val messageContent: messageContent = app.injector.instanceOf[messageContent]
     val mockMessageReply: messageReply = mock[messageReply]
     val mockMessageResult: messageResult = mock[messageResult]
     val mockConversationView: conversationView = mock[conversationView]
     val mockletterView: letterView = mock[letterView]
 
-    implicit val request: FakeRequest[_] = FakeRequest("POST", "/some-service/conversation-message/111/DA123")
     implicit val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
     val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
@@ -507,7 +505,7 @@ class MessageControllerSpec extends PlaySpec with GuiceOneAppPerSuite with MockA
     val messageFormProvider: MessageFormProvider = new MessageFormProvider
 
     val controller = new MessageController(
-      stubMessagesControllerComponents(),
+      stubMessagesControllerComponents(messagesApi = messagesApi),
       mockSecureMessageConnector,
       messageContent,
       mockMessageReply,

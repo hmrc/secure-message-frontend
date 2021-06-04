@@ -16,10 +16,6 @@
 
 package views.viewmodels
 
-final case class MessageView(
-  sender: String,
-  sentText: String,
-  firstRead: Option[String],
-  readText: String,
-  content: String,
-  self: Boolean)
+import org.joda.time.DateTime
+
+final case class MessageView(senderName: Option[String], sent: DateTime, firstRead: Option[DateTime], content: String)

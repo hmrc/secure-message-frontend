@@ -17,12 +17,12 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(govukPanel: GovukPanel)
-@(messageInboxUrl: String, panel: Panel)
+@(messageInboxUrl: String, panel: Panel)(implicit messages: Messages)
 @govukPanel(panel)
-<h2 class="govuk-heading-m">What happens next</h2>
-<p class="govuk-body">You do not need to do anything now.</p>
-<p class="govuk-body">We will contact you if we need more information.</p>
+<h2 class="govuk-heading-m">@messages("confirmation.what.next")</h2>
+<p class="govuk-body">@messages("confirmation.step1")</p>
+<p class="govuk-body">@messages("confirmation.step2")</p>
 <form action=@messageInboxUrl>
  <input type="hidden" name="sent" value="true" />
- <button class="govuk-button" data-module="govuk-button">Back to your messages</button>
+ <button class="govuk-button" data-module="govuk-button"> @messages("confirmation.back")</button>
 </form>

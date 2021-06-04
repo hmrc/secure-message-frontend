@@ -17,10 +17,11 @@
 package views.helpers
 
 import cats.implicits.catsSyntaxEq
-import models.{ FirstReaderInformation, MessageHeader, MessageType, SenderInformation }
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.{ TimeZone, ULocale }
+import models.{ MessageHeader, MessageType }
 import org.apache.commons.codec.binary.Base64
 import org.joda.time._
-import org.joda.time.format.DateTimeFormat
 import play.api.i18n.Messages
 import play.twirl.api.Html
 
@@ -29,13 +30,18 @@ import scala.xml.{ Utility, Xhtml }
 @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
 object HtmlUtil {
 
-  private val dtf = dateTimeFormatWithLondonZone("d MMMM yyyy")
-  private val dtfHours = dateTimeFormatWithLondonZone("h:mm")
-  private val conversationDateTimeFormat = dateTimeFormatWithLondonZone("d MMMM yyyy 'at' h:mm")
-  private val amOrPm = dateTimeFormatWithLondonZone("a")
+  private def dtf(implicit messages: Messages): SimpleDateFormat = createDateFormatForPattern("d MMMM yyyy")
+  private def dtfHours(implicit messages: Messages): SimpleDateFormat = createDateFormatForPattern("h:mmaa")
 
-  private def dateTimeFormatWithLondonZone(pattern: String) =
-    DateTimeFormat.forPattern(pattern).withZone(DateTimeZone.forID("Europe/London"))
+  private def createDateFormatForPattern(pattern: String)(implicit messages: Messages): SimpleDateFormat = {
+    val langCode = messages.lang.code
+    val uk = TimeZone.getTimeZone("Europe/London")
+    val validLang: Boolean = ULocale.getAvailableLocales.contains(new ULocale(langCode))
+    val locale: ULocale = if (validLang) new ULocale(langCode) else ULocale.getDefault
+    val sdf = new SimpleDateFormat(pattern, locale)
+    sdf.setTimeZone(uk)
+    sdf
+  }
 
   def getSenderName(conversationHeader: MessageHeader)(implicit messages: Messages): String =
     conversationHeader.senderName match {
@@ -43,12 +49,14 @@ object HtmlUtil {
       case _          => messages("conversation.inbox.default.sender")
     }
 
-  def getMessageDate(conversationHeader: MessageHeader): String = {
+  def getMessageDate(conversationHeader: MessageHeader)(implicit messages: Messages): String = {
     val isConversation = conversationHeader.messageType.entryName === MessageType.Conversation.entryName
     val isToday = conversationHeader.issueDate.toLocalDate.toString === DateTime.now.toLocalDate.toString
     if (isToday && isConversation) {
-      dtfHours.print(conversationHeader.issueDate) + amOrPm.print(conversationHeader.issueDate).toLowerCase
-    } else { dtf.print(conversationHeader.issueDate) }
+      dtfHours.format(conversationHeader.issueDate.toDate)
+    } else {
+      dtf.format(conversationHeader.issueDate.toDate)
+    }
   }
 
   def getMessageUrl(clientService: String, messageHeader: MessageHeader): String =
@@ -58,25 +66,16 @@ object HtmlUtil {
       s"/$clientService/messages/${messageHeader.id}"
     }
 
-  def readableTime(dateTime: DateTime): String =
-    conversationDateTimeFormat.print(dateTime) + amOrPm.print(dateTime).toLowerCase
-
-  def readableDate(date: LocalDate): String =
-    dtf.print(date)
-
-// sender information for an org is mandatory. if for any reason if its missing we are putting as you, this will be covered in diff story
-  def senderName(sender: SenderInformation): String = sender.name match {
-    case Some(name)       => name
-    case _ if sender.self => "You"
-    case _                => "You"
+  def readableTime(dateTime: DateTime)(implicit messages: Messages): String = {
+    val at = messages.lang.code match {
+      case "cy" => "am"
+      case _    => "at"
+    }
+    createDateFormatForPattern(s"d MMMM yyyy '$at' h:mmaa").format(dateTime.toDate)
   }
 
-  def sentMessageConversationText(time: String): String = s"this on $time"
-
-  def readMessageConversationText: String = s"this on ${readableTime(DateTime.now)}"
-
-  def firstReadMessageConversationText(firstReader: Option[FirstReaderInformation]): Option[String] =
-    firstReader.map(r => s"on ${readableTime(r.read)}")
+  def readableDate(date: LocalDate)(implicit messages: Messages): String =
+    dtf.format(date.toDate)
 
   def decodeBase64String(input: String): String =
     new String(Base64.decodeBase64(input.getBytes("UTF-8")))

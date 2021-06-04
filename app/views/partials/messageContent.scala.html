@@ -16,6 +16,7 @@
 
 @import views.html._
 @import views.viewmodels.MessageView
+@import views.helpers.HtmlUtil._
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
 @import play.api.mvc.Call
@@ -26,15 +27,19 @@
 @(message: MessageView)(implicit messages: Messages, requestHeader: RequestHeader)
 @import message._
 <p>
-<span aria-hidden="true" class="govuk-caption-m">
-    <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">@sender sent</span>  @sentText
-</span>
-<span class="govuk-visually-hidden">@sender sent  @sentText </span>
-    @firstRead.map{s =>
     <span aria-hidden="true" class="govuk-caption-m">
-   <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">First read</span> @s
-</span>
-<span class="govuk-visually-hidden">First viewed  @s</span>
+        <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">
+            @senderName.fold(messages("message.you.sent.on", readableTime(sent)))(name => messages("message.sent.on", name, readableTime(sent)))
+        </span>
+    </span>
+    <span class="govuk-visually-hidden">
+        @senderName.fold(messages("message.you.sent.on", readableTime(sent)))(name => messages("message.sent.on", name, readableTime(sent)))
+    </span>
+    @firstRead.map { read =>
+        <span aria-hidden="true" class="govuk-caption-m">
+            <span class="govuk-caption-m-!-govuk-body govuk-!-font-weight-bold">@messages("message.first.read.on", readableTime(read))</span>
+            <span class="govuk-visually-hidden">@messages("message.first.viewed.on", readableTime(read))</span>
+        </span>
     }
 </p>
 
