@@ -26,15 +26,36 @@
 
 @(letter: Letter)(implicit messages: Messages)
 <style>
+
+
+@@media screen and (max-width: 414px) {
+ 
+ .custom-caption {
+    font-size: 14px !important;
+ }
+
+}
+
         .govuk-heading-l {
          margin-bottom: -15px;
         }
-        .govuk-caption-m {
+        
+        
+        /* .govuk-caption-m {
          font-size: 16px;
          padding-top: 0px;
          margin-top: 0px;
          margin-bottom: 0px;
-        }
+        } */
+
+
+        .custom-caption {
+    font-size: 16px;
+    color: #505a5f;
+    display: block;
+    padding-top: 2px;
+}
+
 </style>
 
 <div class="govuk-body-l">
@@ -45,14 +66,14 @@
  } else {
   <p class="message_time faded-text--small govuk-!-margin-top-0 govuk-!-margin-bottom-6">
  }
-  <span aria-hidden="true" class="govuk-caption-m">
+  <span aria-hidden="true" class="custom-caption">
    <span class="govuk-!-font-weight-bold">@letter.senderInformation.name @messages("message.sent_on")</span> @readableDate(letter.senderInformation.sent)
   </span>
  </p>
 
   @letter.firstReaderInformation.map{s =>
    <p class="message_time faded-text--small govuk-!-margin-top-0 govuk-!-margin-bottom-6">
-    <span aria-hidden="true" class="govuk-caption-m">
+    <span aria-hidden="true" class="custom-caption">
      <span class="govuk-!-font-weight-bold">@messages("message.first_read_on")</span> @readableTime(s.read)
     </span>
    </p>
