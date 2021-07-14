@@ -20,11 +20,11 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"            %% "bootstrap-frontend-play-27" % "5.4.0",
-    "uk.gov.hmrc"            %% "play-frontend-hmrc"         % "0.41.0-play-27",
-    "uk.gov.hmrc"            %% "play-frontend-govuk"        % "0.60.0-play-27",
-    "uk.gov.hmrc"            %% "play-language"              % "4.10.0-play-27",
-    "uk.gov.hmrc"            %% "url-builder"                % "3.4.0-play-27",
+    "uk.gov.hmrc"            %% "bootstrap-frontend-play-28" % "5.7.0",
+    "uk.gov.hmrc"            %% "play-frontend-hmrc"         % "0.82.0-play-28",
+    "uk.gov.hmrc"            %% "play-frontend-govuk"        % "0.80.0-play-28",
+    "uk.gov.hmrc"            %% "play-language"              % "5.1.0-play-28",
+    "uk.gov.hmrc"            %% "url-builder"                % "3.5.0-play-28",
     "com.typesafe.play"      %% "play-json-joda"             % "2.9.1",
     "com.iheart"             %% "play-swagger"               % "0.10.5",
     "org.typelevel"          %% "cats-core"                  % "2.6.1",
@@ -33,13 +33,13 @@ object AppDependencies {
   )
 
   val test = Seq(
-    "uk.gov.hmrc"            %% "bootstrap-test-play-27"   % "4.0.0"          % Test,
+    "uk.gov.hmrc"            %% "bootstrap-test-play-28"   % "5.7.0"          % Test,
     "org.scalatest"          %% "scalatest"                % "3.0.0"          % Test,
-    "org.jsoup"              % "jsoup"                     % "1.13.1"         % Test,
+    "org.jsoup"              % "jsoup"                     % "1.14.1"         % Test,
     "com.typesafe.play"      %% "play-test"                % current          % Test,
     "uk.gov.hmrc"            %% "service-integration-test" % "0.13.0-play-27" % "test, it",
-    "org.scalatestplus.play" %% "scalatestplus-play"       % "4.0.3"          % "test, it",
-    "org.jsoup"              % "jsoup"                     % "1.13.1"         % "test, it",
+    "org.scalatestplus.play" %% "scalatestplus-play"       % "5.1.0"          % "test, it",
+    "org.jsoup"              % "jsoup"                     % "1.14.1"         % "test, it",
     "org.mockito"            % "mockito-core"              % "3.11.2"         % "test, it",
     "com.vladsch.flexmark"   % "flexmark-all"              % "0.36.8"         % "test, it",
     "org.pegdown"            % "pegdown"                   % "1.6.0"          % "test, it",
