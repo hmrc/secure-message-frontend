@@ -16,11 +16,12 @@
 
 package models
 
-import org.scalatest.{ EitherValues, MustMatchers }
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.EitherValues
 import org.scalatestplus.play.PlaySpec
 import play.api.mvc.PathBindable
 
-class LanguageSpec extends PlaySpec with MustMatchers with EitherValues {
+class LanguageSpec extends PlaySpec with Matchers with EitherValues {
 
   "Language" should {
     val pathBindable = implicitly[PathBindable[Language]]

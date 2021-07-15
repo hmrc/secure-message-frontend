@@ -15,14 +15,14 @@
  */
 
 package controllers
-
-import org.scalatest.{ MustMatchers, OptionValues }
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.OptionValues
 import play.api.test.Helpers._
 import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
 import base.SpecBase
 
-class LanguageSwitchControllerSpec extends SpecBase with MustMatchers with OptionValues with ScalaFutures {
+class LanguageSwitchControllerSpec extends SpecBase with Matchers with OptionValues with ScalaFutures {
 
   "when translation is enabled switching language" should {
     "set the language to Cymraeg" in {
