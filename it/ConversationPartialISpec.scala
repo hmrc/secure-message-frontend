@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import controllers.Assets.{ BAD_REQUEST, CREATED }
+import play.api.http.Status.BAD_REQUEST
+import play.api.http.Status.CREATED
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
