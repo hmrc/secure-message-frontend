@@ -39,6 +39,7 @@ object AppDependencies {
     "com.typesafe.play"      %% "play-test"                % current          % Test,
     "uk.gov.hmrc"            %% "service-integration-test" % "0.13.0-play-27" % "test, it",
     "org.scalatestplus.play" %% "scalatestplus-play"       % "5.1.0"          % "test, it",
+    "org.scalatestplus"      %% "mockito-3-4"              % "3.2.9.0"        % "test, it",
     "org.jsoup"              % "jsoup"                     % "1.14.1"         % "test, it",
     "org.mockito"            % "mockito-core"              % "3.11.2"         % "test, it",
     "com.vladsch.flexmark"   % "flexmark-all"              % "0.36.8"         % "test, it",

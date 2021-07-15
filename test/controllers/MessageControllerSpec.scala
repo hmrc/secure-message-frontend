@@ -17,6 +17,7 @@
 package controllers
 
 import akka.stream.Materializer
+import akka.stream.testkit.NoMaterializer
 import akka.util.Timeout
 import base.LanguageStubs
 import config.AppConfig
@@ -33,7 +34,7 @@ import play.api.i18n.{ Langs, Messages }
 import play.api.mvc.Request
 import play.api.test.Helpers.{ contentAsString, status }
 import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
-import play.api.test.{ FakeRequest, NoMaterializer }
+import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.http.HeaderCarrier
 import views.helpers.HtmlUtil.encodeBase64String
