@@ -40,7 +40,7 @@ object AppDependencies {
     "org.scalatestplus"      %% "mockito-3-4"              % "3.2.10.0"      % "test, it",
     "org.jsoup"              % "jsoup"                     % "1.15.3"        % "test, it",
     "org.mockito"            % "mockito-core"              % "4.8.0"         % "test, it",
-    "com.vladsch.flexmark"   % "flexmark-all"              % "0.64.0"        % "test, it",
+    "com.vladsch.flexmark"   % "flexmark-all"              % "0.36.8"        % "test, it",
     "org.pegdown"            % "pegdown"                   % "1.6.0"         % "test, it",
     "net.codingwell"         %% "scala-guice"              % "5.1.0"         % "test, it"
   )
