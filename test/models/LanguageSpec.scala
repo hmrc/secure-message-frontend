@@ -28,12 +28,12 @@ class LanguageSpec extends PlaySpec with Matchers with EitherValues {
 
     "bind Cymraeg from a URL" in {
       val result = pathBindable.bind("language", Language.Cymraeg.toString)
-      result.value mustEqual Language.Cymraeg
+      result.right.value mustEqual Language.Cymraeg
     }
 
     "bind English from a URL" in {
       val result = pathBindable.bind("language", Language.English.toString)
-      result.value mustEqual Language.English
+      result.right.value mustEqual Language.English
     }
 
     "unbind Cymraeg" in {
