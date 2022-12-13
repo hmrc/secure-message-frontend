@@ -53,6 +53,7 @@ lazy val microservice = Project(appName, file("."))
     name := appName,
     RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._"),
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    dependencyOverrides ++= AppDependencies.dependencyOverrides,
     TwirlKeys.templateImports ++= Seq(
       "config.AppConfig",
       "uk.gov.hmrc.govukfrontend.views.html.components._",
