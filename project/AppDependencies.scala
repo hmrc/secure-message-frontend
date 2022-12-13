@@ -25,22 +25,22 @@ object AppDependencies {
     "uk.gov.hmrc"            %% "play-frontend-govuk"        % "0.80.0-play-28",
     "uk.gov.hmrc"            %% "play-language"              % "5.1.0-play-28",
     "uk.gov.hmrc"            %% "url-builder"                % "3.5.0-play-28",
-    "com.typesafe.play"      %% "play-json-joda"             % "2.9.1",
-    "com.iheart"             %% "play-swagger"               % "0.10.5",
-    "org.typelevel"          %% "cats-core"                  % "2.7.0",
-    "org.scala-lang.modules" %% "scala-xml"                  % "2.0.1",
+    "com.typesafe.play"      %% "play-json-joda"             % "2.9.3",
+    "com.iheart"             %% "play-swagger"               % "0.12.1",
+    "org.typelevel"          %% "cats-core"                  % "2.9.0",
+    "org.scala-lang.modules" %% "scala-xml"                  % "2.1.0",
     "com.beachape"           %% "enumeratum-play"            % "1.5.17"
   )
 
   val test = Seq(
     "uk.gov.hmrc"            %% "bootstrap-test-play-28"   % "5.7.0"         % Test,
     "org.scalatest"          %% "scalatest"                % "3.0.0"         % Test,
-    "org.jsoup"              % "jsoup"                     % "1.14.3"        % Test,
+    "org.jsoup"              % "jsoup"                     % "1.15.3"        % Test,
     "com.typesafe.play"      %% "play-test"                % current         % Test,
     "uk.gov.hmrc"            %% "service-integration-test" % "1.1.0-play-28" % "test, it",
     "org.scalatestplus.play" %% "scalatestplus-play"       % "5.1.0"         % "test, it",
     "org.scalatestplus"      %% "mockito-3-4"              % "3.2.10.0"      % "test, it",
-    "org.jsoup"              % "jsoup"                     % "1.14.3"        % "test, it",
+    "org.jsoup"              % "jsoup"                     % "1.15.3"        % "test, it",
     "org.mockito"            % "mockito-core"              % "4.2.0"         % "test, it",
     "com.vladsch.flexmark"   % "flexmark-all"              % "0.36.8"        % "test, it",
     "org.pegdown"            % "pegdown"                   % "1.6.0"         % "test, it",

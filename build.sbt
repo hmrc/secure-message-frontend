@@ -146,7 +146,6 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := scalastyle.in(Compile).toTask("").value
 (compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
 
-bobbyRulesURL := Some(new URL("https://webstore.tax.service.gov.uk/bobby-config/deprecated-dependencies.json"))
 scalafmtOnCompile := true
 
 lazy val silencerSettings: Seq[Setting[_]] = {
@@ -167,7 +166,7 @@ dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.play")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
 dependencyUpdatesFilter -= moduleFilter(name = "enumeratum-play")
-dependencyUpdatesFailBuild := true
+dependencyUpdatesFailBuild := false
 sources in (Compile, doc) := Seq.empty
 
 val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
