@@ -22,9 +22,7 @@ object AppDependencies {
   val compile = Seq(
     "uk.gov.hmrc"            %% "bootstrap-frontend-play-28" % "5.7.0",
     "uk.gov.hmrc"            %% "play-frontend-hmrc"         % "0.82.0-play-28",
-    "uk.gov.hmrc"            %% "play-frontend-govuk"        % "0.80.0-play-28",
     "uk.gov.hmrc"            %% "play-language"              % "5.1.0-play-28",
-    "uk.gov.hmrc"            %% "url-builder"                % "3.5.0-play-28",
     "com.typesafe.play"      %% "play-json-joda"             % "2.9.3",
     "com.iheart"             %% "play-swagger"               % "0.12.1",
     "org.typelevel"          %% "cats-core"                  % "2.9.0",
@@ -48,6 +46,6 @@ object AppDependencies {
   )
 
   val dependencyOverrides = Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8" // swagger requires an older version of jackson than alpakka...
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.5.1" // swagger requires an older version of jackson than alpakka...
   )
 }
