@@ -128,7 +128,7 @@ lazy val microservice = Project(appName, file("."))
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
         Seq(compile / compileInputs := Def.taskDyn {
-          val task = test in (resolvedScoped.value.scope in scalafmt.key)
+          val task = (resolvedScoped.value.scope / scalafmt.key) / test
           val previousInputs = (compile / compileInputs).value
           task.map(_ => previousInputs)
         }.value)
@@ -148,7 +148,7 @@ lazy val microservice = Project(appName, file("."))
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := (Compile / scalastyle).toTask("").value
-(compile in Compile) := ((Compile / compile) dependsOn compileScalastyle).value
+(Compile / compile) := ((Compile / compile) dependsOn compileScalastyle).value
 
 scalafmtOnCompile := true
 
@@ -171,7 +171,7 @@ dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
 dependencyUpdatesFilter -= moduleFilter(name = "enumeratum-play")
 dependencyUpdatesFailBuild := false
-sources in (Compile, doc) := Seq.empty
+Compile / doc / sources := Seq.empty
 
 val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
 
