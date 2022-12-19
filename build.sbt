@@ -24,7 +24,7 @@ import play.sbt.routes.RoutesKeys
 
 val appName = "secure-message-frontend"
 
-val silencerVersion = "1.7.0"
+val silencerVersion = "1.7.1"
 
 lazy val externalServices = List(
   ExternalService("DATASTREAM"),
@@ -49,7 +49,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(integrationTestSettings(): _*)
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.13",
     name := appName,
     RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._"),
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
@@ -62,7 +62,7 @@ lazy val microservice = Project(appName, file("."))
     ),
     PlayKeys.playDefaultPort := 9055,
     retrieveManaged := true,
-    evictionWarningOptions in update :=
+    update / evictionWarningOptions :=
       EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     // ***************
     // Use the silencer plugin to suppress warnings
@@ -127,9 +127,9 @@ lazy val microservice = Project(appName, file("."))
     resolvers += Resolver.jcenterRepo,
     inConfig(IntegrationTest)(
       scalafmtCoreSettings ++
-        Seq(compileInputs in compile := Def.taskDyn {
+        Seq(compile / compileInputs := Def.taskDyn {
           val task = test in (resolvedScoped.value.scope in scalafmt.key)
-          val previousInputs = (compileInputs in compile).value
+          val previousInputs = (compile / compileInputs).value
           task.map(_ => previousInputs)
         }.value)
     )
@@ -140,10 +140,15 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
   )
+  .settings(
+    // To get rid of "version conflict" error where secure-message-frontend is using scala-xml 2.x.x
+    // and both HMRC and non-HMRC dependencies are still using scala-xml 1.x.x
+    libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
+  )
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
-compileScalastyle := scalastyle.in(Compile).toTask("").value
-(compile in Compile) := ((compile in Compile) dependsOn compileScalastyle).value
+compileScalastyle := (Compile / scalastyle).toTask("").value
+(compile in Compile) := ((Compile / compile) dependsOn compileScalastyle).value
 
 scalafmtOnCompile := true
 
@@ -156,7 +161,7 @@ lazy val silencerSettings: Seq[Setting[_]] = {
   )
 }
 
-(compile in Compile) := ((compile in Compile) dependsOn dependencyUpdates).value
+(Compile / compile) := ((Compile / compile) dependsOn dependencyUpdates).value
 dependencyUpdatesFilter -= moduleFilter(name = "flexmark-all")
 dependencyUpdatesFilter -= moduleFilter(organization = "uk.gov.hmrc")
 dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang")
@@ -173,11 +178,11 @@ val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integratio
 // and then in settings...
 Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
   Seq(
-    scalastyleConfig in IntegrationTest := (scalastyleConfig in scalastyle).value,
-    scalastyleTarget in IntegrationTest := target.value / "scalastyle-it-results.xml",
-    scalastyleFailOnError in IntegrationTest := (scalastyleFailOnError in scalastyle).value,
-    (scalastyleFailOnWarning in IntegrationTest) := (scalastyleFailOnWarning in scalastyle).value,
-    scalastyleSources in IntegrationTest := (unmanagedSourceDirectories in IntegrationTest).value,
-    codeStyleIntegrationTest := scalastyle.in(IntegrationTest).toTask("").value,
-    (test in IntegrationTest) := ((test in IntegrationTest) dependsOn codeStyleIntegrationTest).value
+    IntegrationTest / scalastyleConfig := (scalastyle / scalastyleConfig).value,
+    IntegrationTest / scalastyleTarget := target.value / "scalastyle-it-results.xml",
+    IntegrationTest / scalastyleFailOnError := (scalastyle / scalastyleFailOnError).value,
+    (IntegrationTest / scalastyleFailOnWarning) := (scalastyle / scalastyleFailOnWarning).value,
+    IntegrationTest / scalastyleSources := (IntegrationTest / unmanagedSourceDirectories).value,
+    codeStyleIntegrationTest := (IntegrationTest / scalastyle).toTask("").value,
+    (IntegrationTest / test) := ((IntegrationTest / test) dependsOn codeStyleIntegrationTest).value
   )
