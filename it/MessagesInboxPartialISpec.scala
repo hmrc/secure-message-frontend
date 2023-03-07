@@ -84,7 +84,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
       val responseWithCDSExportFilter = wsClient
         .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
           s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~CDS-EXPORTS")
-        .withHttpHeaders(AuthUtil.buildEoriToken)
+        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
         .get()
         .futureValue
       responseWithCDSExportFilter.status mustBe OK
@@ -95,7 +95,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
       val responseWithDDFilter = wsClient
         .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
           s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~Direct Debit")
-        .withHttpHeaders(AuthUtil.buildEoriToken)
+        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
         .get()
         .futureValue
       responseWithDDFilter.status mustBe OK
@@ -122,7 +122,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
           ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
           ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
           ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports")))),
-          ArgumentMatchers.eq(Lang("en-US"))
+          ArgumentMatchers.eq(Lang("en"))
         )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(
         Future.successful(
           List(
@@ -140,7 +140,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
       val response = wsClient
         .url(resource("/secure-message-frontend/cdcm/messages?" +
           "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"))
-        .withHttpHeaders(AuthUtil.buildEoriToken)
+        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
         .get()
         .futureValue
       response.status mustBe OK
@@ -152,7 +152,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
-          ArgumentMatchers.eq(Lang("en-US"))
+          ArgumentMatchers.eq(Lang("en"))
         )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(Future.successful(List()))
       val response = wsClient
         .url(resource("/secure-message-frontend/cdcm/messages?" +
