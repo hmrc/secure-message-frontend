@@ -64,7 +64,9 @@ class MessageController @Inject()(
       }
     rawId match {
       case Id("letter", _) =>
-        authorised() { contentHelper(secureMessageConnector.getLetterContent _, letterView.apply _) }
+        authorised() {
+          contentHelper(content => secureMessageConnector.getLetterContent(content, request.lang), letterView.apply _)
+        }
       case Id("conversation", id) =>
         authorised() {
           contentHelper(

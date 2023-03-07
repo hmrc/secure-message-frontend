@@ -49,7 +49,8 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
         mockSecureMessageConnector.getInboxList(
           ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
           ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
-          ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports"))))
+          ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports")))),
+          ArgumentMatchers.eq(Lang.defaultLang)
         )(any[ExecutionContext], any[HeaderCarrier]))
         .thenReturn(
           Future(
@@ -86,7 +87,8 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
         mockSecureMessageConnector.getInboxList(
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
-          ArgumentMatchers.eq(None)
+          ArgumentMatchers.eq(None),
+          ArgumentMatchers.eq(Lang("en-US"))
         )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(Future(List()))
       when(mockConversationsInboxPartial.apply(any[MessageInbox])(any[Messages])).thenReturn(new Html("test"))
       private val controller = new MessagesInboxController(

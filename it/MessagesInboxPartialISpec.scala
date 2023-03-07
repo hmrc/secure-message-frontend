@@ -33,8 +33,8 @@ import play.api.libs.ws.WSClient
 import play.api.http.Status.{ BAD_REQUEST, OK }
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.integration.ServiceSpec
-
 import play.api.http.Status.CREATED
+import play.api.i18n.Lang
 
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
@@ -121,7 +121,8 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
         mockSecureMessageConnector.getInboxList(
           ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
           ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
-          ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports"))))
+          ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports")))),
+          ArgumentMatchers.eq(Lang("en-US"))
         )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(
         Future.successful(
           List(
@@ -150,7 +151,8 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
         mockSecureMessageConnector.getInboxList(
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
-          ArgumentMatchers.eq(None)
+          ArgumentMatchers.eq(None),
+          ArgumentMatchers.eq(Lang("en-US"))
         )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(Future.successful(List()))
       val response = wsClient
         .url(resource("/secure-message-frontend/cdcm/messages?" +

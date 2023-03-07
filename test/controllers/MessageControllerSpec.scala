@@ -23,22 +23,22 @@ import base.LanguageStubs
 import config.AppConfig
 import connectors.SecureMessageConnector
 import forms.MessageFormProvider
-import models.{ Conversation, CustomerMessage, FirstReaderInformation, Letter, Message, Sender, SenderInformation }
+import models._
 import org.joda.time.{ DateTime, LocalDate }
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status
-import play.api.i18n.{ Langs, Messages }
+import play.api.http.{ HeaderNames, Status }
+import play.api.i18n.{ Lang, Langs, Messages }
 import play.api.mvc.Request
-import play.api.test.Helpers.{ contentAsString, status }
-import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import play.api.test.FakeRequest
+import play.api.test.Helpers.{ contentAsString, status }
 import play.twirl.api.Html
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import views.helpers.HtmlUtil.encodeBase64String
-import views.html.partials.{ conversationView, letterView, messageContent, messageReply, messageResult }
+import views.html.partials._
 import views.viewmodels.ConversationView
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -290,7 +290,9 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
       private val id = encodeBase64String("letter/someId")
       private val letter = Letter("MRN 123", "CDS message", None, Sender("HMRC", LocalDate.now()), None)
-      when(mockSecureMessageConnector.getLetterContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
+      when(
+        mockSecureMessageConnector
+          .getLetterContent(any[String], any[Lang])(any[ExecutionContext], any[HeaderCarrier]))
         .thenReturn(Future.successful(letter))
       when(mockletterView.apply(any[Letter])(any[Messages]))
         .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
@@ -491,6 +493,7 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
 
     implicit val langs: Langs = app.injector.instanceOf[Langs]
     implicit val request: FakeRequest[_] = FakeRequest("POST", "/some-service/conversation-message/111/DA123")
+      .withHeaders((HeaderNames.ACCEPT_LANGUAGE, "en"))
 
     val messageContent: messageContent = app.injector.instanceOf[messageContent]
     val mockMessageReply: messageReply = mock[messageReply]

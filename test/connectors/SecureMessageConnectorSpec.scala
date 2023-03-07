@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.{ any, anyString }
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.i18n.Lang
 import play.api.libs.json.Writes
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpReads, HttpResponse }
@@ -40,7 +41,8 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
       val expectedQueryParams = Seq(
         ("enrolmentKey", "HMRC-CUS-ORG"),
         ("enrolment", "HMRC-CUS-ORG~EORIName~GB7777777777"),
-        ("tag", "notificationType~CDS Exports")
+        ("tag", "notificationType~CDS Exports"),
+        ("lang", "en")
       )
       when(
         mockHttpClient
@@ -65,7 +67,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
         connector.getInboxList(
           Some(List("HMRC-CUS-ORG")),
           Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777"))),
-          Some(List(Tag("notificationType", "CDS Exports")))))
+          Some(List(Tag("notificationType", "CDS Exports"))),
+          Lang.defaultLang
+        ))
       result.size mustBe 1
     }
 
@@ -169,7 +173,7 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
             any[HeaderCarrier],
             any[ExecutionContext]))
         .thenReturn(Future.successful(letter))
-      private val result = await(connector.getLetterContent("someId"))
+      private val result = await(connector.getLetterContent("someId", Lang("cy")))
       result mustBe letter
     }
   }
