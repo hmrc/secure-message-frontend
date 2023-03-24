@@ -20,7 +20,7 @@ import config.AppConfig
 import connectors.SecureMessageConnector
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import controllers.utils.QueryStringValidation
-import play.api.i18n.I18nSupport
+import play.api.i18n.{ I18nSupport, Lang }
 import play.api.mvc.{ MessagesControllerComponents, _ }
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions }
 import uk.gov.hmrc.http.HeaderCarrier
@@ -50,11 +50,12 @@ class MessagesInboxController @Inject()(
     customerEnrolments: Option[List[CustomerEnrolment]],
     tags: Option[List[Tag]]): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+    implicit val lang: Lang = request.lang
     validateQueryParameters(request.queryString, "enrolment", "enrolmentKey", "tag", "sent") match {
       case Left(e) => Future.successful(BadRequest(e.getMessage))
       case _ =>
         authorised() {
-          secureMessageConnector.getInboxList(enrolmentKeys, customerEnrolments, tags).flatMap { inboxList =>
+          secureMessageConnector.getInboxList(enrolmentKeys, customerEnrolments, tags, lang).flatMap { inboxList =>
             val messages = this.messagesApi.preferred(request)
             Future.successful(
               Ok(
