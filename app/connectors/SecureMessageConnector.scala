@@ -64,7 +64,7 @@ class SecureMessageConnector @Inject()(httpClient: HttpClient, servicesConfig: S
                                                           enrols.map(ce =>
                                                             ("enrolment", s"${ce.key}~${ce.name}~${ce.value}")))
       tagsQueryParams: List[(String, String)] <- tags.map(t => t.map(tag => ("tag", s"${tag.key}~${tag.value}")))
-    } yield (keysQueryParams union enrolmentsQueryParams union tagsQueryParams)
+    } yield (keysQueryParams concat enrolmentsQueryParams concat tagsQueryParams)
 
   def getLetterContent(rawId: String, lang: Lang)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Letter] =
     httpClient.GET[Letter](s"$secureMessageBaseUrl/secure-messaging/messages/$rawId?lang=${lang.language}")

@@ -19,7 +19,7 @@ package controllers.swagger
 import javax.inject.{ Inject, Singleton }
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.hmrc.BuildInfo
+import uk.gov.hmrc.http.BuildInfo
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
