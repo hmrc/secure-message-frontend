@@ -34,7 +34,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(integrationTestSettings(): _*)
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.8",
     name := appName,
     RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._"),
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
