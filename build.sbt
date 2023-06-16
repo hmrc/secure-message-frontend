@@ -80,8 +80,7 @@ lazy val microservice = Project(appName, file("."))
       "-feature",
       "-Xlint",
       "-language:postfixOps",
-      "-language:reflectiveCalls",
-      "-Xfuture"
+      "-language:reflectiveCalls"
     )
   )
 
