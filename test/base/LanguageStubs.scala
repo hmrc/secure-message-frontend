@@ -24,13 +24,13 @@ trait LanguageStubs {
   val messagesResourceEn: Map[String, String] =
     Messages
       .parse(UrlMessageSource(this.getClass.getClassLoader.getResource("messages")), "")
-      .right
+      .toOption
       .get
 
   val messagesResourceCy: Map[String, String] =
     Messages
       .parse(UrlMessageSource(this.getClass.getClassLoader.getResource("messages.cy")), "")
-      .right
+      .toOption
       .get
 
   val messagesApi: MessagesApi = new DefaultMessagesApi(
