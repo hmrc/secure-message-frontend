@@ -30,7 +30,6 @@ import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ ExecutionContext, Future }
 import play.api.http.Status.OK
-import scala.language.reflectiveCalls
 
 class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
 

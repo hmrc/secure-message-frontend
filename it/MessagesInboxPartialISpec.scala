@@ -34,8 +34,6 @@ import play.api.http.Status.{ BAD_REQUEST, OK }
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status.CREATED
 import play.api.i18n.Lang
-
-import scala.language.reflectiveCalls
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -47,12 +45,12 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
     (wsClient
       .url(s"http://localhost:$secureMessagePort/test-only/delete/conversation/SMF123456789/CDCM")
       .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-      .delete
+      .delete()
       .futureValue)
     (wsClient
       .url(s"http://localhost:$secureMessagePort/test-only/delete/message/609d1359aa0200d12c73950a")
       .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-      .delete
+      .delete()
       .futureValue)
     ()
   }
