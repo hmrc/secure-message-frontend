@@ -17,6 +17,8 @@
 import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, integrationTestSettings, scalaSettings }
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
+import uk.gov.hmrc.ExternalService
+import uk.gov.hmrc.ServiceManagerPlugin.Keys.itDependenciesList
 import play.twirl.sbt.Import.TwirlKeys
 import play.sbt.routes.RoutesKeys
 

@@ -22,21 +22,27 @@ import net.codingwell.scalaguice.ScalaModule
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
 import play.api.http.Status.{ BAD_REQUEST, OK }
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.integration.ServiceSpec
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-class ApiEndpointsISpec extends ISpec {
+class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
+
+  override def externalServices: Seq[String] = Seq.empty
 
   private val mockSecureMessageConnector = mock[SecureMessageConnector]
 
   private val wsClient = app.injector.instanceOf[WSClient]
 
-  def additionalOverrides: Seq[GuiceableModule] =
+  override def additionalOverrides: Seq[GuiceableModule] =
     Seq(new AbstractModule with ScalaModule {
       override def configure(): Unit =
         bind[SecureMessageConnector].toInstance(mockSecureMessageConnector)
