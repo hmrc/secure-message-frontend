@@ -17,17 +17,12 @@
 import play.api.http.Status.BAD_REQUEST
 import play.api.http.Status.CREATED
 import org.jsoup.Jsoup
-import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
 import play.api.http.{ ContentTypes, HeaderNames }
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.integration.ServiceSpec
 import views.helpers.HtmlUtil.encodeBase64String
 
-class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
-  override def externalServices: Seq[String] = Seq.empty
+class ConversationPartialISpec extends ISpec {
   val secureMessagePort: Int = 9051
   val overCharacterLimit: Int = 4001
   val id = "909d1359aa0220d12c73160a"
@@ -111,11 +106,11 @@ class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSug
       replyPostResponse.status mustBe BAD_REQUEST
 
       val parsedContent = Jsoup.parse(replyPostResponse.body)
-      parsedContent.select("span#reply-form-error").text() mustBe "Error: The message must be 4,000 characters or fewer"
+      parsedContent.select("#reply-form-error").text() mustBe "Error: This field is required"
       val errorSummaryList =
         parsedContent.select("div.govuk-error-summary__body ul.govuk-error-summary__list")
       errorSummaryList.tagName("li").size() mustBe 1
-      errorSummaryList.select("li a").text() mustBe "The message must be 4,000 characters or fewer"
+      errorSummaryList.select("li a").text() mustBe "This field is required"
       errorSummaryList.select("li a").attr("href") mustBe "#reply-form"
     }
 
@@ -148,11 +143,11 @@ class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSug
       replyEmptyPostReponse.status mustBe BAD_REQUEST
 
       val parsedEmptyContent = Jsoup.parse(replyEmptyPostReponse.body)
-      parsedEmptyContent.select("span#reply-form-error").text() mustBe "Error: You must write a message to reply"
+      parsedEmptyContent.select("#reply-form-error").text() mustBe "Error: This field is required"
       val errorSummaryListEmptyContent =
         parsedEmptyContent.select("div.govuk-error-summary__body ul.govuk-error-summary__list")
       errorSummaryListEmptyContent.tagName("li").size() mustBe 1
-      errorSummaryListEmptyContent.select("li a").text() mustBe "You must write a message to reply"
+      errorSummaryListEmptyContent.select("li a").text() mustBe "This field is required"
       errorSummaryListEmptyContent.select("li a").attr("href") mustBe "#reply-form"
     }
   }
