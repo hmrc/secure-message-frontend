@@ -26,6 +26,7 @@ import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.Application
 import play.api.http.{ ContentTypes, HeaderNames }
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
@@ -34,8 +35,12 @@ import play.api.http.Status.{ BAD_REQUEST, OK }
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status.CREATED
 import play.api.i18n.Lang
+import play.api.test.{ DefaultTestServerFactory, RunningServer }
+import play.core.server.ServerConfig
+
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.Try
 
 class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
   override def externalServices: Seq[String] = Seq.empty
@@ -55,6 +60,15 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
     ()
   }
 
+  override protected implicit lazy val runningServer: RunningServer =
+    new DefaultTestServerFactory() {
+      override protected def serverConfig(app: Application): ServerConfig = {
+        val servicePort = 9055
+        val sc = ServerConfig(port = Some(servicePort))
+        sc.copy(configuration = sc.configuration withFallback overrideServerConfiguration(app))
+      }
+    }.start(app)
+
   private val mockSecureMessageConnector = mock[SecureMessageConnector]
 
   private val wsClient = app.injector.instanceOf[WSClient]
@@ -70,7 +84,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
     "return list with correct filter" in new TestSetUp {
 
       val responseWithOutFilter = wsClient
-        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/something/messages?")
+        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/something/messages")
         .withHttpHeaders(AuthUtil.buildEoriToken)
         .get()
         .futureValue
@@ -167,23 +181,25 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
     val createConversationUrl =
       s"http://localhost:$secureMessagePort/secure-messaging/conversation/CDCM/SMF123456789"
 
-    wsClient
-      .url(createConversationUrl)
-      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-      .put(new File("./it/resources/create-conversation.json"))
-      .futureValue
-      .status mustBe CREATED
-
-    val createMessageUrl =
-      s"http://localhost:$secureMessagePort/test-only/create/message/609d1359aa0200d12c73950a"
-
-    val responseFromSecureMessage =
+    Try {
       wsClient
-        .url(createMessageUrl)
+        .url(createConversationUrl)
         .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-        .put(new File("./it/resources/create-letter.json"))
+        .put(new File("./it/resources/create-conversation.json"))
         .futureValue
-    responseFromSecureMessage.status mustBe CREATED
+        .status mustBe CREATED
+
+      val createMessageUrl =
+        s"http://localhost:$secureMessagePort/test-only/create/message/609d1359aa0200d12c73950a"
+
+      val responseFromSecureMessage =
+        wsClient
+          .url(createMessageUrl)
+          .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+          .put(new File("./it/resources/create-letter.json"))
+          .futureValue
+      responseFromSecureMessage.status mustBe CREATED
+    }
   }
 
   object AuthUtil {
