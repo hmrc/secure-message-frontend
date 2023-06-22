@@ -23,6 +23,9 @@ import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
 import play.api.http.{ ContentTypes, HeaderNames }
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
@@ -34,10 +37,11 @@ import play.api.i18n.Lang
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
 
-class MessagesInboxPartialISpec extends ISpec {
-
+class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
+  override def externalServices: Seq[String] = Seq.empty
   val secureMessagePort: Int = 9051
-  override protected def beforeEach(): Unit = {
+  val secureMessageFrontendPort: Int = 9055
+  override protected def beforeEach() = {
     (wsClient
       .url(s"http://localhost:$secureMessagePort/test-only/delete/conversation/SMF123456789/CDCM")
       .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
@@ -55,7 +59,7 @@ class MessagesInboxPartialISpec extends ISpec {
 
   private val wsClient = app.injector.instanceOf[WSClient]
 
-  def additionalOverrides: Seq[GuiceableModule] =
+  override def additionalOverrides: Seq[GuiceableModule] =
     Seq(new AbstractModule with ScalaModule {
       override def configure(): Unit =
         bind[SecureMessageConnector].toInstance(mockSecureMessageConnector)
