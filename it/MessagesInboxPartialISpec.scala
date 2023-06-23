@@ -37,14 +37,13 @@ import play.api.i18n.Lang
 
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.Try
 
 class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
   override def externalServices: Seq[String] = Seq.empty
   val secureMessagePort: Int = 9051
   val secureMessageFrontendPort: Int = 9055
 
-  override protected def beforeEach() = {
+  override protected def beforeEach(): Unit = {
     (wsClient
       .url(s"http://localhost:$secureMessagePort/test-only/delete/conversation/SMF123456789/CDCM")
       .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
@@ -170,25 +169,24 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
     val createConversationUrl =
       s"http://localhost:$secureMessagePort/secure-messaging/conversation/CDCM/SMF123456789"
 
-    Try {
+    wsClient
+      .url(createConversationUrl)
+      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+      .put(new File("./it/resources/create-conversation.json"))
+      .futureValue
+      .status mustBe CREATED
+
+    val createMessageUrl =
+      s"http://localhost:$secureMessagePort/test-only/create/message/609d1359aa0200d12c73950a"
+
+    val responseFromSecureMessage =
       wsClient
-        .url(createConversationUrl)
+        .url(createMessageUrl)
         .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-        .put(new File("./it/resources/create-conversation.json"))
+        .put(new File("./it/resources/create-letter.json"))
         .futureValue
-        .status mustBe CREATED
+    responseFromSecureMessage.status mustBe CREATED
 
-      val createMessageUrl =
-        s"http://localhost:$secureMessagePort/test-only/create/message/609d1359aa0200d12c73950a"
-
-      val responseFromSecureMessage =
-        wsClient
-          .url(createMessageUrl)
-          .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-          .put(new File("./it/resources/create-letter.json"))
-          .futureValue
-      responseFromSecureMessage.status mustBe CREATED
-    }
   }
 
   object AuthUtil {
