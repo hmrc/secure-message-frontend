@@ -1,18 +1,19 @@
-///*
-// * Copyright 2023 HM Revenue & Customs
-// *
-// * Licensed under the Apache License, Version 2.0 (the "License");
-// * you may not use this file except in compliance with the License.
-// * You may obtain a copy of the License at
-// *
-// *     http://www.apache.org/licenses/LICENSE-2.0
-// *
-// * Unless required by applicable law or agreed to in writing, software
-// * distributed under the License is distributed on an "AS IS" BASIS,
-// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// * See the License for the specific language governing permissions and
-// * limitations under the License.
-// */
+/*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 //
 //import com.google.inject.AbstractModule
 //import connectors.SecureMessageConnector
@@ -26,7 +27,6 @@
 //import org.scalatest.BeforeAndAfterEach
 //import org.scalatestplus.mockito.MockitoSugar
 //import org.scalatestplus.play.PlaySpec
-//import play.api.Application
 //import play.api.http.{ ContentTypes, HeaderNames }
 //import play.api.inject.guice.GuiceableModule
 //import play.api.libs.json.{ Json, Reads }
@@ -35,17 +35,17 @@
 //import uk.gov.hmrc.http.HeaderCarrier
 //import play.api.http.Status.CREATED
 //import play.api.i18n.Lang
-//import play.api.test.{ DefaultTestServerFactory, RunningServer }
-//import play.core.server.ServerConfig
 //
 //import java.io.File
 //import scala.concurrent.{ ExecutionContext, Future }
 //import scala.util.Try
 //
-//class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
+class MessagesInboxPartialISpec {}
+//  extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
 //  override def externalServices: Seq[String] = Seq.empty
 //  val secureMessagePort: Int = 9051
 //  val secureMessageFrontendPort: Int = 9055
+//
 //  override protected def beforeEach() = {
 //    (wsClient
 //      .url(s"http://localhost:$secureMessagePort/test-only/delete/conversation/SMF123456789/CDCM")
@@ -59,15 +59,6 @@
 //      .futureValue)
 //    ()
 //  }
-//
-//  override protected implicit lazy val runningServer: RunningServer =
-//    new DefaultTestServerFactory() {
-//      override protected def serverConfig(app: Application): ServerConfig = {
-//        val servicePort = 9055
-//        val sc = ServerConfig(port = Some(servicePort))
-//        sc.copy(configuration = sc.configuration withFallback overrideServerConfiguration(app))
-//      }
-//    }.start(app)
 //
 //  private val mockSecureMessageConnector = mock[SecureMessageConnector]
 //
@@ -83,30 +74,30 @@
 //
 //    "return list with correct filter" in new TestSetUp {
 //
-//      val responseWithOutFilter = wsClient
-//        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/something/messages")
-//        .withHttpHeaders(AuthUtil.buildEoriToken)
-//        .get()
-//        .futureValue
-//      responseWithOutFilter.status mustBe OK
-//      val bodyWithOutFilter = responseWithOutFilter.body
-//      bodyWithOutFilter must include("CDS-EXPORTS Subject")
-//      bodyWithOutFilter must include("Direct Debit Subject")
+////      val responseWithOutFilter = wsClient
+////        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/something/messages")
+////        .withHttpHeaders(AuthUtil.buildEoriToken)
+////        .get()
+////        .futureValue
+////      responseWithOutFilter.status mustBe OK
+////      val bodyWithOutFilter = responseWithOutFilter.body
+////      bodyWithOutFilter must include("CDS-EXPORTS Subject")
+////      bodyWithOutFilter must include("Direct Debit Subject")
 //
-//      val responseWithCDSExportFilter = wsClient
-//        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
-//          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~CDS-EXPORTS")
-//        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
-//        .get()
-//        .futureValue
-//      responseWithCDSExportFilter.status mustBe OK
-//      val bodyWithCDSFilter = responseWithCDSExportFilter.body
-//      bodyWithCDSFilter must include("CDS-EXPORTS Subject")
-//      bodyWithCDSFilter must not include ("Direct Debit Subject")
+////      val responseWithCDSExportFilter = wsClient
+////        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
+////          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~CDS-EXPORTS")
+////        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
+////        .get()
+////        .futureValue
+////      responseWithCDSExportFilter.status mustBe OK
+////      val bodyWithCDSFilter = responseWithCDSExportFilter.body
+////      bodyWithCDSFilter must include("CDS-EXPORTS Subject")
+////      bodyWithCDSFilter must not include ("Direct Debit Subject")
 //
 //      val responseWithDDFilter = wsClient
-//        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
-//          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~Direct Debit")
+//        .url(resource(s"/secure-message-frontend/" +
+//          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~Direct Debit"))
 //        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
 //        .get()
 //        .futureValue
@@ -116,8 +107,8 @@
 //      bodyWithDDFilter must include("Direct Debit Subject")
 //
 //      val responseWithDifferentEori = wsClient
-//        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
-//          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567999&tag=notificationType~Direct Debit")
+//        .url(resource(s"/secure-message-frontend/something/messages?" +
+//          s"enrolment=HMRC-CUS-ORG~EORINumber~GB1234567999&tag=notificationType~Direct Debit"))
 //        .withHttpHeaders(AuthUtil.buildEoriToken)
 //        .get()
 //        .futureValue
