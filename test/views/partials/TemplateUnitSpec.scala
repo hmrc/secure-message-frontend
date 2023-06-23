@@ -19,10 +19,9 @@ package views.partials
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import play.api.i18n.{ Lang, MessagesApi, MessagesImpl }
-import play.api.libs.json.Reads
 import views.JsoupHelpers
 
-abstract class TemplateUnitSpec[T: Reads] extends PlaySpec with TwirlRenderer[T] with JsoupHelpers with MockitoSugar {
+abstract class TemplateUnitSpec[T] extends PlaySpec with TwirlRenderer[T] with JsoupHelpers with MockitoSugar {
 
   val mockMessagesApi: MessagesApi = mock[MessagesApi]
   implicit val messages: MessagesImpl = MessagesImpl(Lang("en"), mockMessagesApi)

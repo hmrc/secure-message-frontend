@@ -1,8 +1,4 @@
 # microservice specific routes
-
-### NoDocs ###
-->          /govuk-frontend                                                    govuk.Routes
-### NoDocs ###
 ->          /hmrc-frontend                                                     hmrcfrontend.Routes
 
 GET         /:clientService/messages                                           controllers.MessagesInboxController.display(clientService: String, enrolmentKey: Option[List[String]], enrolment: Option[List[CustomerEnrolment]], tag: Option[List[Tag]])

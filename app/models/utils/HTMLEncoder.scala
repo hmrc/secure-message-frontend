@@ -35,7 +35,7 @@ object HTMLEncoder {
     new String(Base64.encodeBase64String(text.getBytes("UTF-8")))
 
   private def splitParas(text: String): Seq[String] =
-    text.replaceAll("\r", "").split("[\\n]{2,}")
+    text.replaceAll("\r", "").split("[\\n]{2,}").toIndexedSeq
 
   private def text2XML(text: String): Seq[Node] = {
 
