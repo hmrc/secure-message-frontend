@@ -14,86 +14,84 @@
  * limitations under the License.
  */
 
-//
-//import com.google.inject.AbstractModule
-//import connectors.SecureMessageConnector
-//import controllers.generic.models.{ CustomerEnrolment, Tag }
-//import models.{ MessageHeader, MessageType }
-//import net.codingwell.scalaguice.ScalaModule
-//import org.joda.time.DateTime
-//import org.mockito.ArgumentMatchers
-//import org.mockito.ArgumentMatchers.any
-//import org.mockito.Mockito.when
-//import org.scalatest.BeforeAndAfterEach
-//import org.scalatestplus.mockito.MockitoSugar
-//import org.scalatestplus.play.PlaySpec
-//import play.api.http.{ ContentTypes, HeaderNames }
-//import play.api.inject.guice.GuiceableModule
-//import play.api.libs.json.{ Json, Reads }
-//import play.api.libs.ws.WSClient
-//import play.api.http.Status.{ BAD_REQUEST, OK }
-//import uk.gov.hmrc.http.HeaderCarrier
-//import play.api.http.Status.CREATED
-//import play.api.i18n.Lang
-//
-//import java.io.File
-//import scala.concurrent.{ ExecutionContext, Future }
-//import scala.util.Try
-//
-class MessagesInboxPartialISpec {}
-//  extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
-//  override def externalServices: Seq[String] = Seq.empty
-//  val secureMessagePort: Int = 9051
-//  val secureMessageFrontendPort: Int = 9055
-//
-//  override protected def beforeEach() = {
-//    (wsClient
-//      .url(s"http://localhost:$secureMessagePort/test-only/delete/conversation/SMF123456789/CDCM")
-//      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-//      .delete()
-//      .futureValue)
-//    (wsClient
-//      .url(s"http://localhost:$secureMessagePort/test-only/delete/message/609d1359aa0200d12c73950a")
-//      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-//      .delete()
-//      .futureValue)
-//    ()
-//  }
-//
-//  private val mockSecureMessageConnector = mock[SecureMessageConnector]
-//
-//  private val wsClient = app.injector.instanceOf[WSClient]
-//
-//  override def additionalOverrides: Seq[GuiceableModule] =
-//    Seq(new AbstractModule with ScalaModule {
-//      override def configure(): Unit =
-//        bind[SecureMessageConnector].toInstance(mockSecureMessageConnector)
-//    })
-//
-//  "Getting the message inbox list partial" should {
-//
+import com.google.inject.AbstractModule
+import connectors.SecureMessageConnector
+import controllers.generic.models.{ CustomerEnrolment, Tag }
+import models.{ MessageHeader, MessageType }
+import net.codingwell.scalaguice.ScalaModule
+import org.joda.time.DateTime
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
+import play.api.http.{ ContentTypes, HeaderNames }
+import play.api.inject.guice.GuiceableModule
+import play.api.libs.json.{ Json, Reads }
+import play.api.libs.ws.WSClient
+import play.api.http.Status.{ BAD_REQUEST, OK }
+import uk.gov.hmrc.http.HeaderCarrier
+import play.api.http.Status.CREATED
+import play.api.i18n.Lang
+
+import java.io.File
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.Try
+
+class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
+  override def externalServices: Seq[String] = Seq.empty
+  val secureMessagePort: Int = 9051
+  val secureMessageFrontendPort: Int = 9055
+
+  override protected def beforeEach() = {
+    (wsClient
+      .url(s"http://localhost:$secureMessagePort/test-only/delete/conversation/SMF123456789/CDCM")
+      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+      .delete()
+      .futureValue)
+    (wsClient
+      .url(s"http://localhost:$secureMessagePort/test-only/delete/message/609d1359aa0200d12c73950a")
+      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+      .delete()
+      .futureValue)
+    ()
+  }
+
+  private val mockSecureMessageConnector = mock[SecureMessageConnector]
+
+  private val wsClient = app.injector.instanceOf[WSClient]
+
+  override def additionalOverrides: Seq[GuiceableModule] =
+    Seq(new AbstractModule with ScalaModule {
+      override def configure(): Unit =
+        bind[SecureMessageConnector].toInstance(mockSecureMessageConnector)
+    })
+
+  "Getting the message inbox list partial" should {
+
 //    "return list with correct filter" in new TestSetUp {
 //
-////      val responseWithOutFilter = wsClient
-////        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/something/messages")
-////        .withHttpHeaders(AuthUtil.buildEoriToken)
-////        .get()
-////        .futureValue
-////      responseWithOutFilter.status mustBe OK
-////      val bodyWithOutFilter = responseWithOutFilter.body
-////      bodyWithOutFilter must include("CDS-EXPORTS Subject")
-////      bodyWithOutFilter must include("Direct Debit Subject")
+//      val responseWithOutFilter = wsClient
+//        .url(resource(s"/secure-message-frontend/cdcm/messages"))
+//        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
+//        .get()
+//        .futureValue
+//      responseWithOutFilter.status mustBe OK
+//      val bodyWithOutFilter = responseWithOutFilter.body
+//      bodyWithOutFilter must include("CDS-EXPORTS Subject")
+//      bodyWithOutFilter must include("Direct Debit Subject")
 //
-////      val responseWithCDSExportFilter = wsClient
-////        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
-////          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~CDS-EXPORTS")
-////        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
-////        .get()
-////        .futureValue
-////      responseWithCDSExportFilter.status mustBe OK
-////      val bodyWithCDSFilter = responseWithCDSExportFilter.body
-////      bodyWithCDSFilter must include("CDS-EXPORTS Subject")
-////      bodyWithCDSFilter must not include ("Direct Debit Subject")
+//      val responseWithCDSExportFilter = wsClient
+//        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
+//          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~CDS-EXPORTS")
+//        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
+//        .get()
+//        .futureValue
+//      responseWithCDSExportFilter.status mustBe OK
+//      val bodyWithCDSFilter = responseWithCDSExportFilter.body
+//      bodyWithCDSFilter must include("CDS-EXPORTS Subject")
+//      bodyWithCDSFilter must not include ("Direct Debit Subject")
 //
 //      val responseWithDDFilter = wsClient
 //        .url(resource(s"/secure-message-frontend/" +
@@ -118,133 +116,133 @@ class MessagesInboxPartialISpec {}
 //      bodyWithWithDifferentUser must not include ("Direct Debit Subject")
 //
 //    }
-//
-//    "return status code OK 200" in {
-//      when(
-//        mockSecureMessageConnector.getInboxList(
-//          ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
-//          ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
-//          ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports")))),
-//          ArgumentMatchers.eq(Lang("en"))
-//        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(
-//        Future.successful(
-//          List(
-//            MessageHeader(
-//              MessageType.Conversation,
-//              "123456",
-//              "D-80542-20201120",
-//              new DateTime(),
-//              Some("CDS Exports Team"),
-//              unreadMessages = true,
-//              1,
-//              Some(""),
-//              Some(""))))
-//      )
-//      val response = wsClient
-//        .url(resource("/secure-message-frontend/cdcm/messages?" +
-//          "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"))
-//        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
-//        .get()
-//        .futureValue
-//      response.status mustBe OK
-//    }
-//
-//    "return status code BAD REQUEST 400 when provided with filter parameters that are invalid (not allowed)" in {
-//      when(
-//        mockSecureMessageConnector.getInboxList(
-//          ArgumentMatchers.eq(None),
-//          ArgumentMatchers.eq(None),
-//          ArgumentMatchers.eq(None),
-//          ArgumentMatchers.eq(Lang("en"))
-//        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(Future.successful(List()))
-//      val response = wsClient
-//        .url(resource("/secure-message-frontend/cdcm/messages?" +
-//          "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"))
-//        .withHttpHeaders(AuthUtil.buildEoriToken)
-//        .get()
-//        .futureValue
-//      response.status mustBe BAD_REQUEST
-//      response.body mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
-//    }
-//  }
-//
-//  class TestSetUp {
-//    val createConversationUrl =
-//      s"http://localhost:$secureMessagePort/secure-messaging/conversation/CDCM/SMF123456789"
-//
-//    Try {
-//      wsClient
-//        .url(createConversationUrl)
-//        .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-//        .put(new File("./it/resources/create-conversation.json"))
-//        .futureValue
-//        .status mustBe CREATED
-//
-//      val createMessageUrl =
-//        s"http://localhost:$secureMessagePort/test-only/create/message/609d1359aa0200d12c73950a"
-//
-//      val responseFromSecureMessage =
-//        wsClient
-//          .url(createMessageUrl)
-//          .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-//          .put(new File("./it/resources/create-letter.json"))
-//          .futureValue
-//      responseFromSecureMessage.status mustBe CREATED
-//    }
-//  }
-//
-//  object AuthUtil {
-//
-//    lazy val ggAuthPort: Int = 8585
-//
-//    implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
-//
-//    case class GatewayToken(gatewayToken: String)
-//
-//    private val NO_EORI_USER_PAYLOAD =
-//      """
-//        | {
-//        |  "credId": "1235",
-//        |  "affinityGroup": "Organisation",
-//        |  "confidenceLevel": 200,
-//        |  "credentialStrength": "none",
-//        |  "enrolments": []
-//        |  }
-//     """.stripMargin
-//
-//    private val EORI_USER_PAYLOAD =
-//      """
-//        | {
-//        |  "credId": "1235",
-//        |  "affinityGroup": "Organisation",
-//        |  "confidenceLevel": 200,
-//        |  "credentialStrength": "none",
-//        |  "enrolments": [
-//        |      {
-//        |        "key": "HMRC-CUS-ORG",
-//        |        "identifiers": [
-//        |          {
-//        |            "key": "EORINumber",
-//        |            "value": "GB1234567890"
-//        |          }
-//        |        ],
-//        |        "state": "Activated"
-//        |      }
-//        |    ]
-//        |  }
-//     """.stripMargin
-//
-//    private def buildUserToken(payload: String): (String, String) = {
-//      val response = wsClient
-//        .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
-//        .withHttpHeaders(("Content-Type", "application/json"))
-//        .post(payload)
-//        .futureValue
-//
-//      ("Authorization", response.header("Authorization").getOrElse(""))
-//    }
-//
-//    def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
-//    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
-//  }
-//}
+
+    "return status code OK 200" in {
+      when(
+        mockSecureMessageConnector.getInboxList(
+          ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
+          ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
+          ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports")))),
+          ArgumentMatchers.eq(Lang("en"))
+        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(
+        Future.successful(
+          List(
+            MessageHeader(
+              MessageType.Conversation,
+              "123456",
+              "D-80542-20201120",
+              new DateTime(),
+              Some("CDS Exports Team"),
+              unreadMessages = true,
+              1,
+              Some(""),
+              Some(""))))
+      )
+      val response = wsClient
+        .url(resource("/secure-message-frontend/cdcm/messages?" +
+          "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"))
+        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
+        .get()
+        .futureValue
+      response.status mustBe OK
+    }
+
+    "return status code BAD REQUEST 400 when provided with filter parameters that are invalid (not allowed)" in {
+      when(
+        mockSecureMessageConnector.getInboxList(
+          ArgumentMatchers.eq(None),
+          ArgumentMatchers.eq(None),
+          ArgumentMatchers.eq(None),
+          ArgumentMatchers.eq(Lang("en"))
+        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(Future.successful(List()))
+      val response = wsClient
+        .url(resource("/secure-message-frontend/cdcm/messages?" +
+          "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"))
+        .withHttpHeaders(AuthUtil.buildEoriToken)
+        .get()
+        .futureValue
+      response.status mustBe BAD_REQUEST
+      response.body mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
+    }
+  }
+
+  class TestSetUp {
+    val createConversationUrl =
+      s"http://localhost:$secureMessagePort/secure-messaging/conversation/CDCM/SMF123456789"
+
+    Try {
+      wsClient
+        .url(createConversationUrl)
+        .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+        .put(new File("./it/resources/create-conversation.json"))
+        .futureValue
+        .status mustBe CREATED
+
+      val createMessageUrl =
+        s"http://localhost:$secureMessagePort/test-only/create/message/609d1359aa0200d12c73950a"
+
+      val responseFromSecureMessage =
+        wsClient
+          .url(createMessageUrl)
+          .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+          .put(new File("./it/resources/create-letter.json"))
+          .futureValue
+      responseFromSecureMessage.status mustBe CREATED
+    }
+  }
+
+  object AuthUtil {
+
+    lazy val ggAuthPort: Int = 8585
+
+    implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
+
+    case class GatewayToken(gatewayToken: String)
+
+    private val NO_EORI_USER_PAYLOAD =
+      """
+        | {
+        |  "credId": "1235",
+        |  "affinityGroup": "Organisation",
+        |  "confidenceLevel": 200,
+        |  "credentialStrength": "none",
+        |  "enrolments": []
+        |  }
+     """.stripMargin
+
+    private val EORI_USER_PAYLOAD =
+      """
+        | {
+        |  "credId": "1235",
+        |  "affinityGroup": "Organisation",
+        |  "confidenceLevel": 200,
+        |  "credentialStrength": "none",
+        |  "enrolments": [
+        |      {
+        |        "key": "HMRC-CUS-ORG",
+        |        "identifiers": [
+        |          {
+        |            "key": "EORINumber",
+        |            "value": "GB1234567890"
+        |          }
+        |        ],
+        |        "state": "Activated"
+        |      }
+        |    ]
+        |  }
+     """.stripMargin
+
+    private def buildUserToken(payload: String): (String, String) = {
+      val response = wsClient
+        .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
+        .withHttpHeaders(("Content-Type", "application/json"))
+        .post(payload)
+        .futureValue
+
+      ("Authorization", response.header("Authorization").getOrElse(""))
+    }
+
+    def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
+    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
+  }
+}
