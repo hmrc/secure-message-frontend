@@ -30,7 +30,6 @@ import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.integration.ServiceSpec
 
 import scala.concurrent.{ ExecutionContext, Future }
 

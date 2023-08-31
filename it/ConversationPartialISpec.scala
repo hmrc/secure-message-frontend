@@ -23,7 +23,6 @@ import org.scalatestplus.play.PlaySpec
 import play.api.http.{ ContentTypes, HeaderNames }
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
-import uk.gov.hmrc.integration.ServiceSpec
 import views.helpers.HtmlUtil.encodeBase64String
 
 class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {

@@ -40,7 +40,7 @@ trait ServiceSpec
       .build()
   }
 
-  import uk.gov.hmrc.integration.UrlHelper._
+  import UrlHelper.-/
 
   def externalServices: Seq[String]
 
