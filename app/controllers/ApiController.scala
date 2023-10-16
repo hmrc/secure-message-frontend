@@ -26,8 +26,10 @@ import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions }
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+
 import javax.inject.{ Inject, Singleton }
 import play.api.libs.json.Json
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -50,8 +52,10 @@ class ApiController @Inject()(
     validateQueryParameters(request.queryString, "enrolment", "enrolmentKey", "tag", "sent") match {
       case Left(e) => Future.successful(BadRequest(e.getMessage))
       case _ =>
-        authorised() {
-          secureMessageConnector.getCount(enrolmentKeys, customerEnrolments, tags).flatMap { messageCount =>
+        authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
+          val enrolmentKeysToCheck =
+            if (request.queryString.isEmpty) Some(enrolments.enrolments.map(_.key).toList) else enrolmentKeys
+          secureMessageConnector.getCount(enrolmentKeysToCheck, customerEnrolments, tags).flatMap { messageCount =>
             Future.successful(Ok(Json.toJson(messageCount)))
           }
         }

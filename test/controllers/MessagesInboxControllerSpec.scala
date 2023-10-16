@@ -32,6 +32,9 @@ import play.api.i18n.{ Lang, Messages, MessagesApi, MessagesImpl }
 import play.api.test.Helpers.{ GET, contentAsString, status }
 import play.api.test.{ FakeRequest, Helpers }
 import play.twirl.api.Html
+import uk.gov.hmrc.auth.core.Enrolments
+import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.partials.messageInbox
 import views.viewmodels.MessageInbox
@@ -44,7 +47,10 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
 
   "ConversationInbox Controller" must {
     "return 200 when secure message connector returns valid data" in new TestCase {
-      mockAuthorise[Unit]()(Future.successful(()))
+      when(
+        mockAuthConnector
+          .authorise(any[Predicate], any[Retrieval[Enrolments]])(any[HeaderCarrier](), any[ExecutionContext]()))
+        .thenReturn(Future.successful(Enrolments(Set())))
       when(
         mockSecureMessageConnector.getInboxList(
           ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
@@ -77,7 +83,7 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
         Some(List("HMRC-CUS-ORG")),
         Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777"))),
         Some(List(Tag("notificationType", "CDS Exports")))
-      )(FakeRequest(method = GET, path = "/messages"))
+      )(FakeRequest(method = GET, path = "/messages?enrolmentKey=HMRC-CUS-ORG"))
       status(result) mustBe OK
     }
 

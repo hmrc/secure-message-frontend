@@ -22,6 +22,7 @@ import controllers.generic.models.{ CustomerEnrolment, Tag }
 import controllers.utils.QueryStringValidation
 import play.api.i18n.{ I18nSupport, Lang }
 import play.api.mvc.{ MessagesControllerComponents, _ }
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions }
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -51,21 +52,25 @@ class MessagesInboxController @Inject()(
     tags: Option[List[Tag]]): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     implicit val lang: Lang = request.lang
+
     validateQueryParameters(request.queryString, "enrolment", "enrolmentKey", "tag", "sent") match {
       case Left(e) => Future.successful(BadRequest(e.getMessage))
       case _ =>
-        authorised() {
-          secureMessageConnector.getInboxList(enrolmentKeys, customerEnrolments, tags, lang).flatMap { inboxList =>
-            val messages = this.messagesApi.preferred(request)
-            Future.successful(
-              Ok(
-                inbox.apply(
-                  MessageInbox(
-                    clientService,
-                    messages("conversation.inbox.title"),
-                    inboxList.size,
-                    inboxList.count(_.unreadMessages),
-                    inboxList))))
+        authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
+          val enrolmentKeysToCheck =
+            if (request.queryString.isEmpty) Some(enrolments.enrolments.map(_.key).toList) else enrolmentKeys
+          secureMessageConnector.getInboxList(enrolmentKeysToCheck, customerEnrolments, tags, lang).flatMap {
+            inboxList =>
+              val messages = this.messagesApi.preferred(request)
+              Future.successful(
+                Ok(
+                  inbox.apply(
+                    MessageInbox(
+                      clientService,
+                      messages("conversation.inbox.title"),
+                      inboxList.size,
+                      inboxList.count(_.unreadMessages),
+                      inboxList))))
           }
         }
     }
