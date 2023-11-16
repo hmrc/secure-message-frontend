@@ -58,7 +58,11 @@ class MessagesInboxController @Inject()(
       case _ =>
         authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
           val enrolmentKeysToCheck =
-            if (request.queryString.isEmpty) Some(enrolments.enrolments.map(_.key).toList) else enrolmentKeys
+            if (request.queryString.filter(_._1 != "sent").isEmpty) {
+              Some(enrolments.enrolments.map(_.key).toList)
+            } else {
+              enrolmentKeys
+            }
           secureMessageConnector.getInboxList(enrolmentKeysToCheck, customerEnrolments, tags, lang).flatMap {
             inboxList =>
               val messages = this.messagesApi.preferred(request)
