@@ -54,7 +54,11 @@ class ApiController @Inject()(
       case _ =>
         authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
           val enrolmentKeysToCheck =
-            if (request.queryString.isEmpty) Some(enrolments.enrolments.map(_.key).toList) else enrolmentKeys
+            if (request.queryString.filter(_._1 != "sent").isEmpty) {
+              Some(enrolments.enrolments.map(_.key).toList)
+            } else {
+              enrolmentKeys
+            }
           secureMessageConnector.getCount(enrolmentKeysToCheck, customerEnrolments, tags).flatMap { messageCount =>
             Future.successful(Ok(Json.toJson(messageCount)))
           }
