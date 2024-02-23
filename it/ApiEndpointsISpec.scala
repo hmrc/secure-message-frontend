@@ -105,7 +105,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         |  "credId": "1235",
         |  "affinityGroup": "Organisation",
         |  "confidenceLevel": 200,
-        |  "credentialStrength": "none",
+        |  "credentialStrength": "strong",
         |  "enrolments": []
         |  }
      """.stripMargin
@@ -116,7 +116,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         |  "credId": "1235",
         |  "affinityGroup": "Organisation",
         |  "confidenceLevel": 200,
-        |  "credentialStrength": "none",
+        |  "credentialStrength": "strong",
         |  "enrolments": [
         |      {
         |        "key": "HMRC-CUS-ORG",

@@ -102,7 +102,7 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
         |  "credId": "1235",
         |  "affinityGroup": "Organisation",
         |  "confidenceLevel": 200,
-        |  "credentialStrength": "none",
+        |  "credentialStrength": "strong",
         |  "enrolments": []
         |  }
      """.stripMargin
@@ -113,7 +113,7 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
         |  "credId": "1235",
         |  "affinityGroup": "Organisation",
         |  "confidenceLevel": 200,
-        |  "credentialStrength": "none",
+        |  "credentialStrength": "strong",
         |  "enrolments": [
         |      {
         |        "key": "HMRC-CUS-ORG",
