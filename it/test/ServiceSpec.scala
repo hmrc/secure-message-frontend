@@ -19,6 +19,7 @@ import org.scalatest.{ BeforeAndAfterAll, SuiteMixin, TestSuite }
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.{ GuiceApplicationBuilder, GuiceableModule }
 import play.api.{ Application, Environment, Logger, Mode }
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

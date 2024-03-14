@@ -16,9 +16,9 @@
 
 package controllers
 
-import akka.stream.Materializer
-import akka.stream.testkit.NoMaterializer
-import akka.util.Timeout
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.testkit.NoMaterializer
+import org.apache.pekko.util.Timeout
 import base.LanguageStubs
 import config.AppConfig
 import connectors.SecureMessageConnector

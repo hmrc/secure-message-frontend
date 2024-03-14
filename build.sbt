@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, integrationTestSettings, scalaSettings }
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
+import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, scalaSettings }
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
 import play.twirl.sbt.Import.TwirlKeys
 import play.sbt.routes.RoutesKeys
 
 val appName = "secure-message-frontend"
 
+Global / majorVersion := 0
+Global / scalaVersion := "2.13.12"
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(scalaSettings: _*)
   .settings(defaultSettings(): _*)
-  .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
   .settings(
-    majorVersion := 0,
-    scalaVersion := "2.13.8",
     name := appName,
     RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._"),
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
@@ -49,7 +47,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     resolvers += Resolver.jcenterRepo,
-    inConfig(IntegrationTest)(
+    inConfig(Test)(
       scalafmtCoreSettings ++
         Seq(compile / compileInputs := Def.taskDyn {
           val task = (resolvedScoped.value.scope / scalafmt.key) / test
@@ -61,11 +59,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(ScoverageSettings())
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
-  )
-  .settings(
-    // To get rid of "version conflict" error where secure-message-frontend is using scala-xml 2.x.x
-    // and both HMRC and non-HMRC dependencies are still using scala-xml 1.x.x
-    libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
   )
   .settings(
     scalacOptions ++= Seq(
@@ -80,35 +73,15 @@ lazy val microservice = Project(appName, file("."))
       "-language:reflectiveCalls"
     )
   )
+  .settings(tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement)
+
+lazy val it = (project in file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(`microservice` % "test->test")
+  .settings(tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement)
 
 lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := (Compile / scalastyle).toTask("").value
 (Compile / compile) := ((Compile / compile) dependsOn compileScalastyle).value
 
 scalafmtOnCompile := true
-
-(Compile / compile) := ((Compile / compile) dependsOn dependencyUpdates).value
-dependencyUpdatesFilter -= moduleFilter(name = "flexmark-all")
-dependencyUpdatesFilter -= moduleFilter(organization = "uk.gov.hmrc")
-dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang")
-dependencyUpdatesFilter -= moduleFilter(organization = "com.github.ghik")
-dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.play")
-dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatest")
-dependencyUpdatesFilter -= moduleFilter(organization = "org.scalatestplus.play")
-dependencyUpdatesFilter -= moduleFilter(name = "enumeratum-play")
-dependencyUpdatesFailBuild := false
-Compile / doc / sources := Seq.empty
-
-val codeStyleIntegrationTest = taskKey[Unit]("enforce code style then integration test")
-
-// and then in settings...
-Project.inConfig(IntegrationTest)(ScalastylePlugin.rawScalastyleSettings()) ++
-  Seq(
-    IntegrationTest / scalastyleConfig := (scalastyle / scalastyleConfig).value,
-    IntegrationTest / scalastyleTarget := target.value / "scalastyle-it-results.xml",
-    IntegrationTest / scalastyleFailOnError := (scalastyle / scalastyleFailOnError).value,
-    (IntegrationTest / scalastyleFailOnWarning) := (scalastyle / scalastyleFailOnWarning).value,
-    IntegrationTest / scalastyleSources := (IntegrationTest / unmanagedSourceDirectories).value,
-    codeStyleIntegrationTest := (IntegrationTest / scalastyle).toTask("").value,
-    (IntegrationTest / test) := ((IntegrationTest / test) dependsOn codeStyleIntegrationTest).value
-  )

@@ -20,7 +20,7 @@ import cats.implicits.catsSyntaxEq
 import com.ibm.icu.text.{ DateFormatSymbols, SimpleDateFormat }
 import com.ibm.icu.util.{ TimeZone, ULocale }
 import models.{ MessageHeader, MessageType }
-import org.apache.commons.codec.binary.Base64
+import java.util.Base64
 import org.joda.time._
 import play.api.i18n.Messages
 import play.twirl.api.Html
@@ -82,10 +82,10 @@ object HtmlUtil {
     dtf.format(date.toDate)
 
   def decodeBase64String(input: String): String =
-    new String(Base64.decodeBase64(input.getBytes("UTF-8")))
+    new String(Base64.getDecoder.decode(input.getBytes("UTF-8")))
 
   def encodeBase64String(input: String): String =
-    Base64.encodeBase64String(input.getBytes("UTF-8"))
+    Base64.getEncoder.encodeToString(input.getBytes("UTF-8"))
 
   // scalastyle:off
   def getReplyIcon(replyFormUrl: String): Html =

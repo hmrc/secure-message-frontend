@@ -17,7 +17,6 @@
 package base
 
 import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
 import org.scalatest.TryValues
 import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatestplus.play.PlaySpec
@@ -28,6 +27,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.CSRFTokenHelper._
+import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 
 trait SpecBase extends PlaySpec with TryValues with ScalaFutures with IntegrationPatience {
 
@@ -45,5 +45,4 @@ trait SpecBase extends PlaySpec with TryValues with ScalaFutures with Integratio
 
 class FakeMetrics extends Metrics {
   override val defaultRegistry: MetricRegistry = new MetricRegistry
-  override val toJson: String = "{}"
 }

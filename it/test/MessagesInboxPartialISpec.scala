@@ -26,14 +26,13 @@ import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.http.Status.{ BAD_REQUEST, CREATED, OK }
 import play.api.http.{ ContentTypes, HeaderNames }
+import play.api.i18n.Lang
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
-import play.api.http.Status.{ BAD_REQUEST, OK }
 import uk.gov.hmrc.http.HeaderCarrier
-import play.api.http.Status.CREATED
-import play.api.i18n.Lang
 
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }

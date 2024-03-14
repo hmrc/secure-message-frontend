@@ -16,11 +16,11 @@
 
 package controllers
 
-import akka.util.Timeout
 import config.AppConfig
 import connectors.SecureMessageConnector
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models.Count
+import org.apache.pekko.util.Timeout
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

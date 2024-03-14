@@ -25,7 +25,7 @@ import views.helpers.HtmlUtil._
 
 class HtmlUtilSpec extends PlaySpec {
   val messagesApi = new DefaultMessagesApi()
-  implicit val messages = MessagesImpl(Lang("en"), messagesApi)
+  implicit val messages: MessagesImpl = MessagesImpl(Lang("en"), messagesApi)
 
   "conversation readableTime function returns correct readable timestamp in English" in {
     readableTime(DateTime.parse("2021-02-19T10:29:47.275Z")) must be("19 February 2021 at 10:29am")
