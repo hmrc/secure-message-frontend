@@ -24,7 +24,6 @@ object AppDependencies {
   val compile = Seq(
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-30" % bootstrapVersion,
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30" % "8.5.0",
-    "uk.gov.hmrc"       %% "play-language-play-30"      % "7.0.0",
     "com.typesafe.play" %% "play-json-joda"             % "2.9.4",
     "com.iheart"        %% "play-swagger"               % "1.0.2" exclude ("org.scala-lang.modules", "scala-xml_2.13"),
     "org.typelevel"     %% "cats-core"                  % "2.10.0",
