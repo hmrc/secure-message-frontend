@@ -20,8 +20,9 @@ import cats.implicits.catsSyntaxEq
 import com.ibm.icu.text.{ DateFormatSymbols, SimpleDateFormat }
 import com.ibm.icu.util.{ TimeZone, ULocale }
 import models.{ MessageHeader, MessageType }
+
 import java.util.Base64
-import org.joda.time._
+import java.time.{ Instant, LocalDate, ZoneOffset }
 import play.api.i18n.Messages
 import play.twirl.api.Html
 
@@ -55,11 +56,11 @@ object HtmlUtil {
 
   def getMessageDate(conversationHeader: MessageHeader)(implicit messages: Messages): String = {
     val isConversation = conversationHeader.messageType.entryName === MessageType.Conversation.entryName
-    val isToday = conversationHeader.issueDate.toLocalDate.toString === DateTime.now.toLocalDate.toString
+    val isToday = LocalDate.now().isEqual(LocalDate.ofInstant(conversationHeader.issueDate, ZoneOffset.UTC))
     if (isToday && isConversation) {
-      dtfHours.format(conversationHeader.issueDate.toDate)
+      dtfHours.format(conversationHeader.issueDate.toEpochMilli)
     } else {
-      dtf.format(conversationHeader.issueDate.toDate)
+      dtf.format(conversationHeader.issueDate.toEpochMilli)
     }
   }
 
@@ -70,16 +71,16 @@ object HtmlUtil {
       s"/$clientService/messages/${messageHeader.id}"
     }
 
-  def readableTime(dateTime: DateTime)(implicit messages: Messages): String = {
+  def readableTime(dateTime: Instant)(implicit messages: Messages): String = {
     val at = messages.lang.code match {
       case "cy" => "am"
       case _    => "at"
     }
-    createDateFormatForPattern(s"d MMMM yyyy '$at' h:mma").format(dateTime.toDate)
+    createDateFormatForPattern(s"d MMMM yyyy '$at' h:mma").format(dateTime.toEpochMilli)
   }
 
   def readableDate(date: LocalDate)(implicit messages: Messages): String =
-    dtf.format(date.toDate)
+    dtf.format(date.atStartOfDay(ZoneOffset.UTC).toEpochSecond)
 
   def decodeBase64String(input: String): String =
     new String(Base64.getDecoder.decode(input.getBytes("UTF-8")))

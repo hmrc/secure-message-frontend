@@ -18,7 +18,7 @@ package views.partials
 
 import base.LanguageStubs
 import models.{ FirstReaderInformation, Letter, Sender }
-import org.joda.time.{ DateTime, LocalDate }
+import java.time.{ Instant, LocalDate }
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.PlaySpec
 import uk.gov.hmrc.govukfrontend.views.html.components.{ GovukBackLink, GovukPanel }
@@ -41,7 +41,7 @@ class letterViewSpec extends PlaySpec with LanguageStubs {
     }
 
     "have message read time if it is available" in new TestClass {
-      private val dateTime = DateTime.now()
+      private val dateTime = Instant.now()
       private val localDate = LocalDate.now()
       private val conversationContent =
         new letterView(layout, new GovukPanel, new GovukBackLink)(

@@ -19,7 +19,7 @@ import connectors.SecureMessageConnector
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models.{ MessageHeader, MessageType }
 import net.codingwell.scalaguice.ScalaModule
-import org.joda.time.DateTime
+import java.time.Instant
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -129,7 +129,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
               MessageType.Conversation,
               "123456",
               "D-80542-20201120",
-              new DateTime(),
+              Instant.now(),
               Some("CDS Exports Team"),
               unreadMessages = true,
               1,

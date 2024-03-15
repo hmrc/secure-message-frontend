@@ -16,17 +16,15 @@
 
 package models
 
-import org.joda.time.{ DateTime, LocalDate }
-import play.api.libs.json.{ Format, Json }
-import play.api.libs.json.JodaReads.{ jodaDateReads, jodaLocalDateReads }
-import play.api.libs.json.JodaWrites.{ jodaDateWrites, jodaLocalDateWrites }
+import java.time.{ Instant, LocalDate }
+import play.api.libs.json.{ Format, Json, Reads, Writes }
 
 final case class Letter(
   subject: String,
   content: String,
   firstReaderInformation: Option[FirstReaderInformation],
   senderInformation: Sender,
-  readTime: Option[DateTime] = None
+  readTime: Option[Instant] = None
 )
 
 final case class Sender(name: String, sent: LocalDate)
@@ -35,13 +33,15 @@ object Letter {
   private val dateTimeFormatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
   private val dateFormatString = "yyyy-MM-dd"
 
-  implicit val dateTimeFormat: Format[DateTime] =
-    Format(jodaDateReads(dateTimeFormatString), jodaDateWrites(dateTimeFormatString))
+  implicit val dateTimeFormat: Format[Instant] =
+    Format(Reads.instantReads(dateTimeFormatString), Writes.DefaultInstantWrites)
 
   implicit val dateFormat: Format[LocalDate] =
-    Format(jodaLocalDateReads(dateFormatString), jodaLocalDateWrites(dateFormatString))
+    Format(Reads.localDateReads(dateFormatString), Writes.DefaultLocalDateWrites)
+
   implicit val senderFormat: Format[Sender] =
     Json.format[Sender]
+
   implicit val messageFormat: Format[Letter] =
     Json.format[Letter]
 }

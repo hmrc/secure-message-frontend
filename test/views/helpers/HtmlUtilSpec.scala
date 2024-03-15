@@ -17,23 +17,25 @@
 package views.helpers
 
 import models.{ MessageHeader, MessageType }
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.DateTime
+
+import java.time.{ Instant, LocalDate, ZoneOffset }
 import org.scalatestplus.play.PlaySpec
 import play.api.i18n.{ DefaultMessagesApi, Lang, MessagesImpl }
 import views.helpers.HtmlUtil._
+
+import java.time.format.DateTimeFormatter
 
 class HtmlUtilSpec extends PlaySpec {
   val messagesApi = new DefaultMessagesApi()
   implicit val messages: MessagesImpl = MessagesImpl(Lang("en"), messagesApi)
 
   "conversation readableTime function returns correct readable timestamp in English" in {
-    readableTime(DateTime.parse("2021-02-19T10:29:47.275Z")) must be("19 February 2021 at 10:29am")
+    readableTime(Instant.parse("2021-02-19T10:29:47.275Z")) must be("19 February 2021 at 10:29am")
   }
 
   "conversation readableTime function returns correct readable timestamp in Welsh" in {
     val messagesCy = MessagesImpl(Lang("cy"), messagesApi)
-    readableTime(DateTime.parse("2021-02-19T10:29:47.275Z"))(messagesCy) must be("19 Chwefror 2021 am 10:29yb")
+    readableTime(Instant.parse("2021-02-19T10:29:47.275Z"))(messagesCy) must be("19 Chwefror 2021 am 10:29yb")
   }
 
   "decodeBase64String function should return decoded string" in {
@@ -47,7 +49,7 @@ class HtmlUtilSpec extends PlaySpec {
           MessageType.Conversation,
           "",
           "",
-          DateTime.parse("2021-02-19T10:29:47.275Z"),
+          Instant.parse("2021-02-19T10:29:47.275Z"),
           None,
           false,
           1,
@@ -56,17 +58,17 @@ class HtmlUtilSpec extends PlaySpec {
     }
 
     "return just time if message creation is today" in {
-      val dateTime = DateTime.parse(s"${DateTime.now().toLocalDate}T05:29:47.275Z")
+      val instant = Instant.parse(s"${LocalDate.now()}T05:29:47.275Z")
       val messageDateOrTime =
-        getMessageDate(MessageHeader(MessageType.Conversation, "", "", dateTime, None, false, 1, Some(""), Some("")))
+        getMessageDate(MessageHeader(MessageType.Conversation, "", "", instant, None, false, 1, Some(""), Some("")))
       messageDateOrTime.takeRight(5) must be(":29am")
     }
 
     "return just time if message creation is today, in Welsh" in {
       val messagesCy = MessagesImpl(Lang("cy"), messagesApi)
-      val dateTime = DateTime.parse(s"${DateTime.now().toLocalDate}T05:29:47.275Z")
+      val instant = Instant.parse(s"${LocalDate.now()}T05:29:47.275Z")
       val messageDateOrTime =
-        getMessageDate(MessageHeader(MessageType.Conversation, "", "", dateTime, None, false, 1, Some(""), Some("")))(
+        getMessageDate(MessageHeader(MessageType.Conversation, "", "", instant, None, false, 1, Some(""), Some("")))(
           messagesCy)
       messageDateOrTime.takeRight(5) must be(":29yb")
     }
@@ -74,34 +76,25 @@ class HtmlUtilSpec extends PlaySpec {
 
   "Inbox creation date for message" must {
     "return correct date if date is not today" in {
-      getMessageDate(MessageHeader(
-        MessageType.Letter,
-        "",
-        "",
-        DateTime.parse("2021-02-19"),
-        None,
-        false,
-        1,
-        Some(""),
-        Some(""))) must be("19 February 2021")
+      getMessageDate(
+        MessageHeader(
+          MessageType.Letter,
+          "",
+          "",
+          LocalDate.parse("2021-02-19").atStartOfDay().toInstant(ZoneOffset.UTC),
+          None,
+          false,
+          1,
+          Some(""),
+          Some(""))) must be("19 February 2021")
     }
 
     "return today's Date even if date is today" in {
-      val dateTime = DateTime.parse(s"${DateTime.now().toLocalDate}")
-      val dtf = DateTimeFormat.forPattern("d MMMM yyyy")
+      val instant = Instant.now()
+      val dtf = DateTimeFormatter.ofPattern("d MMMM yyyy")
       val messageDateOrTime =
-        getMessageDate(
-          MessageHeader(
-            MessageType.Letter,
-            "",
-            "",
-            DateTime.parse(dateTime.toString),
-            None,
-            false,
-            1,
-            Some(""),
-            Some("")))
-      messageDateOrTime must be(dtf.print(dateTime))
+        getMessageDate(MessageHeader(MessageType.Letter, "", "", instant, None, false, 1, Some(""), Some("")))
+      messageDateOrTime must be(dtf.format(LocalDate.now()))
     }
   }
 
@@ -114,7 +107,7 @@ class HtmlUtilSpec extends PlaySpec {
           MessageType.Conversation,
           id,
           "subject",
-          DateTime.now(),
+          Instant.now(),
           None,
           false,
           1,
@@ -124,7 +117,7 @@ class HtmlUtilSpec extends PlaySpec {
     "with id for letter" in {
       getMessageUrl(
         "someclient",
-        MessageHeader(MessageType.Letter, id, "subject", DateTime.now(), None, false, 1, None, None)) mustBe s"/someclient/messages/$id"
+        MessageHeader(MessageType.Letter, id, "subject", Instant.now(), None, false, 1, None, None)) mustBe s"/someclient/messages/$id"
     }
   }
 

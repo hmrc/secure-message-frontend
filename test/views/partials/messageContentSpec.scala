@@ -17,7 +17,7 @@
 package views.partials
 
 import base.LanguageStubs
-import org.joda.time.DateTime
+import java.time.Instant
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.PlaySpec
 import play.api.mvc.RequestHeader
@@ -33,8 +33,8 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
       val messageContent = new messageContent(layout)(
         MessageView(
           Some("Mike"),
-          DateTime.parse("2021-02-19T10:29:47.275Z"),
-          Some(DateTime.parse("2021-02-19T10:29:47.275Z")),
+          Instant.parse("2021-02-19T10:29:47.275Z"),
+          Some(Instant.parse("2021-02-19T10:29:47.275Z")),
           "message body"))(messagesEn, requestHeader).toString
 
       messageContent must include("Mike sent this on 19 February 2021 at")
@@ -46,7 +46,7 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
     "be handled without first read information" in new TestClass {
       val messageContent =
         new messageContent(layout)(
-          MessageView(Some("Mike"), DateTime.parse("2021-02-19T10:29:47.275Z"), None, "message body"))(
+          MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body"))(
           messagesEn,
           requestHeader).toString
 
@@ -60,8 +60,8 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
       val messageContent = new messageContent(layout)(
         MessageView(
           Some("Mike"),
-          DateTime.parse("2021-02-19T10:29:47.275Z"),
-          Some(DateTime.parse("2021-02-19T10:29:47.275Z")),
+          Instant.parse("2021-02-19T10:29:47.275Z"),
+          Some(Instant.parse("2021-02-19T10:29:47.275Z")),
           "message body"))(messagesCy, requestHeader).toString
 
       messageContent must include("Mike wnaeth anfon y neges hon ar 19 Chwefror 2021 am")
@@ -73,7 +73,7 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
     "be handled without first read information in Welsh" in new TestClass {
       val messageContent =
         new messageContent(layout)(
-          MessageView(Some("Mike"), DateTime.parse("2021-02-19T10:29:47.275Z"), None, "message body"))(
+          MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body"))(
           messagesCy,
           requestHeader).toString
 
