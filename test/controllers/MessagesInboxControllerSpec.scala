@@ -16,12 +16,11 @@
 
 package controllers
 
-import akka.util.Timeout
+import org.apache.pekko.util.Timeout
 import config.AppConfig
 import connectors.SecureMessageConnector
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models.{ MessageHeader, MessageType }
-import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -39,6 +38,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import views.html.partials.messageInbox
 import views.viewmodels.MessageInbox
 
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
@@ -65,7 +65,7 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
                 MessageType.Conversation,
                 "123456",
                 "DMS7324874993",
-                new DateTime(),
+                Instant.now(),
                 Some("CDS Exports Team"),
                 unreadMessages = true,
                 1,

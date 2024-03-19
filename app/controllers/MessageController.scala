@@ -243,7 +243,7 @@ class MessageController @Inject()(
   private[controllers] def messagePartial(messages: List[Message])(
     implicit request: Request[_]): List[HtmlFormat.Appendable] =
     messages
-      .sortBy(_.senderInformation.sent.getMillis)(Ordering[Long].reverse)
+      .sortBy(_.senderInformation.sent.toEpochMilli)(Ordering[Long].reverse)
       .map(
         message =>
           messageContent(

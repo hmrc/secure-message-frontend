@@ -15,7 +15,7 @@
  */
 
 package models
-import enumeratum.EnumEntry.{ Lowercase }
+import enumeratum.EnumEntry.Lowercase
 import enumeratum.{ Enum, EnumEntry, PlayEnum }
 
 sealed trait MessageType extends EnumEntry with Lowercase

@@ -16,7 +16,7 @@
 
 package models.utils
 
-import org.apache.commons.codec.binary.Base64
+import java.util.Base64
 
 import scala.xml.{ Node, NodeBuffer, Text }
 
@@ -32,7 +32,7 @@ object HTMLEncoder {
   }
 
   private def base64Encode(text: String): String =
-    new String(Base64.encodeBase64String(text.getBytes("UTF-8")))
+    new String(Base64.getEncoder.encodeToString(text.getBytes("UTF-8")))
 
   private def splitParas(text: String): Seq[String] =
     text.replaceAll("\r", "").split("[\\n]{2,}").toIndexedSeq

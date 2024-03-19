@@ -16,10 +16,8 @@
 
 package models
 
-import org.joda.time.DateTime
-import play.api.libs.json.JodaReads.jodaDateReads
-import play.api.libs.json.JodaWrites.jodaDateWrites
-import play.api.libs.json.{ Format, Json, Reads }
+import java.time.Instant
+import play.api.libs.json.{ Format, Json, Reads, Writes }
 
 final case class Conversation(
   client: String,
@@ -43,22 +41,22 @@ object Message {
   implicit val messageReads: Reads[Message] = Json.reads[Message]
 }
 
-final case class FirstReaderInformation(name: Option[String], read: DateTime)
+final case class FirstReaderInformation(name: Option[String], read: Instant)
 
 object FirstReaderInformation {
 
   private val dateFormatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
-  implicit val dateFormat: Format[DateTime] = Format(jodaDateReads(dateFormatString), jodaDateWrites(dateFormatString))
+  implicit val dateFormat: Format[Instant] = Format(Reads.instantReads(dateFormatString), Writes.DefaultInstantWrites)
   implicit val firstReaderFormat: Format[FirstReaderInformation] = Json.format[FirstReaderInformation]
 }
 
-final case class SenderInformation(name: Option[String], sent: DateTime, self: Boolean)
+final case class SenderInformation(name: Option[String], sent: Instant, self: Boolean)
 
 object SenderInformation {
 
   private val dateFormatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
-  implicit val dateFormat: Format[DateTime] = Format(jodaDateReads(dateFormatString), jodaDateWrites(dateFormatString))
+  implicit val dateFormat: Format[Instant] = Format(Reads.instantReads(dateFormatString), Writes.DefaultInstantWrites)
   implicit val senderInformationFormat: Reads[SenderInformation] = Json.reads[SenderInformation]
 }

@@ -16,15 +16,15 @@
 
 package controllers
 
-import akka.stream.Materializer
-import akka.stream.testkit.NoMaterializer
-import akka.util.Timeout
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.testkit.NoMaterializer
+import org.apache.pekko.util.Timeout
 import base.LanguageStubs
 import config.AppConfig
 import connectors.SecureMessageConnector
 import forms.MessageFormProvider
 import models._
-import org.joda.time.{ DateTime, LocalDate }
+import java.time.{ Instant, LocalDate }
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.play.PlaySpec
@@ -55,8 +55,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
     "return message partial with 1 message" in new TestCase {
       val messages = List(
         Message(
-          SenderInformation(Some("senderName"), DateTime.parse("2021-02-19T10:29:47.275Z"), self = false),
-          Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-03-01T10:29:47.275Z"))),
+          SenderInformation(Some("senderName"), Instant.parse("2021-02-19T10:29:47.275Z"), self = false),
+          Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-03-01T10:29:47.275Z"))),
           "TWVzc2FnZSBib2R5IQ=="
         ))
 
@@ -70,8 +70,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
     "return message partial with `You sent` instead of organisation name if sender name is missing" in new TestCase {
       val messages = List(
         Message(
-          SenderInformation(None, DateTime.parse("2021-02-19T10:29:47.275Z"), self = false),
-          Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-03-01T10:29:47.275Z"))),
+          SenderInformation(None, Instant.parse("2021-02-19T10:29:47.275Z"), self = false),
+          Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-03-01T10:29:47.275Z"))),
           "TWVzc2FnZSBib2R5IQ=="
         ))
 
@@ -87,14 +87,14 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       val messages = List(
         // This message is before DST switch
         Message(
-          SenderInformation(Some("senderName"), DateTime.parse("2021-02-19T10:29:47.275Z"), self = false),
-          Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-03-01T10:29:47.275Z"))),
+          SenderInformation(Some("senderName"), Instant.parse("2021-02-19T10:29:47.275Z"), self = false),
+          Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-03-01T10:29:47.275Z"))),
           "TWVzc2FnZSBib2R5IQ=="
         ),
         // This message is after DST
         Message(
-          SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-          Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+          SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+          Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
           "TWVzc2FnZSBib2R5IQ=="
         )
       )
@@ -111,7 +111,7 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
 
       val messages = List(
         Message(
-          SenderInformation(Some("senderName"), DateTime.parse("2021-02-19T10:29:47.275Z"), self = false),
+          SenderInformation(Some("senderName"), Instant.parse("2021-02-19T10:29:47.275Z"), self = false),
           None,
           "TWVzc2FnZSBib2R5IQ=="
         ))
@@ -133,8 +133,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           "",
           "",
           List(Message(
-            SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
             "TWVzc2FnZSBib2R5IQ=="
           ))
         )))
@@ -176,8 +176,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           "",
           "",
           List(Message(
-            SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
             "TWVzc2FnZSBib2R5IQ=="
           ))
         )))
@@ -204,8 +204,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           "",
           "",
           List(Message(
-            SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
             "TWVzc2FnZSBib2R5IQ=="
           ))
         )))
@@ -234,8 +234,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           "",
           "",
           List(Message(
-            SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
             "TWVzc2FnZSBib2R5IQ=="
           ))
         )))
@@ -316,8 +316,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           "",
           "",
           List(Message(
-            SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
             "TWVzc2FnZSBib2R5IQ=="
           ))
         )))
@@ -377,8 +377,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
             "",
             "",
             List(Message(
-              SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-              Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+              SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+              Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
               "TWVzc2FnZSBib2R5IQ=="
             ))
           )))
@@ -409,8 +409,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
             "",
             "",
             List(Message(
-              SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-              Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+              SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+              Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
               "TWVzc2FnZSBib2R5IQ=="
             ))
           )))
@@ -439,8 +439,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
             "",
             "",
             List(Message(
-              SenderInformation(Some("senderName"), DateTime.parse("2021-04-19T10:29:47.275Z"), self = false),
-              Some(FirstReaderInformation(Some("firstReadername"), DateTime.parse("2021-05-01T10:29:47.275Z"))),
+              SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+              Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
               "TWVzc2FnZSBib2R5IQ=="
             ))
           )))

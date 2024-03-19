@@ -18,7 +18,7 @@ package connectors
 
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models._
-import org.joda.time.{ DateTime, LocalDate }
+import java.time.{ Instant, LocalDate }
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{ any, anyString }
 import org.mockito.Mockito.when
@@ -57,7 +57,7 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
                 MessageType.Conversation,
                 "123",
                 "ABC",
-                new DateTime(),
+                Instant.now(),
                 None,
                 unreadMessages = true,
                 1,
@@ -99,7 +99,7 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
 
   "SecureMessgaeConnector.getConversation" must {
     "return a conversation" in new TestCase {
-      private val testDate = DateTime.now()
+      private val testDate = Instant.now()
       when(
         mockHttpClient
           .GET[Conversation](any[String], any[Seq[(String, String)]], any[Seq[(String, String)]])(
@@ -131,7 +131,7 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
 
   "SecureMessageConnector.getConversationContent" must {
     "return a conversation" in new TestCase {
-      private val testDate = DateTime.now()
+      private val testDate = Instant.now()
       when(
         mockHttpClient
           .GET[Conversation](any[String], any[Seq[(String, String)]], any[Seq[(String, String)]])(

@@ -19,21 +19,20 @@ import connectors.SecureMessageConnector
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models.{ MessageHeader, MessageType }
 import net.codingwell.scalaguice.ScalaModule
-import org.joda.time.DateTime
+import java.time.Instant
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.http.Status.{ BAD_REQUEST, CREATED, OK }
 import play.api.http.{ ContentTypes, HeaderNames }
+import play.api.i18n.Lang
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
-import play.api.http.Status.{ BAD_REQUEST, OK }
 import uk.gov.hmrc.http.HeaderCarrier
-import play.api.http.Status.CREATED
-import play.api.i18n.Lang
 
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
@@ -130,7 +129,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
               MessageType.Conversation,
               "123456",
               "D-80542-20201120",
-              new DateTime(),
+              Instant.now(),
               Some("CDS Exports Team"),
               unreadMessages = true,
               1,

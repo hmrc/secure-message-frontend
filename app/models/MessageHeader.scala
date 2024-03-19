@@ -16,16 +16,14 @@
 
 package models
 
-import org.joda.time.DateTime
-import play.api.libs.json.JodaReads.jodaDateReads
-import play.api.libs.json.JodaWrites.jodaDateWrites
-import play.api.libs.json.{ Format, Json, OFormat }
+import java.time.Instant
+import play.api.libs.json.{ Format, Json, OFormat, Reads, Writes }
 
 final case class MessageHeader(
   messageType: MessageType,
   id: String,
   subject: String,
-  issueDate: DateTime,
+  issueDate: Instant,
   senderName: Option[String],
   unreadMessages: Boolean,
   count: Int,
@@ -37,7 +35,8 @@ object MessageHeader {
 
   private val dateFormatString = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
-  implicit val dateFormat: Format[DateTime] = Format(jodaDateReads(dateFormatString), jodaDateWrites(dateFormatString))
+  implicit val dateFormat: Format[Instant] =
+    Format(Reads.instantReads(dateFormatString), Writes.DefaultInstantWrites)
 
   implicit val conversationHeaderReads: OFormat[MessageHeader] = Json.format[MessageHeader]
 

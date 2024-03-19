@@ -18,18 +18,19 @@ import com.google.inject.AbstractModule
 import connectors.SecureMessageConnector
 import models.{ Conversation, Message, SenderInformation }
 import net.codingwell.scalaguice.ScalaModule
-import org.joda.time.DateTime
+import java.time.Instant
 import org.mockito.ArgumentMatchers.{ any, anyString }
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.http.Status.OK
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.{ ExecutionContext, Future }
-import play.api.http.Status.OK
 
 class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
 
@@ -50,15 +51,15 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
       val dateRegex = """(\d\d)\s(January|February|March)\s(2020|2021)""".r
       val messages = List(
         Message(
-          SenderInformation(Some(""), DateTime.parse("2021-01-19T10:29:47.275Z"), false),
+          SenderInformation(Some(""), Instant.parse("2021-01-19T10:29:47.275Z"), false),
           None,
           "TWVzc2FnZSBib2R5IQ=="),
         Message(
-          SenderInformation(Some(""), DateTime.parse("2021-03-19T10:29:47.275Z"), false),
+          SenderInformation(Some(""), Instant.parse("2021-03-19T10:29:47.275Z"), false),
           None,
           "TWVzc2FnZSBib2R5IQ=="),
         Message(
-          SenderInformation(Some(""), DateTime.parse("2021-02-19T10:29:47.275Z"), false),
+          SenderInformation(Some(""), Instant.parse("2021-02-19T10:29:47.275Z"), false),
           None,
           "TWVzc2FnZSBib2R5IQ==")
       )

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import play.api.http.Status.BAD_REQUEST
-import play.api.http.Status.CREATED
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.http.Status.{ BAD_REQUEST, CREATED }
 import play.api.http.{ ContentTypes, HeaderNames }
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
