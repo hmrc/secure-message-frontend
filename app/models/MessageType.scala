@@ -15,13 +15,15 @@
  */
 
 package models
+
 import enumeratum.EnumEntry.Lowercase
-import enumeratum.{ Enum, EnumEntry, PlayEnum }
+import enumeratum._
 
 sealed trait MessageType extends EnumEntry with Lowercase
 
-object MessageType extends Enum[MessageType] with PlayEnum[MessageType] {
-  val values = findValues
+object MessageType extends Enum[MessageType] with PlayJsonEnum[MessageType] {
+  override def values: IndexedSeq[MessageType] = findValues
+
   case object Conversation extends MessageType
   case object Letter extends MessageType
 }
