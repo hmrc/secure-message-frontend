@@ -1,9 +1,0 @@
----
-openapi: 3.0.3
-info:
-  title: "Secure Message Frontend API"
-consumes:
-  - application/json
-produces:
-  - application/json
-
