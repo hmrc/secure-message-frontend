@@ -21,7 +21,7 @@ import com.ibm.icu.text.{ DateFormatSymbols, SimpleDateFormat }
 import com.ibm.icu.util.{ TimeZone, ULocale }
 import models.{ MessageHeader, MessageType }
 
-import java.util.Base64
+import java.util.{ Base64, Date }
 import java.time.{ Instant, LocalDate, ZoneOffset }
 import play.api.i18n.Messages
 import play.twirl.api.Html
@@ -80,7 +80,7 @@ object HtmlUtil {
   }
 
   def readableDate(date: LocalDate)(implicit messages: Messages): String =
-    dtf.format(date.atStartOfDay(ZoneOffset.UTC).toEpochSecond)
+    dtf.format(Date.from(date.atStartOfDay().toInstant(ZoneOffset.UTC)))
 
   def decodeBase64String(input: String): String =
     new String(Base64.getDecoder.decode(input.getBytes("UTF-8")))

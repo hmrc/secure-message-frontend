@@ -42,17 +42,17 @@ class letterViewSpec extends PlaySpec with LanguageStubs {
 
     "have message read time if it is available" in new TestClass {
       private val dateTime = Instant.now()
-      private val localDate = LocalDate.now()
+      val currentYear = LocalDate.now().getYear
+      val currentMonth = LocalDate.now().getMonth
+      val today = LocalDate.now().getDayOfMonth
+      private val sentDate = LocalDate.of(currentYear, currentMonth, today)
       private val conversationContent =
         new letterView(layout, new GovukPanel, new GovukBackLink)(
-          Letter(
-            "MRN 123",
-            "CDS message",
-            Some(FirstReaderInformation(None, dateTime)),
-            Sender("HMRC", localDate),
-            None)
+          Letter("MRN 123", "CDS message", Some(FirstReaderInformation(None, dateTime)), Sender("HMRC", sentDate), None)
         )(messagesEn).toString
 
+      conversationContent must include(
+        s"HMRC sent this on $today ${currentMonth.toString.toLowerCase.capitalize} $currentYear")
       conversationContent must include(readableTime(dateTime)(messagesEn))
     }
   }
