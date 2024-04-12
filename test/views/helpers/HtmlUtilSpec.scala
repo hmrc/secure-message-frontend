@@ -54,7 +54,9 @@ class HtmlUtilSpec extends PlaySpec {
           false,
           1,
           Some(""),
-          Some(""))) must be("19 February 2021")
+          Some("")
+        )
+      ) must be("19 February 2021")
     }
 
     "return just time if message creation is today" in {
@@ -69,7 +71,8 @@ class HtmlUtilSpec extends PlaySpec {
       val instant = Instant.parse(s"${LocalDate.now()}T05:29:47.275Z")
       val messageDateOrTime =
         getMessageDate(MessageHeader(MessageType.Conversation, "", "", instant, None, false, 1, Some(""), Some("")))(
-          messagesCy)
+          messagesCy
+        )
       messageDateOrTime.takeRight(5) must be(":29yb")
     }
   }
@@ -86,7 +89,9 @@ class HtmlUtilSpec extends PlaySpec {
           false,
           1,
           Some(""),
-          Some(""))) must be("19 February 2021")
+          Some("")
+        )
+      ) must be("19 February 2021")
     }
 
     "return today's Date even if date is today" in {
@@ -103,21 +108,14 @@ class HtmlUtilSpec extends PlaySpec {
     "return with client and id for a conversation" in {
       getMessageUrl(
         "someclient",
-        MessageHeader(
-          MessageType.Conversation,
-          id,
-          "subject",
-          Instant.now(),
-          None,
-          false,
-          1,
-          Some("111"),
-          Some("CDCM"))) mustBe s"/someclient/conversation/CDCM/$id"
+        MessageHeader(MessageType.Conversation, id, "subject", Instant.now(), None, false, 1, Some("111"), Some("CDCM"))
+      ) mustBe s"/someclient/conversation/CDCM/$id"
     }
     "with id for letter" in {
       getMessageUrl(
         "someclient",
-        MessageHeader(MessageType.Letter, id, "subject", Instant.now(), None, false, 1, None, None)) mustBe s"/someclient/messages/$id"
+        MessageHeader(MessageType.Letter, id, "subject", Instant.now(), None, false, 1, None, None)
+      ) mustBe s"/someclient/messages/$id"
     }
   }
 

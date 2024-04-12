@@ -20,9 +20,8 @@ import play.api.libs.json.{ Json, Reads }
 
 final case class CustomerEnrolment(key: String, name: String, value: String)
 object CustomerEnrolment {
-  implicit val enrolmentReads: Reads[CustomerEnrolment] = {
+  implicit val enrolmentReads: Reads[CustomerEnrolment] =
     Json.reads[CustomerEnrolment]
-  }
 
   def parse(enrolmentString: String): CustomerEnrolment = {
     val enrolment = enrolmentString.split('~')
@@ -32,9 +31,8 @@ object CustomerEnrolment {
 
 final case class Tag(key: String, value: String)
 object Tag {
-  implicit val tagReads: Reads[Tag] = {
+  implicit val tagReads: Reads[Tag] =
     Json.reads[Tag]
-  }
 
   def parse(tagString: String): Tag = {
     val tag = tagString.split('~')

@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import javax.inject.Inject
 import scala.concurrent.{ ExecutionContext, Future }
 
-class SecureMessageConnector @Inject()(httpClient: HttpClient, servicesConfig: ServicesConfig) extends Logging {
+class SecureMessageConnector @Inject() (httpClient: HttpClient, servicesConfig: ServicesConfig) extends Logging {
 
   private val secureMessageBaseUrl = servicesConfig.baseUrl("secure-message")
 
@@ -36,7 +36,8 @@ class SecureMessageConnector @Inject()(httpClient: HttpClient, servicesConfig: S
     enrolmentKeys: Option[List[String]],
     customerEnrolments: Option[List[CustomerEnrolment]],
     tags: Option[List[Tag]],
-    lang: Lang)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[List[MessageHeader]] = {
+    lang: Lang
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[List[MessageHeader]] = {
     val withLanguageParam = ("lang", lang.language)
     val queryParams =
       queryParamsBuilder(enrolmentKeys, customerEnrolments, tags).getOrElse(List()).++(List(withLanguageParam))
@@ -47,7 +48,8 @@ class SecureMessageConnector @Inject()(httpClient: HttpClient, servicesConfig: S
   def getCount(
     enrolmentKeys: Option[List[String]],
     customerEnrolments: Option[List[CustomerEnrolment]],
-    tags: Option[List[Tag]])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Count] = {
+    tags: Option[List[Tag]]
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Count] = {
     val queryParams = queryParamsBuilder(enrolmentKeys, customerEnrolments, tags)
     httpClient
       .GET[Count](s"$secureMessageBaseUrl/secure-messaging/messages/count", queryParams.getOrElse(List()))
@@ -56,15 +58,15 @@ class SecureMessageConnector @Inject()(httpClient: HttpClient, servicesConfig: S
   private def queryParamsBuilder(
     enrolmentKeys: Option[List[String]],
     customerEnrolments: Option[List[CustomerEnrolment]],
-    tags: Option[List[Tag]]): Option[Seq[(String, String)]] =
+    tags: Option[List[Tag]]
+  ): Option[Seq[(String, String)]] =
     for {
       keysQueryParams: List[(String, String)] <- enrolmentKeys.map(keys => keys.map(ek => ("enrolmentKey", ek)))
-      enrolmentsQueryParams: List[(String, String)] <- customerEnrolments
-                                                        .map(enrols =>
-                                                          enrols.map(ce =>
-                                                            ("enrolment", s"${ce.key}~${ce.name}~${ce.value}")))
+      enrolmentsQueryParams: List[(String, String)] <-
+        customerEnrolments
+          .map(enrols => enrols.map(ce => ("enrolment", s"${ce.key}~${ce.name}~${ce.value}")))
       tagsQueryParams: List[(String, String)] <- tags.map(t => t.map(tag => ("tag", s"${tag.key}~${tag.value}")))
-    } yield (keysQueryParams concat enrolmentsQueryParams concat tagsQueryParams)
+    } yield keysQueryParams concat enrolmentsQueryParams concat tagsQueryParams
 
   def getLetterContent(rawId: String, lang: Lang)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Letter] =
     httpClient.GET[Letter](s"$secureMessageBaseUrl/secure-messaging/messages/$rawId?lang=${lang.language}")
@@ -72,13 +74,15 @@ class SecureMessageConnector @Inject()(httpClient: HttpClient, servicesConfig: S
   def getConversationContent(rawId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Conversation] =
     httpClient.GET[Conversation](s"$secureMessageBaseUrl/secure-messaging/messages/$rawId")
 
-  def saveCustomerMessage(id: String, message: CustomerMessage)(
-    implicit ec: ExecutionContext,
-    hc: HeaderCarrier): Future[Boolean] =
+  def saveCustomerMessage(id: String, message: CustomerMessage)(implicit
+    ec: ExecutionContext,
+    hc: HeaderCarrier
+  ): Future[Boolean] =
     httpClient
       .POST[CustomerMessage, HttpResponse](
         s"$secureMessageBaseUrl/secure-messaging/messages/$id/customer-message",
-        message)
+        message
+      )
       .map { response =>
         response.status match {
           case CREATED => true

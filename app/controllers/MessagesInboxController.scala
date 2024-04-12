@@ -34,12 +34,13 @@ import javax.inject.{ Inject, Singleton }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class MessagesInboxController @Inject()(
+class MessagesInboxController @Inject() (
   appConfig: AppConfig,
   controllerComponents: MessagesControllerComponents,
   inbox: messageInbox,
   secureMessageConnector: SecureMessageConnector,
-  val authConnector: AuthConnector)(implicit ec: ExecutionContext)
+  val authConnector: AuthConnector
+)(implicit ec: ExecutionContext)
     extends FrontendController(controllerComponents) with I18nSupport with AuthorisedFunctions
     with QueryStringValidation {
 
@@ -49,7 +50,8 @@ class MessagesInboxController @Inject()(
     clientService: String,
     enrolmentKeys: Option[List[String]],
     customerEnrolments: Option[List[CustomerEnrolment]],
-    tags: Option[List[Tag]]): Action[AnyContent] = Action.async { implicit request =>
+    tags: Option[List[Tag]]
+  ): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     implicit val lang: Lang = request.lang
 
@@ -74,7 +76,11 @@ class MessagesInboxController @Inject()(
                       messages("conversation.inbox.title"),
                       inboxList.size,
                       inboxList.count(_.unreadMessages),
-                      inboxList))))
+                      inboxList
+                    )
+                  )
+                )
+              )
           }
         }
     }

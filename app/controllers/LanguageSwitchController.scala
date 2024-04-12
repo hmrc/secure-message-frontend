@@ -25,7 +25,7 @@ import models.Language
 import uk.gov.hmrc.play.language.{ LanguageController, LanguageUtils }
 
 @Singleton
-class LanguageSwitchController @Inject()(appConfig: AppConfig, languageUtils: LanguageUtils, cc: ControllerComponents)
+class LanguageSwitchController @Inject() (appConfig: AppConfig, languageUtils: LanguageUtils, cc: ControllerComponents)
     extends LanguageController(languageUtils, cc) {
   import appConfig._
 

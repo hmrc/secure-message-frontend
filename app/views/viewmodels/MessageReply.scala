@@ -24,4 +24,5 @@ final case class MessageReply(
   replyFormUrl: String,
   replyIcon: Html,
   formErrors: Seq[FormError],
-  content: String)
+  content: String
+)

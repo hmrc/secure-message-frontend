@@ -23,10 +23,11 @@ import scala.xml.{ Node, NodeBuffer, Text }
 object HTMLEncoder {
 
   def encode(text: String): String = {
-
+    // format: off
     val xhtml = splitParas(text).map { para =>
       <p>{text2XML(para)}</p>
     }
+    // format: on
     val xhtmlText = xhtml.mkString
     base64Encode(xhtmlText)
   }

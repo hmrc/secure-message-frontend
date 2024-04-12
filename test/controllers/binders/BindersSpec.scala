@@ -32,7 +32,8 @@ class BindersSpec extends PlaySpec {
     "parse a URL parameter for enrolment into its 3 part constituents" in {
       binders.queryStringBindableCustomerEnrolment
         .bind("enrolment", Map("enrolment" -> List("key~name~value"))) mustBe Some(
-        Right(CustomerEnrolment("key", "name", "value")))
+        Right(CustomerEnrolment("key", "name", "value"))
+      )
     }
 
 //    "fails to parse URL parameter for enrolment into its 3 part constituents" in {

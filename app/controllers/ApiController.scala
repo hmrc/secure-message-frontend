@@ -34,11 +34,12 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class ApiController @Inject()(
+class ApiController @Inject() (
   appConfig: AppConfig,
   controllerComponents: MessagesControllerComponents,
   secureMessageConnector: SecureMessageConnector,
-  val authConnector: AuthConnector)(implicit ec: ExecutionContext)
+  val authConnector: AuthConnector
+)(implicit ec: ExecutionContext)
     extends FrontendController(controllerComponents) with I18nSupport with AuthorisedFunctions
     with QueryStringValidation {
 
@@ -47,7 +48,8 @@ class ApiController @Inject()(
   def count(
     enrolmentKeys: Option[List[String]],
     customerEnrolments: Option[List[CustomerEnrolment]],
-    tags: Option[List[Tag]]): Action[AnyContent] = Action.async { implicit request =>
+    tags: Option[List[Tag]]
+  ): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     validateQueryParameters(request.queryString, "enrolment", "enrolmentKey", "tag", "sent") match {
       case Left(e) => Future.successful(BadRequest(e.getMessage))

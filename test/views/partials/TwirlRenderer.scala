@@ -22,11 +22,11 @@ import scala.util.Try
 
 trait TwirlRenderer[T] {
 
-  /**
-    * Calls the Twirl template with the given parameters and returns the resulting markup
+  /** Calls the Twirl template with the given parameters and returns the resulting markup
     *
     * @param templateParams
-    * @return [[Try[HtmlFormat.Appendable]]] containing the markup
+    * @return
+    *   [[Try[HtmlFormat.Appendable]]] containing the markup
     */
   def render(templateParams: T): Try[HtmlFormat.Appendable]
 }

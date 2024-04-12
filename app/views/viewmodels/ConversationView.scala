@@ -24,4 +24,5 @@ final case class ConversationView(
   latestMessage: Html,
   replyForm: Html,
   remainingMessages: Seq[Html],
-  replyFormErrors: Seq[FormError])
+  replyFormErrors: Seq[FormError]
+)

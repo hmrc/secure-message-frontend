@@ -25,7 +25,8 @@ final case class MessageInbox(
   heading: String,
   total: Int,
   unread: Int,
-  conversationHeaders: List[MessageHeader])
+  conversationHeaders: List[MessageHeader]
+)
 object MessageInbox {
 
   def defaultObject: MessageInbox = MessageInbox("", "", 0, 0, List.empty[MessageHeader])

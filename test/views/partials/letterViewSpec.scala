@@ -50,7 +50,8 @@ class letterViewSpec extends PlaySpec with LanguageStubs {
             "CDS message",
             Some(FirstReaderInformation(None, dateTime)),
             Sender("HMRC", localDate),
-            None)
+            None
+          )
         )(messagesEn).toString
 
       conversationContent must include(readableTime(dateTime)(messagesEn))

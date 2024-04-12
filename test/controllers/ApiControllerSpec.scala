@@ -47,20 +47,23 @@ class ApiControllerSpec extends PlaySpec with MockitoSugar with MockAuthConnecto
       val unreadMessagesCount: Long = 2
       when(
         mockAuthConnector
-          .authorise(any[Predicate], any[Retrieval[Enrolments]])(any[HeaderCarrier](), any[ExecutionContext]()))
+          .authorise(any[Predicate], any[Retrieval[Enrolments]])(any[HeaderCarrier](), any[ExecutionContext]())
+      )
         .thenReturn(Future.successful(Enrolments(Set())))
       when(
         mockSecureMessageConnector.getCount(
           ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
           ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
           ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports"))))
-        )(any[ExecutionContext], any[HeaderCarrier]))
+        )(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
       private val controller = new ApiController(
         mockAppConfig,
         Helpers.stubMessagesControllerComponents(),
         mockSecureMessageConnector,
-        mockAuthConnector)
+        mockAuthConnector
+      )
       private val result = controller.count(
         Some(List("HMRC-CUS-ORG")),
         Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777"))),
@@ -78,15 +81,18 @@ class ApiControllerSpec extends PlaySpec with MockitoSugar with MockAuthConnecto
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None)
-        )(any[ExecutionContext], any[HeaderCarrier]))
+        )(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
       private val controller = new ApiController(
         mockAppConfig,
         Helpers.stubMessagesControllerComponents(),
         mockSecureMessageConnector,
-        mockAuthConnector)
+        mockAuthConnector
+      )
       private val result = controller.count(None, None, None)(
-        FakeRequest(method = GET, path = "/messages?x=3&abc=test&some_key=some_value"))
+        FakeRequest(method = GET, path = "/messages?x=3&abc=test&some_key=some_value")
+      )
       status(result) mustBe BAD_REQUEST
       contentAsString(result) mustBe "Invalid query parameter(s) found: [abc, some_key, x]"
     }
