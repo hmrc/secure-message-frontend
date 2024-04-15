@@ -89,6 +89,7 @@ object HtmlUtil {
     Base64.getEncoder.encodeToString(input.getBytes("UTF-8"))
 
   // scalastyle:off
+  // format: off
   def getReplyIcon(replyFormUrl: String): Html =
     Html.apply(Xhtml.toXhtml(Utility.trim(<span>
       <a aria-hidden="true" tabindex="-1" style="text-decoration:none;" href={replyFormUrl}>
@@ -102,6 +103,6 @@ object HtmlUtil {
         </svg>
       </a>
     </span>)))
+  // format: on
   // scalastyle:on
-
 }

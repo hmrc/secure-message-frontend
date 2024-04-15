@@ -36,7 +36,9 @@ class conversationSpec extends PlaySpec with LanguageStubs {
             Html("first message"),
             Html("reply form"),
             Seq(Html("message content one")),
-            Seq()))(messagesEn, mock[Request[_]]).toString
+            Seq()
+          )
+        )(messagesEn, mock[Request[_]]).toString
       conversationContent must include("subject")
       conversationContent must include("message content one")
     }

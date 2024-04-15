@@ -63,8 +63,8 @@ trait ServiceSpec
 
   protected lazy val externalServicePorts: Map[String, Int] = Map.empty
 
-  /** Can be overridden or read to synchronise with mongo testing traits if
-    * you require interrogating/mutating mongo data as part of your test.
+  /** Can be overridden or read to synchronise with mongo testing traits if you require interrogating/mutating mongo
+    * data as part of your test.
     */
   // This is not called mongoUri to avoid conflicts with mongo testing traits.
   protected def serviceMongoUri =
@@ -81,7 +81,8 @@ trait ServiceSpec
             s"microservice.services.$serviceName.port" -> p,
             s"microservice.services.$serviceName.host" -> "localhost"
           )
-      })) ++
+      })
+    ) ++
       mongoConfig ++
       additionalConfig
 

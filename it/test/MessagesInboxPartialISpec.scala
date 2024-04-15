@@ -43,16 +43,16 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
   val secureMessageFrontendPort: Int = 9055
 
   override protected def beforeEach(): Unit = {
-    (wsClient
+    wsClient
       .url(s"http://localhost:$secureMessagePort/test-only/delete/conversation/SMF123456789/CDCM")
       .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
       .delete()
-      .futureValue)
-    (wsClient
+      .futureValue
+    wsClient
       .url(s"http://localhost:$secureMessagePort/test-only/delete/message/609d1359aa0200d12c73950a")
       .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
       .delete()
-      .futureValue)
+      .futureValue
     ()
   }
 
@@ -122,7 +122,8 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
           ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
           ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports")))),
           ArgumentMatchers.eq(Lang("en"))
-        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(
+        )(any[ExecutionContext], any[HeaderCarrier])
+      ).thenReturn(
         Future.successful(
           List(
             MessageHeader(
@@ -134,11 +135,18 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
               unreadMessages = true,
               1,
               Some(""),
-              Some(""))))
+              Some("")
+            )
+          )
+        )
       )
       val response = wsClient
-        .url(resource("/secure-message-frontend/cdcm/messages?" +
-          "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"))
+        .url(
+          resource(
+            "/secure-message-frontend/cdcm/messages?" +
+              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"
+          )
+        )
         .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
         .get()
         .futureValue
@@ -152,10 +160,15 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(Lang("en"))
-        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(Future.successful(List()))
+        )(any[ExecutionContext], any[HeaderCarrier])
+      ).thenReturn(Future.successful(List()))
       val response = wsClient
-        .url(resource("/secure-message-frontend/cdcm/messages?" +
-          "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"))
+        .url(
+          resource(
+            "/secure-message-frontend/cdcm/messages?" +
+              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"
+          )
+        )
         .withHttpHeaders(AuthUtil.buildEoriToken)
         .get()
         .futureValue

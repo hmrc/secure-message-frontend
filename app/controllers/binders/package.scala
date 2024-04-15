@@ -20,8 +20,9 @@ import controllers.generic.models.{ CustomerEnrolment, Tag }
 import play.api.mvc.QueryStringBindable
 
 package object binders {
-  implicit def queryStringBindableCustomerEnrolment(
-    implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[CustomerEnrolment] =
+  implicit def queryStringBindableCustomerEnrolment(implicit
+    stringBinder: QueryStringBindable[String]
+  ): QueryStringBindable[CustomerEnrolment] =
     new QueryStringBindable[CustomerEnrolment] {
 
       override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, CustomerEnrolment]] =

@@ -49,7 +49,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           .GET[List[MessageHeader]](any[String], ArgumentMatchers.eq(expectedQueryParams), any[Seq[(String, String)]])(
             any[HttpReads[List[MessageHeader]]],
             any[HeaderCarrier],
-            any[ExecutionContext]))
+            any[ExecutionContext]
+          )
+      )
         .thenReturn(
           Future.successful(
             List(
@@ -62,14 +64,19 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
                 unreadMessages = true,
                 1,
                 Some("123"),
-                Some("CDCM")))))
+                Some("CDCM")
+              )
+            )
+          )
+        )
       private val result = await(
         connector.getInboxList(
           Some(List("HMRC-CUS-ORG")),
           Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777"))),
           Some(List(Tag("notificationType", "CDS Exports"))),
           Lang.defaultLang
-        ))
+        )
+      )
       result.size mustBe 1
     }
 
@@ -86,13 +93,17 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           .GET[Count](any[String], ArgumentMatchers.eq(expectedQueryParams), any[Seq[(String, String)]])(
             any[HttpReads[Count]],
             any[HeaderCarrier],
-            any[ExecutionContext]))
+            any[ExecutionContext]
+          )
+      )
         .thenReturn(Future(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
       private val result = await(
         connector.getCount(
           Some(List("HMRC-CUS-ORG")),
           Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777"))),
-          Some(List(Tag("notificationType", "CDS Exports")))))
+          Some(List(Tag("notificationType", "CDS Exports")))
+        )
+      )
       result mustBe Count(total = totalMessagesCount, unread = unreadMessagesCount)
     }
   }
@@ -105,7 +116,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           .GET[Conversation](any[String], any[Seq[(String, String)]], any[Seq[(String, String)]])(
             any[HttpReads[Conversation]],
             any[HeaderCarrier],
-            any[ExecutionContext]))
+            any[ExecutionContext]
+          )
+      )
         .thenReturn(
           Future.successful(
             Conversation(
@@ -115,7 +128,10 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
               None,
               "subject",
               "en",
-              List(Message(SenderInformation(Some("name"), testDate, self = false), None, "content")))))
+              List(Message(SenderInformation(Some("name"), testDate, self = false), None, "content"))
+            )
+          )
+        )
       private val result = await(connector.getConversationContent("conversationId"))
       result mustBe Conversation(
         "client",
@@ -137,7 +153,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           .GET[Conversation](any[String], any[Seq[(String, String)]], any[Seq[(String, String)]])(
             any[HttpReads[Conversation]],
             any[HeaderCarrier],
-            any[ExecutionContext]))
+            any[ExecutionContext]
+          )
+      )
         .thenReturn(
           Future.successful(
             Conversation(
@@ -147,7 +165,10 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
               None,
               "subject",
               "en",
-              List(Message(SenderInformation(Some("name"), testDate, self = false), None, "content")))))
+              List(Message(SenderInformation(Some("name"), testDate, self = false), None, "content"))
+            )
+          )
+        )
       private val result = await(connector.getConversationContent("someID"))
       result mustBe Conversation(
         "client",
@@ -171,7 +192,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           .GET[Letter](any[String], any[Seq[(String, String)]], any[Seq[(String, String)]])(
             any[HttpReads[Letter]],
             any[HeaderCarrier],
-            any[ExecutionContext]))
+            any[ExecutionContext]
+          )
+      )
         .thenReturn(Future.successful(letter))
       private val result = await(connector.getLetterContent("someId", Lang("cy")))
       result mustBe letter
@@ -186,7 +209,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           any[Writes[CustomerMessage]],
           any[HttpReads[HttpResponse]],
           any[HeaderCarrier],
-          any[ExecutionContext])).thenReturn(Future.successful(HttpResponse(CREATED, "")))
+          any[ExecutionContext]
+        )
+      ).thenReturn(Future.successful(HttpResponse(CREATED, "")))
       private val result = await(connector.saveCustomerMessage(id, CustomerMessage("test")))
       result mustEqual true
     }
@@ -197,7 +222,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           any[Writes[CustomerMessage]],
           any[HttpReads[HttpResponse]],
           any[HeaderCarrier],
-          any[ExecutionContext])).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
+          any[ExecutionContext]
+        )
+      ).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
       private val result = await(connector.saveCustomerMessage(id, CustomerMessage("test")))
       result mustEqual false
     }
@@ -212,7 +239,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           any[Writes[CustomerMessage]],
           any[HttpReads[HttpResponse]],
           any[HeaderCarrier],
-          any[ExecutionContext])).thenReturn(Future.successful(HttpResponse(CREATED, "")))
+          any[ExecutionContext]
+        )
+      ).thenReturn(Future.successful(HttpResponse(CREATED, "")))
       private val result = await(connector.saveCustomerMessage(id, CustomerMessage("test")))
       result mustEqual true
     }
@@ -223,7 +252,9 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
           any[Writes[CustomerMessage]],
           any[HttpReads[HttpResponse]],
           any[HeaderCarrier],
-          any[ExecutionContext])).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
+          any[ExecutionContext]
+        )
+      ).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
       private val result = await(connector.saveCustomerMessage(id, CustomerMessage("test")))
       result mustEqual false
     }

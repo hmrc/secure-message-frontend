@@ -53,20 +53,24 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
         Message(
           SenderInformation(Some(""), Instant.parse("2021-01-19T10:29:47.275Z"), false),
           None,
-          "TWVzc2FnZSBib2R5IQ=="),
+          "TWVzc2FnZSBib2R5IQ=="
+        ),
         Message(
           SenderInformation(Some(""), Instant.parse("2021-03-19T10:29:47.275Z"), false),
           None,
-          "TWVzc2FnZSBib2R5IQ=="),
+          "TWVzc2FnZSBib2R5IQ=="
+        ),
         Message(
           SenderInformation(Some(""), Instant.parse("2021-02-19T10:29:47.275Z"), false),
           None,
-          "TWVzc2FnZSBib2R5IQ==")
+          "TWVzc2FnZSBib2R5IQ=="
+        )
       )
 
       when(mockSecureMessageConnector.getConversationContent(anyString)(any[ExecutionContext], any[HeaderCarrier]))
         .thenReturn(
-          Future.successful(Conversation("client", "conversationId", "status", None, "subject", "en", messages)))
+          Future.successful(Conversation("client", "conversationId", "status", None, "subject", "en", messages))
+        )
       val response = wsClient
         .url(resource("/secure-message-frontend/cdcm/conversation/client/1111"))
         .withHttpHeaders(AuthUtil.buildEoriToken)
@@ -74,8 +78,8 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
         .futureValue
       response.status mustBe OK
 
-      dateRegex.findAllIn(response.body).size mustBe (6)
-      dateRegex.findFirstIn(response.body).get mustBe ("19 March 2021")
+      dateRegex.findAllIn(response.body).size mustBe 6
+      dateRegex.findFirstIn(response.body).get mustBe "19 March 2021"
     }
   }
 

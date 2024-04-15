@@ -52,7 +52,8 @@ class letterViewSpec extends PlaySpec with LanguageStubs {
         )(messagesEn).toString
 
       conversationContent must include(
-        s"HMRC sent this on $today ${currentMonth.toString.toLowerCase.capitalize} $currentYear")
+        s"HMRC sent this on $today ${currentMonth.toString.toLowerCase.capitalize} $currentYear"
+      )
       conversationContent must include(readableTime(dateTime)(messagesEn))
     }
   }

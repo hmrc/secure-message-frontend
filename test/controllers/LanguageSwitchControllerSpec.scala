@@ -37,7 +37,8 @@ class LanguageSwitchControllerSpec extends SpecBase with Matchers with OptionVal
           GET,
           routes.LanguageSwitchController
             .selectLanguage(models.Language.Cymraeg)
-            .url)
+            .url
+        )
 
         val result = route(application, request).value
 
@@ -58,7 +59,8 @@ class LanguageSwitchControllerSpec extends SpecBase with Matchers with OptionVal
           GET,
           routes.LanguageSwitchController
             .selectLanguage(models.Language.English)
-            .url)
+            .url
+        )
 
         val result = route(application, request).value
 

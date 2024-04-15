@@ -58,7 +58,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           SenderInformation(Some("senderName"), Instant.parse("2021-02-19T10:29:47.275Z"), self = false),
           Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-03-01T10:29:47.275Z"))),
           "TWVzc2FnZSBib2R5IQ=="
-        ))
+        )
+      )
 
       private val messagesContent = controller.messagePartial(messages).toString()
 
@@ -73,7 +74,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           SenderInformation(None, Instant.parse("2021-02-19T10:29:47.275Z"), self = false),
           Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-03-01T10:29:47.275Z"))),
           "TWVzc2FnZSBib2R5IQ=="
-        ))
+        )
+      )
 
       private val messagesContent = controller.messagePartial(messages).toString()
 
@@ -114,7 +116,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
           SenderInformation(Some("senderName"), Instant.parse("2021-02-19T10:29:47.275Z"), self = false),
           None,
           "TWVzc2FnZSBib2R5IQ=="
-        ))
+        )
+      )
 
       private val messagesContent = controller.messagePartial(messages).toString()
       messagesContent must include("senderName sent this on 19 February 2021 at 10:29am")
@@ -125,26 +128,33 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
     "return conversation partial legacy" in new TestCase {
       mockAuthorise[Unit]()(Future.successful(()))
       when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-        .thenReturn(Future.successful(Conversation(
-          client,
-          conversationId,
-          "",
-          None,
-          "",
-          "",
-          List(Message(
-            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-            "TWVzc2FnZSBib2R5IQ=="
-          ))
-        )))
+        .thenReturn(
+          Future.successful(
+            Conversation(
+              client,
+              conversationId,
+              "",
+              None,
+              "",
+              "",
+              List(
+                Message(
+                  SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                  Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                  "TWVzc2FnZSBib2R5IQ=="
+                )
+              )
+            )
+          )
+        )
 
       when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
         .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
 
       private val result =
         controller.display("some-service", "hmrc", "11111", showReplyForm = false)(
-          FakeRequest("GET", "/some-service/conversation/hmrc/11111"))
+          FakeRequest("GET", "/some-service/conversation/hmrc/11111")
+        )
       status(result) mustBe Status.OK
       private val pageContent = contentAsString(result)
       pageContent must include("MRN 20GB16046891253600 needs action")
@@ -154,11 +164,14 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
       when(
         mockSecureMessageConnector
-          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future.successful(true))
       private val result = controller.saveReply("some-service", "111", "DA123")(
         FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(
-          ("content", "c29tZSBjb250ZW50")))
+          ("content", "c29tZSBjb250ZW50")
+        )
+      )
       status(result) mustBe Status.OK
       private val pageContent = contentAsString(result)
       pageContent must include("/some-service/conversation/111/DA123/result")
@@ -168,26 +181,34 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
 
       when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-        .thenReturn(Future.successful(Conversation(
-          client,
-          conversationId,
-          "",
-          None,
-          "",
-          "",
-          List(Message(
-            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-            "TWVzc2FnZSBib2R5IQ=="
-          ))
-        )))
+        .thenReturn(
+          Future.successful(
+            Conversation(
+              client,
+              conversationId,
+              "",
+              None,
+              "",
+              "",
+              List(
+                Message(
+                  SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                  Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                  "TWVzc2FnZSBib2R5IQ=="
+                )
+              )
+            )
+          )
+        )
 
       when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
         .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
 
       private val result = controller.saveReply("some-service", "111", "DA123")(
         FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(
-          ("invalid", "c29tZSBjb250ZW50")))
+          ("invalid", "c29tZSBjb250ZW50")
+        )
+      )
       status(result) mustBe Status.BAD_REQUEST
     }
 
@@ -196,29 +217,37 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
 
       when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-        .thenReturn(Future.successful(Conversation(
-          client,
-          conversationId,
-          "",
-          None,
-          "",
-          "",
-          List(Message(
-            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-            "TWVzc2FnZSBib2R5IQ=="
-          ))
-        )))
+        .thenReturn(
+          Future.successful(
+            Conversation(
+              client,
+              conversationId,
+              "",
+              None,
+              "",
+              "",
+              List(
+                Message(
+                  SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                  Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                  "TWVzc2FnZSBib2R5IQ=="
+                )
+              )
+            )
+          )
+        )
 
       when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
         .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
 
       when(
         mockSecureMessageConnector
-          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future.successful(true))
       private val result = controller.saveReply("some-service", "111", "DA123")(
-        FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(("content", "")))
+        FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(("content", ""))
+      )
       status(result) mustBe Status.BAD_REQUEST
     }
 
@@ -226,30 +255,39 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
       val textLength4001: String = List.fill(4001)("a").mkString
       when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-        .thenReturn(Future.successful(Conversation(
-          client,
-          conversationId,
-          "",
-          None,
-          "",
-          "",
-          List(Message(
-            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-            "TWVzc2FnZSBib2R5IQ=="
-          ))
-        )))
+        .thenReturn(
+          Future.successful(
+            Conversation(
+              client,
+              conversationId,
+              "",
+              None,
+              "",
+              "",
+              List(
+                Message(
+                  SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                  Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                  "TWVzc2FnZSBib2R5IQ=="
+                )
+              )
+            )
+          )
+        )
 
       when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
         .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
 
       when(
         mockSecureMessageConnector
-          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future.successful(true))
       private val result = controller.saveReply("some-service", "111", "DA123")(
         FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(
-          ("content", textLength4001)))
+          ("content", textLength4001)
+        )
+      )
       status(result) mustBe Status.BAD_REQUEST
     }
 
@@ -257,11 +295,14 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
       when(
         mockSecureMessageConnector
-          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+          .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future.successful(false))
       private val result = controller.saveReply("some-service", "111", "DA123")(
         FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(
-          ("content", "c29tZSBjb250ZW50")))
+          ("content", "c29tZSBjb250ZW50")
+        )
+      )
       status(result) mustBe Status.BAD_GATEWAY
       private val pageContent = contentAsString(result)
       pageContent must include("Failed to send message")
@@ -271,7 +312,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
       when(mockMessageResult.apply(any[String])(any[Messages])).thenReturn(Html("<div>result</div>"))
       private val result = controller.result("some-service", "111", "DA123")(
-        FakeRequest("GET", "/some-service/conversation-message/111/DA123/result"))
+        FakeRequest("GET", "/some-service/conversation-message/111/DA123/result")
+      )
       status(result) mustBe Status.OK
       private val pageContent = contentAsString(result)
       pageContent must include("result")
@@ -292,7 +334,8 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       private val letter = Letter("MRN 123", "CDS message", None, Sender("HMRC", LocalDate.now()), None)
       when(
         mockSecureMessageConnector
-          .getLetterContent(any[String], any[Lang])(any[ExecutionContext], any[HeaderCarrier]))
+          .getLetterContent(any[String], any[Lang])(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future.successful(letter))
       when(mockletterView.apply(any[Letter])(any[Messages]))
         .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
@@ -308,19 +351,25 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
       mockAuthorise[Unit]()(Future.successful(()))
       private val id = encodeBase64String("conversation/someId")
       when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-        .thenReturn(Future.successful(Conversation(
-          client,
-          conversationId,
-          "",
-          None,
-          "",
-          "",
-          List(Message(
-            SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-            Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-            "TWVzc2FnZSBib2R5IQ=="
-          ))
-        )))
+        .thenReturn(
+          Future.successful(
+            Conversation(
+              client,
+              conversationId,
+              "",
+              None,
+              "",
+              "",
+              List(
+                Message(
+                  SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                  Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                  "TWVzc2FnZSBib2R5IQ=="
+                )
+              )
+            )
+          )
+        )
 
       when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
         .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
@@ -345,10 +394,12 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
         mockAuthorise[Unit]()(Future.successful(()))
         when(
           mockSecureMessageConnector
-            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+        )
           .thenReturn(Future.successful(true))
         private val result = controller.saveReplyMessage("some-service", "L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2")(
-          FakeRequest("POST", "/some-service/messages/:id").withFormUrlEncodedBody(("content", "c29tZSBjb250ZW50")))
+          FakeRequest("POST", "/some-service/messages/:id").withFormUrlEncodedBody(("content", "c29tZSBjb250ZW50"))
+        )
         status(result) mustBe Status.OK
         private val pageContent = contentAsString(result)
         pageContent must include("/some-service/messages/L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2/result")
@@ -358,10 +409,12 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
         mockAuthorise[Unit]()(Future.successful(()))
         when(
           mockSecureMessageConnector
-            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+        )
           .thenReturn(Future.successful(false))
         private val result = controller.saveReplyMessage("some-service", "L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2")(
-          FakeRequest("POST", "/some-service/messages/:id").withFormUrlEncodedBody(("content", "c29tZSBjb250ZW50")))
+          FakeRequest("POST", "/some-service/messages/:id").withFormUrlEncodedBody(("content", "c29tZSBjb250ZW50"))
+        )
         status(result) mustBe Status.BAD_GATEWAY
       }
 
@@ -369,30 +422,39 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
         mockAuthorise[Unit]()(Future.successful(()))
         val textLength4001: String = List.fill(4001)("a").mkString
         when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-          .thenReturn(Future.successful(Conversation(
-            client,
-            conversationId,
-            "",
-            None,
-            "",
-            "",
-            List(Message(
-              SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-              Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-              "TWVzc2FnZSBib2R5IQ=="
-            ))
-          )))
+          .thenReturn(
+            Future.successful(
+              Conversation(
+                client,
+                conversationId,
+                "",
+                None,
+                "",
+                "",
+                List(
+                  Message(
+                    SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                    Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                    "TWVzc2FnZSBib2R5IQ=="
+                  )
+                )
+              )
+            )
+          )
 
         when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
           .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
 
         when(
           mockSecureMessageConnector
-            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+        )
           .thenReturn(Future.successful(true))
         private val result = controller.saveReplyMessage("some-service", "L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2")(
           FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(
-            ("content", textLength4001)))
+            ("content", textLength4001)
+          )
+        )
         status(result) mustBe Status.BAD_REQUEST
       }
 
@@ -401,29 +463,37 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
         mockAuthorise[Unit]()(Future.successful(()))
 
         when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-          .thenReturn(Future.successful(Conversation(
-            client,
-            conversationId,
-            "",
-            None,
-            "",
-            "",
-            List(Message(
-              SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-              Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-              "TWVzc2FnZSBib2R5IQ=="
-            ))
-          )))
+          .thenReturn(
+            Future.successful(
+              Conversation(
+                client,
+                conversationId,
+                "",
+                None,
+                "",
+                "",
+                List(
+                  Message(
+                    SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                    Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                    "TWVzc2FnZSBib2R5IQ=="
+                  )
+                )
+              )
+            )
+          )
 
         when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
           .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
 
         when(
           mockSecureMessageConnector
-            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+        )
           .thenReturn(Future.successful(true))
         private val result = controller.saveReplyMessage("some-service", "L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2")(
-          FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(("content", "")))
+          FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(("content", ""))
+        )
         status(result) mustBe Status.BAD_REQUEST
       }
 
@@ -431,26 +501,34 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
         mockAuthorise[Unit]()(Future.successful(()))
 
         when(mockSecureMessageConnector.getConversationContent(any[String])(any[ExecutionContext], any[HeaderCarrier]))
-          .thenReturn(Future.successful(Conversation(
-            client,
-            conversationId,
-            "",
-            None,
-            "",
-            "",
-            List(Message(
-              SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
-              Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
-              "TWVzc2FnZSBib2R5IQ=="
-            ))
-          )))
+          .thenReturn(
+            Future.successful(
+              Conversation(
+                client,
+                conversationId,
+                "",
+                None,
+                "",
+                "",
+                List(
+                  Message(
+                    SenderInformation(Some("senderName"), Instant.parse("2021-04-19T10:29:47.275Z"), self = false),
+                    Some(FirstReaderInformation(Some("firstReadername"), Instant.parse("2021-05-01T10:29:47.275Z"))),
+                    "TWVzc2FnZSBib2R5IQ=="
+                  )
+                )
+              )
+            )
+          )
 
         when(mockConversationView.apply(any[ConversationView])(any[Messages], any[Request[_]]))
           .thenReturn(new Html("MRN 20GB16046891253600 needs action"))
 
         private val result = controller.saveReplyMessage("some-service", "L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2")(
           FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(
-            ("invalid", "c29tZSBjb250ZW50")))
+            ("invalid", "c29tZSBjb250ZW50")
+          )
+        )
         status(result) mustBe Status.BAD_REQUEST
       }
 
@@ -458,11 +536,14 @@ class MessageControllerSpec extends PlaySpec with LanguageStubs with GuiceOneApp
         mockAuthorise[Unit]()(Future.successful(()))
         when(
           mockSecureMessageConnector
-            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier]))
+            .saveCustomerMessage(any[String], any[CustomerMessage])(any[ExecutionContext], any[HeaderCarrier])
+        )
           .thenReturn(Future.successful(true))
         private val result = controller.saveReplyMessage("some-service", "L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2")(
           FakeRequest("POST", "/some-service/conversation-message/111/DA123").withFormUrlEncodedBody(
-            ("content", "c29tZSBjb250ZW50")))
+            ("content", "c29tZSBjb250ZW50")
+          )
+        )
         status(result) mustBe Status.OK
         private val pageContent = contentAsString(result)
         pageContent must include("/some-service/messages/L2NvbnZlcnNhdGlvbi8xMjMxNTQ2NDU2/result")

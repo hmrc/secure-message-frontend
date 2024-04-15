@@ -49,7 +49,8 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
     "return 200 when secure message connector returns valid data" in new TestCase {
       when(
         mockAuthConnector
-          .authorise(any[Predicate], any[Retrieval[Enrolments]])(any[HeaderCarrier](), any[ExecutionContext]()))
+          .authorise(any[Predicate], any[Retrieval[Enrolments]])(any[HeaderCarrier](), any[ExecutionContext]())
+      )
         .thenReturn(Future.successful(Enrolments(Set())))
       when(
         mockSecureMessageConnector.getInboxList(
@@ -57,7 +58,8 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
           ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
           ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports")))),
           ArgumentMatchers.eq(Lang.defaultLang)
-        )(any[ExecutionContext], any[HeaderCarrier]))
+        )(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(
           Future(
             List(
@@ -70,14 +72,19 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
                 unreadMessages = true,
                 1,
                 Some("D-80542-20201120"),
-                Some("cdcm")))))
+                Some("cdcm")
+              )
+            )
+          )
+        )
       when(mockConversationsInboxPartial.apply(any[MessageInbox])(any[Messages])).thenReturn(new Html("test"))
       private val controller = new MessagesInboxController(
         mockAppConfig,
         Helpers.stubMessagesControllerComponents(),
         mockConversationsInboxPartial,
         mockSecureMessageConnector,
-        mockAuthConnector)
+        mockAuthConnector
+      )
       private val result = controller.display(
         "cds-frontend",
         Some(List("HMRC-CUS-ORG")),
@@ -95,16 +102,19 @@ class MessagesInboxControllerSpec extends PlaySpec with MockitoSugar with MockAu
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(Lang("en-US"))
-        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(Future(List()))
+        )(any[ExecutionContext], any[HeaderCarrier])
+      ).thenReturn(Future(List()))
       when(mockConversationsInboxPartial.apply(any[MessageInbox])(any[Messages])).thenReturn(new Html("test"))
       private val controller = new MessagesInboxController(
         mockAppConfig,
         Helpers.stubMessagesControllerComponents(),
         mockConversationsInboxPartial,
         mockSecureMessageConnector,
-        mockAuthConnector)
+        mockAuthConnector
+      )
       private val result = controller.display("cds-frontend", None, None, None)(
-        FakeRequest(method = GET, path = "/messages?x=3&abc=test&some_key=some_value"))
+        FakeRequest(method = GET, path = "/messages?x=3&abc=test&some_key=some_value")
+      )
       status(result) mustBe BAD_REQUEST
       contentAsString(result) mustBe "Invalid query parameter(s) found: [abc, some_key, x]"
     }

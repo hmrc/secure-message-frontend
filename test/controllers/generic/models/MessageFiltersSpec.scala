@@ -25,7 +25,8 @@ class MessageFiltersSpec extends PlaySpec {
       CustomerEnrolment.parse("HMRC-CUS-ORG~EoriNumber~GB1234567") mustEqual CustomerEnrolment(
         "HMRC-CUS-ORG",
         "EoriNumber",
-        "GB1234567")
+        "GB1234567"
+      )
     }
   }
 

@@ -26,7 +26,8 @@ final case class Conversation(
   tags: Option[Map[String, String]],
   subject: String,
   language: String,
-  messages: List[Message])
+  messages: List[Message]
+)
 
 object Conversation {
   implicit val conversationFormat: Reads[Conversation] = Json.reads[Conversation]
@@ -35,7 +36,8 @@ object Conversation {
 final case class Message(
   senderInformation: SenderInformation,
   firstReader: Option[FirstReaderInformation],
-  content: String)
+  content: String
+)
 
 object Message {
   implicit val messageReads: Reads[Message] = Json.reads[Message]

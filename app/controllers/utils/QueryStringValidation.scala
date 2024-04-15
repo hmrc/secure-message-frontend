@@ -21,13 +21,16 @@ case object ValidQueryParameters extends QueryStringValidationSuccess
 
 class InvalidQueryStringException(message: String) extends Exception(message) {}
 final case class InvalidQueryParameterException(invalidParams: List[String])
-    extends InvalidQueryStringException(s"Invalid query parameter(s) found: [${invalidParams.sorted.mkString(", ")}]") {}
+    extends InvalidQueryStringException(
+      s"Invalid query parameter(s) found: [${invalidParams.sorted.mkString(", ")}]"
+    ) {}
 
 trait QueryStringValidation {
 
   protected def validateQueryParameters(
     queryString: Map[String, Seq[String]],
-    allowedParamKeys: String*): Either[InvalidQueryStringException, QueryStringValidationSuccess] =
+    allowedParamKeys: String*
+  ): Either[InvalidQueryStringException, QueryStringValidationSuccess] =
     (queryString.keys.toList diff allowedParamKeys) match {
       case List()                      => Right(ValidQueryParameters)
       case invalidParams: List[String] => Left(InvalidQueryParameterException(invalidParams))

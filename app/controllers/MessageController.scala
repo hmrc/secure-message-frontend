@@ -37,7 +37,7 @@ import views.viewmodels.{ ConversationView, MessageReply, MessageView }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class MessageController @Inject()(
+class MessageController @Inject() (
   controllerComponents: MessagesControllerComponents,
   secureMessageConnector: SecureMessageConnector,
   messageContent: messageContent,
@@ -46,7 +46,8 @@ class MessageController @Inject()(
   conversationView: conversationView,
   letterView: letterView,
   val authConnector: AuthConnector,
-  formProvider: MessageFormProvider)(implicit ec: ExecutionContext, langs: Langs)
+  formProvider: MessageFormProvider
+)(implicit ec: ExecutionContext, langs: Langs)
     extends FrontendController(controllerComponents) with I18nSupport with AuthorisedFunctions with Logging {
 
   implicit val lang: Lang = langs.availables.head
@@ -75,7 +76,8 @@ class MessageController @Inject()(
               val replyFormUrl = s"$replyFormActionUrl?showReplyForm=true#reply-form"
               val replyForm =
                 messageReply(
-                  MessageReply(showReplyForm, replyFormActionUrl, getReplyIcon(replyFormUrl), Seq.empty[FormError], ""))
+                  MessageReply(showReplyForm, replyFormActionUrl, getReplyIcon(replyFormUrl), Seq.empty[FormError], "")
+                )
               secureMessageConnector.getConversationContent(s).map(getConversationView(_, replyForm))
             },
             conversationView.apply _
@@ -85,7 +87,7 @@ class MessageController @Inject()(
     }
   }
 
-  //legacy
+  // legacy
   def display(
     clientService: String,
     client: String,
@@ -99,14 +101,15 @@ class MessageController @Inject()(
       secureMessageConnector
         .getConversationContent(conversationId)
         .flatMap { conversation =>
-          val messages = {
+          val messages =
             messagePartial(conversation.messages)
-          }
           val firstMessage = messages.headOption.getOrElse(
-            throw new NotFoundException("There can't be a conversation without a message"))
+            throw new NotFoundException("There can't be a conversation without a message")
+          )
           val replyForm =
             messageReply(
-              MessageReply(showReplyForm, replyFormActionUrl, getReplyIcon(replyFormUrl), Seq.empty[FormError], ""))
+              MessageReply(showReplyForm, replyFormActionUrl, getReplyIcon(replyFormUrl), Seq.empty[FormError], "")
+            )
           Future.successful(
             Ok(
               conversationView(
@@ -116,17 +119,20 @@ class MessageController @Inject()(
                   replyForm,
                   messages.tail,
                   Seq.empty[FormError]
-                ))))
+                )
+              )
+            )
+          )
         }
     }
   }
 
-  private def getConversationView(conversation: Conversation, replyForm: Html)(
-    implicit request: Request[_]): ConversationView = {
+  private def getConversationView(conversation: Conversation, replyForm: Html)(implicit
+    request: Request[_]
+  ): ConversationView = {
 
-    val messages = {
+    val messages =
       messagePartial(conversation.messages)
-    }
     val firstMessage =
       messages.headOption.getOrElse(throw new NotFoundException("There can't be a conversation without a message"))
     ConversationView(
@@ -148,39 +154,42 @@ class MessageController @Inject()(
       form
         .bindFromRequest()
         .fold(
-          form => {
+          form =>
             secureMessageConnector
               .getConversationContent(id)
-              .flatMap {
-                conversation =>
-                  val messages = {
-                    messagePartial(conversation.messages)
-                  }
-                  val firstMessage = messages.headOption.getOrElse(
-                    throw new NotFoundException("There can't be a conversation without a message"))
-                  val replyForm =
-                    messageReply(
-                      MessageReply(
-                        showReplyForm = true,
-                        replyFormActionUrl,
-                        getReplyIcon(replyFormUrl),
-                        form.errors,
-                        content = form.data.getOrElse("content", "")))
-                  Future.successful(BadRequest(conversationView(
-                    ConversationView(conversation.subject, firstMessage, replyForm, messages.tail, form.errors))))
-              }
-
-          },
+              .flatMap { conversation =>
+                val messages =
+                  messagePartial(conversation.messages)
+                val firstMessage = messages.headOption
+                  .getOrElse(throw new NotFoundException("There can't be a conversation without a message"))
+                val replyForm =
+                  messageReply(
+                    MessageReply(
+                      showReplyForm = true,
+                      replyFormActionUrl,
+                      getReplyIcon(replyFormUrl),
+                      form.errors,
+                      content = form.data.getOrElse("content", "")
+                    )
+                  )
+                Future.successful(
+                  BadRequest(
+                    conversationView(
+                      ConversationView(conversation.subject, firstMessage, replyForm, messages.tail, form.errors)
+                    )
+                  )
+                )
+              },
           message =>
             secureMessageConnector.saveCustomerMessage(id, message).map { sent =>
               val redirectURL = s"/$clientService/messages/$id/result"
               if (sent) Ok(redirectURL) else BadGateway("Failed to send message")
-          }
+            }
         )
     }
   }
 
-  //legacy
+  // legacy
   def saveReply(clientService: String, client: String, encodedId: String): Action[AnyContent] = Action.async {
     implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
@@ -190,34 +199,37 @@ class MessageController @Inject()(
         form
           .bindFromRequest()
           .fold(
-            form => {
+            form =>
               secureMessageConnector
                 .getConversationContent(encodedId)
-                .flatMap {
-                  conversation =>
-                    val messages = {
-                      messagePartial(conversation.messages)
-                    }
-                    val firstMessage = messages.headOption.getOrElse(
-                      throw new NotFoundException("There can't be a conversation without a message"))
-                    val replyForm =
-                      messageReply(
-                        MessageReply(
-                          showReplyForm = true,
-                          replyFormActionUrl,
-                          getReplyIcon(replyFormUrl),
-                          form.errors,
-                          content = form.data.getOrElse("content", "")))
-                    Future.successful(BadRequest(conversationView(
-                      ConversationView(conversation.subject, firstMessage, replyForm, messages.tail, form.errors))))
-                }
-
-            },
+                .flatMap { conversation =>
+                  val messages =
+                    messagePartial(conversation.messages)
+                  val firstMessage = messages.headOption
+                    .getOrElse(throw new NotFoundException("There can't be a conversation without a message"))
+                  val replyForm =
+                    messageReply(
+                      MessageReply(
+                        showReplyForm = true,
+                        replyFormActionUrl,
+                        getReplyIcon(replyFormUrl),
+                        form.errors,
+                        content = form.data.getOrElse("content", "")
+                      )
+                    )
+                  Future.successful(
+                    BadRequest(
+                      conversationView(
+                        ConversationView(conversation.subject, firstMessage, replyForm, messages.tail, form.errors)
+                      )
+                    )
+                  )
+                },
             message =>
               secureMessageConnector.saveCustomerMessage(encodedId, message).map { sent =>
                 val redirectURL = s"/$clientService/conversation/$client/$encodedId/result"
                 if (sent) Ok(redirectURL) else BadGateway("Failed to send message")
-            }
+              }
           )
       }
   }
@@ -229,7 +241,7 @@ class MessageController @Inject()(
     }
   }
 
-  //legacy
+  // legacy
   def result(clientService: String, client: String, conversationId: String): Action[AnyContent] = Action.async {
     implicit request: Request[_] =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
@@ -240,19 +252,21 @@ class MessageController @Inject()(
       }
   }
 
-  private[controllers] def messagePartial(messages: List[Message])(
-    implicit request: Request[_]): List[HtmlFormat.Appendable] =
+  private[controllers] def messagePartial(
+    messages: List[Message]
+  )(implicit request: Request[_]): List[HtmlFormat.Appendable] =
     messages
       .sortBy(_.senderInformation.sent.toEpochMilli)(Ordering[Long].reverse)
-      .map(
-        message =>
-          messageContent(
-            MessageView(
-              message.senderInformation.name,
-              message.senderInformation.sent,
-              message.firstReader.map(_.read),
-              decodeBase64String(message.content)
-            )))
+      .map(message =>
+        messageContent(
+          MessageView(
+            message.senderInformation.name,
+            message.senderInformation.sent,
+            message.firstReader.map(_.read),
+            decodeBase64String(message.content)
+          )
+        )
+      )
 
   object Id {
     def apply(messageType: String, id: String): String =

@@ -28,25 +28,25 @@ class conversationInboxSpec extends TemplateUnitSpec[MessageInbox] with Language
   "A conversation inbox template" must {
     "have all mandatory information" in {
       render(MessageInbox("cds-frontend", "test", 5, 1, List.empty)) match {
-        case Success(component) => {
+        case Success(component) =>
           val pageContent = component.body
           pageContent must include("""<h1 class="govuk-heading-xl">test</h1>""")
           pageContent must include("""<span class="govuk-visually-hidden">""")
           pageContent must include(
-            """1 unread, 5 in total. Each message in the list includes its status (either unread or previously viewed), and its sender name, subject, and send time or date. If a message includes replies, then its subject says the number of messages in that conversation.""")
+            """1 unread, 5 in total. Each message in the list includes its status (either unread or previously viewed), and its sender name, subject, and send time or date. If a message includes replies, then its subject says the number of messages in that conversation."""
+          )
           pageContent must include("""<th scope="col" class="govuk-table__header">Message</th>""")
           pageContent must include("""<th scope="col" class="govuk-table__header mob-align-right">Date</th>""")
-        }
         case _ => fail("There was a problem reading the test output")
       }
     }
   }
 
-  /**
-    * Calls the Twirl template with the given parameters and returns the resulting markup
+  /** Calls the Twirl template with the given parameters and returns the resulting markup
     *
     * @param templateParams
-    * @return [[Try[HtmlFormat.Appendable]]] containing the markup
+    * @return
+    *   [[Try[HtmlFormat.Appendable]]] containing the markup
     */
   override def render(templateParams: MessageInbox): Try[HtmlFormat.Appendable] = {
     val inbox = new messageInbox

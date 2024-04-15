@@ -35,7 +35,9 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
           Some("Mike"),
           Instant.parse("2021-02-19T10:29:47.275Z"),
           Some(Instant.parse("2021-02-19T10:29:47.275Z")),
-          "message body"))(messagesEn, requestHeader).toString
+          "message body"
+        )
+      )(messagesEn, requestHeader).toString
 
       messageContent must include("Mike sent this on 19 February 2021 at")
       messageContent must include("First read on 19 February 2021 at")
@@ -46,9 +48,8 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
     "be handled without first read information" in new TestClass {
       val messageContent =
         new messageContent(layout)(
-          MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body"))(
-          messagesEn,
-          requestHeader).toString
+          MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body")
+        )(messagesEn, requestHeader).toString
 
       messageContent must include("Mike sent this on 19 February 2021 at")
       messageContent mustNot include("First read")
@@ -62,7 +63,9 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
           Some("Mike"),
           Instant.parse("2021-02-19T10:29:47.275Z"),
           Some(Instant.parse("2021-02-19T10:29:47.275Z")),
-          "message body"))(messagesCy, requestHeader).toString
+          "message body"
+        )
+      )(messagesCy, requestHeader).toString
 
       messageContent must include("Mike wnaeth anfon y neges hon ar 19 Chwefror 2021 am")
       messageContent must include("Darllenwyd am y tro cyntaf ar 19 Chwefror 2021 am")
@@ -73,9 +76,8 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
     "be handled without first read information in Welsh" in new TestClass {
       val messageContent =
         new messageContent(layout)(
-          MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body"))(
-          messagesCy,
-          requestHeader).toString
+          MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body")
+        )(messagesCy, requestHeader).toString
 
       messageContent must include("Mike wnaeth anfon y neges hon ar 19 Chwefror 2021 am")
       messageContent mustNot include("Darllenwyd am y tro cyntaf ar")

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import uk.gov.hmrc.DefaultBuildSettings.{ defaultSettings, scalaSettings }
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport._
+import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import play.twirl.sbt.Import.TwirlKeys
 import play.sbt.routes.RoutesKeys
 
@@ -46,15 +45,7 @@ lazy val microservice = Project(appName, file("."))
     routesGenerator := InjectedRoutesGenerator
   )
   .settings(
-    resolvers += Resolver.jcenterRepo,
-    inConfig(Test)(
-      scalafmtCoreSettings ++
-        Seq(compile / compileInputs := Def.taskDyn {
-          val task = (resolvedScoped.value.scope / scalafmt.key) / test
-          val previousInputs = (compile / compileInputs).value
-          task.map(_ => previousInputs)
-        }.value)
-    )
+    resolvers += Resolver.jcenterRepo
   )
   .settings(ScoverageSettings())
   .settings(
@@ -84,4 +75,11 @@ lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
 compileScalastyle := (Compile / scalastyle).toTask("").value
 (Compile / compile) := ((Compile / compile) dependsOn compileScalastyle).value
 
-scalafmtOnCompile := true
+Test / test := (Test / test)
+  .dependsOn(scalafmtCheckAll)
+  .value
+
+it / test := (it / Test / test)
+  .dependsOn(scalafmtCheckAll, it/scalafmtCheckAll)
+  .value
+

@@ -57,12 +57,17 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
           ArgumentMatchers.eq(Some(List("HMRC-CUS-ORG"))),
           ArgumentMatchers.eq(Some(List(CustomerEnrolment("HMRC-CUS-ORG", "EORIName", "GB7777777777")))),
           ArgumentMatchers.eq(Some(List(Tag("notificationType", "CDS Exports"))))
-        )(any[ExecutionContext], any[HeaderCarrier])).thenReturn(
+        )(any[ExecutionContext], any[HeaderCarrier])
+      ).thenReturn(
         Future.successful(Count(total = totalMessagesCount, unread = unreadMessagesCount))
       )
       val response = wsClient
-        .url(resource("/secure-message-frontend/messages/count?" +
-          "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"))
+        .url(
+          resource(
+            "/secure-message-frontend/messages/count?" +
+              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"
+          )
+        )
         .withHttpHeaders(AuthUtil.buildEoriToken)
         .get()
         .futureValue
@@ -78,11 +83,16 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None)
-        )(any[ExecutionContext], any[HeaderCarrier]))
+        )(any[ExecutionContext], any[HeaderCarrier])
+      )
         .thenReturn(Future.successful(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
       val response = wsClient
-        .url(resource("/secure-message-frontend/messages/count?" +
-          "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"))
+        .url(
+          resource(
+            "/secure-message-frontend/messages/count?" +
+              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"
+          )
+        )
         .withHttpHeaders(AuthUtil.buildEoriToken)
         .get()
         .futureValue
