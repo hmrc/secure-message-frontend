@@ -40,7 +40,7 @@ import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import views.helpers.HtmlUtil.encodeBase64String
 import views.html.partials._
 import views.viewmodels.ConversationView
-
+import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ ExecutionContext, Future }

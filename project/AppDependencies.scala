@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-import play.core.PlayVersion.current
+
 import sbt._
 
 object AppDependencies {
 
-  private val bootstrapVersion = "8.5.0"
+  private val bootstrapVersion = "9.0.0"
 
   val compile = Seq(
     "uk.gov.hmrc"    %% "bootstrap-frontend-play-30" % bootstrapVersion,
-    "uk.gov.hmrc"    %% "play-frontend-hmrc-play-30" % "9.0.0",
-    "org.typelevel"  %% "cats-core"                  % "2.10.0",
-    "com.beachape"   %% "enumeratum"                 % "1.7.3",
-    "com.beachape"   %% "enumeratum-play-json"       % "1.8.0",
-    "net.codingwell" %% "scala-guice"                % "5.1.1"
+    "uk.gov.hmrc"    %% "play-frontend-hmrc-play-30" % "10.0.0",
+    "org.typelevel"  %% "cats-core"                  % "2.12.0",
+    "com.beachape"   %% "enumeratum"            % "1.7.3",
+    "com.beachape"   %% "enumeratum-play-json"  % "1.8.0",
+    "net.codingwell" %% "scala-guice"                % "6.0.0"
   )
 
   val test = Seq(
     "uk.gov.hmrc"            %% "bootstrap-test-play-30" % bootstrapVersion % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play"     % "5.1.0"          % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play"     % "7.0.1"          % Test,
     "org.scalatestplus"      %% "mockito-3-4"            % "3.2.10.0"       % Test,
     "org.mockito"            % "mockito-core"            % "5.10.0"         % Test
   )

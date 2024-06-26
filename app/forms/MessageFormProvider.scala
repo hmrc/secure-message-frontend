@@ -28,7 +28,7 @@ class MessageFormProvider {
         "content" -> text
           .verifying("conversation.reply.form.empty", _.nonEmpty)
           .verifying("conversation.reply.form.exceeded.length", _.length <= MessageFormProvider.CONTENT_MAX_LENGTH)
-      )(CustomerMessage.apply)(CustomerMessage.unapply)
+      )(CustomerMessage.apply)(m => Option(m.content))
     )
 
 }

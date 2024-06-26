@@ -19,12 +19,14 @@ package views.helpers
 import cats.implicits.catsSyntaxEq
 import com.ibm.icu.text.{ DateFormatSymbols, SimpleDateFormat }
 import com.ibm.icu.util.{ TimeZone, ULocale }
-import models.{ MessageHeader, MessageType }
+import controllers.routes.LanguageSwitchController
+import models.{ Language, MessageHeader, MessageType }
 
 import java.util.{ Base64, Date }
 import java.time.{ Instant, LocalDate, ZoneOffset }
 import play.api.i18n.Messages
 import play.twirl.api.Html
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{ Cy, En, LanguageSelect }
 
 import scala.xml.{ Utility, Xhtml }
 
@@ -105,4 +107,11 @@ object HtmlUtil {
     </span>)))
   // format: on
   // scalastyle:on
+
+  def languageSelect(messages: Messages): LanguageSelect =
+    LanguageSelect(
+      if (messages.lang.code == "cy") Cy else En,
+      (En, LanguageSwitchController.selectLanguage(Language.English).url),
+      (Cy, LanguageSwitchController.selectLanguage(Language.Cymraeg).url)
+    )
 }

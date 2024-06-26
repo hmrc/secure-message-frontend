@@ -19,19 +19,16 @@ package views.partials
 import base.LanguageStubs
 import models.{ FirstReaderInformation, Letter, Sender }
 import java.time.{ Instant, LocalDate }
-import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.PlaySpec
-import uk.gov.hmrc.govukfrontend.views.html.components.{ GovukBackLink, GovukPanel }
 import views.helpers.HtmlUtil.{ readableDate, readableTime }
-import views.html.Layout
 import views.html.partials.letterView
 
 class letterViewSpec extends PlaySpec with LanguageStubs {
   "letterView template" must {
-    "have message content with subject and sent date" in new TestClass {
-      private val localDate = LocalDate.now()
-      private val conversationContent =
-        new letterView(layout, new GovukPanel, new GovukBackLink)(
+    "have message content with subject and sent date" in {
+      val localDate = LocalDate.now()
+      val conversationContent =
+        new letterView()(
           Letter("MRN 123", "CDS message", None, Sender("HMRC", localDate), None)
         )(messagesEn).toString
       conversationContent must include("MRN 123")
@@ -40,14 +37,14 @@ class letterViewSpec extends PlaySpec with LanguageStubs {
       conversationContent must include(readableDate(localDate)(messagesEn))
     }
 
-    "have message read time if it is available" in new TestClass {
-      private val dateTime = Instant.now()
+    "have message read time if it is available" in {
+      val dateTime = Instant.now()
       val currentYear = LocalDate.now().getYear
       val currentMonth = LocalDate.now().getMonth
       val today = LocalDate.now().getDayOfMonth
-      private val sentDate = LocalDate.of(currentYear, currentMonth, today)
-      private val conversationContent =
-        new letterView(layout, new GovukPanel, new GovukBackLink)(
+      val sentDate = LocalDate.of(currentYear, currentMonth, today)
+      val conversationContent =
+        new letterView()(
           Letter("MRN 123", "CDS message", Some(FirstReaderInformation(None, dateTime)), Sender("HMRC", sentDate), None)
         )(messagesEn).toString
 
@@ -56,9 +53,5 @@ class letterViewSpec extends PlaySpec with LanguageStubs {
       )
       conversationContent must include(readableTime(dateTime)(messagesEn))
     }
-  }
-
-  class TestClass {
-    val layout: Layout = mock[Layout]
   }
 }

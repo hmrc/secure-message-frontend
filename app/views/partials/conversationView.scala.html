@@ -17,11 +17,7 @@
 @import views.html._
 @import play.twirl.api.HtmlFormat
 @import views.viewmodels.ConversationView
-@this(
-    layout: Layout,
-    govukPanel: GovukPanel,
-    govukBackLink: GovukBackLink,
-    govukErrorSummary: GovukErrorSummary)
+@this(govukErrorSummary: GovukErrorSummary)
 
 @(conversation: ConversationView)(implicit messages: Messages, request: Request[_])
 <style>

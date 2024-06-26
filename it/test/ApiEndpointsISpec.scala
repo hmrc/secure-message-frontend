@@ -16,7 +16,7 @@
 
 import com.google.inject.AbstractModule
 import connectors.SecureMessageConnector
-import controllers.generic.models.{ CustomerEnrolment, Tag }
+import controllers.generic.models.{CustomerEnrolment, Tag}
 import models.Count
 import net.codingwell.scalaguice.ScalaModule
 import org.mockito.ArgumentMatchers
@@ -25,13 +25,13 @@ import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import play.api.http.Status.{ BAD_REQUEST, OK }
+import play.api.http.Status.{BAD_REQUEST, OK}
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{ Json, Reads }
+import play.api.libs.json.{JsString, Json, Reads}
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
 
@@ -72,7 +72,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         .get()
         .futureValue
       response.status mustBe OK
-      response.body mustBe """{"total":5,"unread":2}"""
+      response.json mustBe Json.parse("""{"total":5,"unread":2}""")
     }
 
     "return status code BAD REQUEST 400 when provided with filter parameters that are invalid (not allowed)" in {
@@ -97,7 +97,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         .get()
         .futureValue
       response.status mustBe BAD_REQUEST
-      response.body mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
+      response.json mustBe JsString("Invalid query parameter(s) found: [enrolement, enrolment_key, tags]")
     }
   }
 
@@ -142,11 +142,13 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         |  }
      """.stripMargin
 
+    import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+    
     private def buildUserToken(payload: String): (String, String) = {
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(payload)
+        .post(Json.toJson(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))

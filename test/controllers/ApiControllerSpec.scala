@@ -26,7 +26,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.test.Helpers.{ GET, contentAsString, status }
 import play.api.test.{ FakeRequest, Helpers }
 import uk.gov.hmrc.auth.core.Enrolments
@@ -35,8 +35,9 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.language.postfixOps
 
 class ApiControllerSpec extends PlaySpec with MockitoSugar with MockAuthConnector {
 

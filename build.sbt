@@ -20,8 +20,8 @@ import play.sbt.routes.RoutesKeys
 
 val appName = "secure-message-frontend"
 
-Global / majorVersion := 0
-Global / scalaVersion := "2.13.12"
+Global / majorVersion := 1
+Global / scalaVersion := "3.3.3"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin, BuildInfoPlugin)
@@ -51,29 +51,10 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
   )
-  .settings(
-    scalacOptions ++= Seq(
-      "-Wconf:msg=multiarg infix syntax&src=BuildInfo.scala:s",
-      // Silence unused warnings on Play `routes` and `twirl` files
-      "-Wconf:cat=unused-imports&src=.*routes.*:s",
-      "-Wconf:cat=unused-privates&src=.*routes.*:s",
-      "-Wconf:src=twirl/.*:s",
-      "-feature",
-      "-Xlint",
-      "-language:postfixOps",
-      "-language:reflectiveCalls"
-    )
-  )
-  .settings(tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement)
 
 lazy val it = (project in file("it"))
   .enablePlugins(PlayScala)
   .dependsOn(`microservice` % "test->test")
-  .settings(tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement)
-
-lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
-compileScalastyle := (Compile / scalastyle).toTask("").value
-(Compile / compile) := ((Compile / compile) dependsOn compileScalastyle).value
 
 Test / test := (Test / test)
   .dependsOn(scalafmtCheckAll)

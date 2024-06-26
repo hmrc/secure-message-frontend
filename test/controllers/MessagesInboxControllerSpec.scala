@@ -37,7 +37,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.partials.messageInbox
 import views.viewmodels.MessageInbox
-
+import scala.language.postfixOps
 import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

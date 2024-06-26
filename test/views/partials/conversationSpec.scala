@@ -21,7 +21,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.PlaySpec
 import play.api.mvc.Request
 import play.twirl.api.Html
-import uk.gov.hmrc.govukfrontend.views.html.components.{ GovukBackLink, GovukErrorSummary, GovukPanel }
+import uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary
 import views.html.Layout
 import views.html.partials.conversationView
 import views.viewmodels.ConversationView
@@ -30,7 +30,7 @@ class conversationSpec extends PlaySpec with LanguageStubs {
   "conversation template" must {
     "have message content with subject and back link" in new TestClass {
       private val conversationContent =
-        new conversationView(layout, new GovukPanel, new GovukBackLink, new GovukErrorSummary)(
+        new conversationView(new GovukErrorSummary)(
           ConversationView(
             "subject",
             Html("first message"),

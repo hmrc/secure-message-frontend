@@ -16,13 +16,8 @@
 
 @import views.html._
 @import play.twirl.api.HtmlFormat
-@import views.viewmodels.ConversationView
 @import views.helpers.HtmlUtil._
-@this(
-        layout: Layout,
-        govukPanel: GovukPanel,
-        govukBackLink: GovukBackLink
-)
+@this()
 
 @(letter: Letter)(implicit messages: Messages)
 <style>
