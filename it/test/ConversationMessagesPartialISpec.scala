@@ -87,28 +87,11 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
 
     private val wsClient = app.injector.instanceOf[WSClient]
 
-    wsClient
-      .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
-      .withHttpHeaders(("Content-Type", "application/json"))
-      .post(Json.toJson(""))
-      .futureValue
-
     lazy val ggAuthPort: Int = 8585
 
     implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
 
     case class GatewayToken(gatewayToken: String)
-
-    private val NO_EORI_USER_PAYLOAD =
-      """
-        | {
-        |  "credId": "1235",
-        |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 200,
-        |  "credentialStrength": "strong",
-        |  "enrolments": []
-        |  }
-     """.stripMargin
 
     private val EORI_USER_PAYLOAD =
       """
@@ -136,13 +119,12 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(Json.toJson(payload))
+        .post(Json.parse(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))
     }
 
     def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
-    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
   }
 }

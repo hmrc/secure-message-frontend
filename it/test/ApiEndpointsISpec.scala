@@ -72,7 +72,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         .get()
         .futureValue
       response.status mustBe OK
-      response.json mustBe Json.parse("""{"total":5,"unread":2}""")
+      response.json.toString mustBe """{"total":5,"unread":2}"""
     }
 
     "return status code BAD REQUEST 400 when provided with filter parameters that are invalid (not allowed)" in {
@@ -84,8 +84,10 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None)
         )(any[ExecutionContext], any[HeaderCarrier])
-      )
-        .thenReturn(Future.successful(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
+      ).thenReturn(Future.successful(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
+
+      import play.api.libs.ws.DefaultBodyReadables.readableAsString
+
       val response = wsClient
         .url(
           resource(
@@ -97,7 +99,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         .get()
         .futureValue
       response.status mustBe BAD_REQUEST
-      response.json mustBe JsString("Invalid query parameter(s) found: [enrolement, enrolment_key, tags]")
+      response.body mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
     }
   }
 
@@ -108,17 +110,6 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
     implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
 
     case class GatewayToken(gatewayToken: String)
-
-    private val NO_EORI_USER_PAYLOAD =
-      """
-        | {
-        |  "credId": "1235",
-        |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 200,
-        |  "credentialStrength": "strong",
-        |  "enrolments": []
-        |  }
-     """.stripMargin
 
     private val EORI_USER_PAYLOAD =
       """
@@ -148,13 +139,12 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(Json.toJson(payload))
+        .post(Json.parse(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))
     }
 
     def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
-    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
   }
 }

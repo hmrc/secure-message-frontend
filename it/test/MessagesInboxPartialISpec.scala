@@ -19,6 +19,7 @@ import connectors.SecureMessageConnector
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models.{ MessageHeader, MessageType }
 import net.codingwell.scalaguice.ScalaModule
+
 import java.time.Instant
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -31,9 +32,10 @@ import play.api.http.{ ContentTypes, HeaderNames }
 import play.api.i18n.Lang
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{ WSClient, WSResponse }
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -67,53 +69,6 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
     })
 
   "Getting the message inbox list partial" should {
-
-//    "return list with correct filter" in new TestSetUp {
-//
-//      val responseWithOutFilter = wsClient
-//        .url(resource(s"/secure-message-frontend/cdcm/messages"))
-//        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
-//        .get()
-//        .futureValue
-//      responseWithOutFilter.status mustBe OK
-//      val bodyWithOutFilter = responseWithOutFilter.body
-//      bodyWithOutFilter must include("CDS-EXPORTS Subject")
-//      bodyWithOutFilter must include("Direct Debit Subject")
-//
-//      val responseWithCDSExportFilter = wsClient
-//        .url(s"http://localhost:$secureMessageFrontendPort/secure-message-frontend/" +
-//          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~CDS-EXPORTS")
-//        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
-//        .get()
-//        .futureValue
-//      responseWithCDSExportFilter.status mustBe OK
-//      val bodyWithCDSFilter = responseWithCDSExportFilter.body
-//      bodyWithCDSFilter must include("CDS-EXPORTS Subject")
-//      bodyWithCDSFilter must not include ("Direct Debit Subject")
-//
-//      val responseWithDDFilter = wsClient
-//        .url(resource(s"/secure-message-frontend/" +
-//          s"something/messages?enrolment=HMRC-CUS-ORG~EORINumber~GB1234567890&tag=notificationType~Direct Debit"))
-//        .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
-//        .get()
-//        .futureValue
-//      responseWithDDFilter.status mustBe OK
-//      val bodyWithDDFilter = responseWithDDFilter.body
-//      bodyWithDDFilter must not include ("CDS-EXPORTS Subject")
-//      bodyWithDDFilter must include("Direct Debit Subject")
-//
-//      val responseWithDifferentEori = wsClient
-//        .url(resource(s"/secure-message-frontend/something/messages?" +
-//          s"enrolment=HMRC-CUS-ORG~EORINumber~GB1234567999&tag=notificationType~Direct Debit"))
-//        .withHttpHeaders(AuthUtil.buildEoriToken)
-//        .get()
-//        .futureValue
-//      responseWithDifferentEori.status mustBe OK
-//      val bodyWithWithDifferentUser = responseWithDifferentEori.body
-//      bodyWithWithDifferentUser must not include ("CDS-EXPORTS Subject")
-//      bodyWithWithDifferentUser must not include ("Direct Debit Subject")
-//
-//    }
 
     "return status code OK 200" in {
       when(
@@ -162,7 +117,10 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
           ArgumentMatchers.eq(Lang("en"))
         )(any[ExecutionContext], any[HeaderCarrier])
       ).thenReturn(Future.successful(List()))
-      val response = wsClient
+
+      import play.api.libs.ws.DefaultBodyReadables.readableAsString
+
+      val response: WSResponse = wsClient
         .url(
           resource(
             "/secure-message-frontend/cdcm/messages?" +
@@ -173,7 +131,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
         .get()
         .futureValue
       response.status mustBe BAD_REQUEST
-      response.json.toString mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
+      response.body mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
     }
   }
 
@@ -209,17 +167,6 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
 
     case class GatewayToken(gatewayToken: String)
 
-    private val NO_EORI_USER_PAYLOAD =
-      """
-        | {
-        |  "credId": "1235",
-        |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 200,
-        |  "credentialStrength": "strong",
-        |  "enrolments": []
-        |  }
-     """.stripMargin
-
     private val EORI_USER_PAYLOAD =
       """
         | {
@@ -246,13 +193,12 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(Json.toJson(payload))
+        .post(Json.parse(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))
     }
 
     def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
-    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
   }
 }

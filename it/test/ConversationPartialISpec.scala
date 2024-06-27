@@ -52,7 +52,7 @@ class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSug
         wsClient
           .url(createConversationUrl)
           .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
-          .put(Json.parse("{}"))
+          .put(Json.parse("""{}"""))
           .futureValue
       responseFromInsert.status mustBe CREATED
 
@@ -69,7 +69,7 @@ class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSug
       pageContent
         .select("h1.govuk-heading-l.margin-top-small.margin-bottom-small")
         .text() mustBe "CDS-EXPORTS Subject"
-      response.json.toString must include("CDS Exports Team sent")
+      pageContent.text() must include("CDS Exports Team sent")
       pageContent.select("div.govuk-body").first().text() mustBe "Blah blah blah"
       pageContent
         .select("#reply-link > a[href]")
@@ -142,7 +142,7 @@ class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSug
         .url(resource(s"/secure-message-frontend/whatever/messages/$encodedUrl"))
         .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
         .withHttpHeaders(AuthUtil.buildEoriToken)
-        .post(Json.toJson(emptyContent))
+        .post(Json.parse(emptyContent))
         .futureValue
       replyEmptyPostReponse.status mustBe BAD_REQUEST
 
@@ -160,28 +160,11 @@ class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSug
 
     private val wsClient = app.injector.instanceOf[WSClient]
 
-    wsClient
-      .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
-      .withHttpHeaders(("Content-Type", "application/json"))
-      .post(Json.toJson(""))
-      .futureValue
-
     lazy val ggAuthPort: Int = 8585
 
     implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
 
     case class GatewayToken(gatewayToken: String)
-
-    private val NO_EORI_USER_PAYLOAD =
-      """
-        | {
-        |  "credId": "1235",
-        |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 200,
-        |  "credentialStrength": "strong",
-        |  "enrolments": []
-        |  }
-     """.stripMargin
 
     private val EORI_USER_PAYLOAD =
       """
@@ -209,13 +192,12 @@ class ConversationPartialISpec extends PlaySpec with ServiceSpec with MockitoSug
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(Json.toJson(payload))
+        .post(Json.parse(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))
     }
 
     def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
-    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
   }
 }
