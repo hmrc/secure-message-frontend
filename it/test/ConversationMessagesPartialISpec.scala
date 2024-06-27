@@ -29,7 +29,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
-
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import scala.concurrent.{ ExecutionContext, Future }
 
 class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
@@ -87,12 +87,10 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
 
     private val wsClient = app.injector.instanceOf[WSClient]
 
-    val payload = ""
-
     wsClient
       .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
       .withHttpHeaders(("Content-Type", "application/json"))
-      .post(payload)
+      .post(Json.toJson(""))
       .futureValue
 
     lazy val ggAuthPort: Int = 8585
@@ -138,7 +136,7 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(payload)
+        .post(Json.toJson(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))

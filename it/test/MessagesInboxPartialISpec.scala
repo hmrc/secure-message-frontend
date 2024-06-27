@@ -33,7 +33,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
-
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import java.io.File
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -144,7 +144,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
         .url(
           resource(
             "/secure-message-frontend/cdcm/messages?" +
-              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"
+              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS Exports"
           )
         )
         .withHttpHeaders(List(AuthUtil.buildEoriToken, (HeaderNames.ACCEPT_LANGUAGE, "en")): _*)
@@ -166,14 +166,14 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
         .url(
           resource(
             "/secure-message-frontend/cdcm/messages?" +
-              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"
+              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS Exports"
           )
         )
         .withHttpHeaders(AuthUtil.buildEoriToken)
         .get()
         .futureValue
       response.status mustBe BAD_REQUEST
-      response.body mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
+      response.json.toString mustBe "Invalid query parameter(s) found: [enrolement, enrolment_key, tags]"
     }
   }
 
@@ -246,7 +246,7 @@ class MessagesInboxPartialISpec extends PlaySpec with ServiceSpec with MockitoSu
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(payload)
+        .post(Json.toJson(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))

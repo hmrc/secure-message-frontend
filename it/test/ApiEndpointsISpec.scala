@@ -16,7 +16,7 @@
 
 import com.google.inject.AbstractModule
 import connectors.SecureMessageConnector
-import controllers.generic.models.{CustomerEnrolment, Tag}
+import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models.Count
 import net.codingwell.scalaguice.ScalaModule
 import org.mockito.ArgumentMatchers
@@ -25,13 +25,13 @@ import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import play.api.http.Status.{BAD_REQUEST, OK}
+import play.api.http.Status.{ BAD_REQUEST, OK }
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsString, Json, Reads}
+import play.api.libs.json.{ JsString, Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
 
@@ -65,7 +65,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         .url(
           resource(
             "/secure-message-frontend/messages/count?" +
-              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"
+              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS Exports"
           )
         )
         .withHttpHeaders(AuthUtil.buildEoriToken)
@@ -90,7 +90,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         .url(
           resource(
             "/secure-message-frontend/messages/count?" +
-              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"
+              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS Exports"
           )
         )
         .withHttpHeaders(AuthUtil.buildEoriToken)
@@ -143,7 +143,7 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
      """.stripMargin
 
     import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-    
+
     private def buildUserToken(payload: String): (String, String) = {
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")

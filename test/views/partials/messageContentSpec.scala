@@ -21,16 +21,17 @@ import java.time.Instant
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.PlaySpec
 import play.api.mvc.RequestHeader
-import views.html.Layout
 import views.html.partials.messageContent
 import views.viewmodels.MessageView
 
 class messageContentSpec extends PlaySpec with LanguageStubs {
 
+  implicit val requestHeader: RequestHeader = mock[RequestHeader]
+
   "messsageContent template" must {
 
-    "have all information including first read" in new TestClass {
-      val messageContent = new messageContent(layout)(
+    "have all information including first read" in {
+      val messageContent = new messageContent()(
         MessageView(
           Some("Mike"),
           Instant.parse("2021-02-19T10:29:47.275Z"),
@@ -45,9 +46,9 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
       messageContent must include("message body")
     }
 
-    "be handled without first read information" in new TestClass {
+    "be handled without first read information" in {
       val messageContent =
-        new messageContent(layout)(
+        new messageContent()(
           MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body")
         )(messagesEn, requestHeader).toString
 
@@ -57,8 +58,8 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
       messageContent must include("message body")
     }
 
-    "have all information including first read in Welsh" in new TestClass {
-      val messageContent = new messageContent(layout)(
+    "have all information including first read in Welsh" in {
+      val messageContent = new messageContent()(
         MessageView(
           Some("Mike"),
           Instant.parse("2021-02-19T10:29:47.275Z"),
@@ -73,9 +74,9 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
       messageContent must include("message body")
     }
 
-    "be handled without first read information in Welsh" in new TestClass {
+    "be handled without first read information in Welsh" in {
       val messageContent =
-        new messageContent(layout)(
+        new messageContent()(
           MessageView(Some("Mike"), Instant.parse("2021-02-19T10:29:47.275Z"), None, "message body")
         )(messagesCy, requestHeader).toString
 
@@ -84,10 +85,5 @@ class messageContentSpec extends PlaySpec with LanguageStubs {
       messageContent mustNot include("Gwelwyd am y tro cyntaf ar")
       messageContent must include("message body")
     }
-  }
-
-  class TestClass {
-    implicit val requestHeader: RequestHeader = mock[RequestHeader]
-    val layout = mock[Layout]
   }
 }
