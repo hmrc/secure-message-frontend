@@ -28,7 +28,7 @@ import play.api.libs.ws.WSBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import java.net.{ URL, URLEncoder }
+import java.net.{ URI, URLEncoder }
 import javax.inject.Inject
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -44,9 +44,9 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[List[MessageHeader]] = {
     val queryParams: String =
       queryParamsBuilder(enrolmentKeys, customerEnrolments, tags, List(("lang", lang.language))).getOrElse("")
-    val urlString: URL = new URL(s"$secureMessageBaseUrl/secure-messaging/messages" + queryParams)
+
     httpClient
-      .get(urlString)
+      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages" + queryParams).toURL)
       .execute[List[MessageHeader]]
   }
 
@@ -56,9 +56,9 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
     tags: Option[List[Tag]]
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Count] = {
     val queryParams: String = queryParamsBuilder(enrolmentKeys, customerEnrolments, tags, Nil).getOrElse("")
-    val urlString: String = s"$secureMessageBaseUrl/secure-messaging/messages/count" + queryParams
+
     httpClient
-      .get(new URL(urlString))
+      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/count" + queryParams).toURL)
       .execute[Count]
   }
 
@@ -86,11 +86,11 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
 
   def getLetterContent(rawId: String, lang: Lang)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Letter] =
     httpClient
-      .get(new URL(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId?lang=${lang.language}"))
+      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId?lang=${lang.language}").toURL)
       .execute[Letter]
 
   def getConversationContent(rawId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Conversation] =
-    httpClient.get(new URL(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId")).execute[Conversation]
+    httpClient.get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId").toURL).execute[Conversation]
 
   def saveCustomerMessage(id: String, message: CustomerMessage)(implicit
     ec: ExecutionContext,
@@ -98,7 +98,7 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
   ): Future[Boolean] =
     httpClient
       .post(
-        new URL(s"$secureMessageBaseUrl/secure-messaging/messages/$id/customer-message")
+        new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$id/customer-message").toURL
       )
       .withBody(Json.toJson(message))
       .execute[HttpResponse]
