@@ -20,15 +20,19 @@ import controllers.generic.models.{ CustomerEnrolment, Tag }
 import models.{ Conversation, Count, CustomerMessage, Letter, MessageHeader }
 import play.api.Logging
 import play.api.i18n.Lang
+import play.api.libs.json.Json
 import play.mvc.Http.Status.CREATED
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpClient, HttpResponse }
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.libs.ws.WSBodyWritables.writeableOf_JsValue
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.{ URI, URLEncoder }
 import javax.inject.Inject
 import scala.concurrent.{ ExecutionContext, Future }
 
-class SecureMessageConnector @Inject() (httpClient: HttpClient, servicesConfig: ServicesConfig) extends Logging {
+class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig: ServicesConfig) extends Logging {
 
   private val secureMessageBaseUrl = servicesConfig.baseUrl("secure-message")
 
@@ -38,11 +42,12 @@ class SecureMessageConnector @Inject() (httpClient: HttpClient, servicesConfig: 
     tags: Option[List[Tag]],
     lang: Lang
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[List[MessageHeader]] = {
-    val withLanguageParam = ("lang", lang.language)
-    val queryParams =
-      queryParamsBuilder(enrolmentKeys, customerEnrolments, tags).getOrElse(List()).++(List(withLanguageParam))
+    val queryParams: String =
+      queryParamsBuilder(enrolmentKeys, customerEnrolments, tags, List(("lang", lang.language))).getOrElse("")
+
     httpClient
-      .GET[List[MessageHeader]](s"$secureMessageBaseUrl/secure-messaging/messages", queryParams)
+      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages" + queryParams).toURL)
+      .execute[List[MessageHeader]]
   }
 
   def getCount(
@@ -50,39 +55,53 @@ class SecureMessageConnector @Inject() (httpClient: HttpClient, servicesConfig: 
     customerEnrolments: Option[List[CustomerEnrolment]],
     tags: Option[List[Tag]]
   )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Count] = {
-    val queryParams = queryParamsBuilder(enrolmentKeys, customerEnrolments, tags)
+    val queryParams: String = queryParamsBuilder(enrolmentKeys, customerEnrolments, tags, Nil).getOrElse("")
+
     httpClient
-      .GET[Count](s"$secureMessageBaseUrl/secure-messaging/messages/count", queryParams.getOrElse(List()))
+      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/count" + queryParams).toURL)
+      .execute[Count]
   }
 
   private def queryParamsBuilder(
     enrolmentKeys: Option[List[String]],
     customerEnrolments: Option[List[CustomerEnrolment]],
-    tags: Option[List[Tag]]
-  ): Option[Seq[(String, String)]] =
-    for {
+    tags: Option[List[Tag]],
+    languageParams: List[(String, String)]
+  ) = {
+    val queryParams = for {
       keysQueryParams: List[(String, String)] <- enrolmentKeys.map(keys => keys.map(ek => ("enrolmentKey", ek)))
       enrolmentsQueryParams: List[(String, String)] <-
         customerEnrolments
           .map(enrols => enrols.map(ce => ("enrolment", s"${ce.key}~${ce.name}~${ce.value}")))
       tagsQueryParams: List[(String, String)] <- tags.map(t => t.map(tag => ("tag", s"${tag.key}~${tag.value}")))
-    } yield keysQueryParams concat enrolmentsQueryParams concat tagsQueryParams
+    } yield keysQueryParams concat enrolmentsQueryParams concat tagsQueryParams concat languageParams
+
+    def makeQueryString(queryParams: Seq[(String, String)]) = {
+      val paramPairs = queryParams.map { case (k, v) => s"$k=${URLEncoder.encode(v, "utf-8")}" }
+      if (paramPairs.isEmpty) "" else paramPairs.mkString("?", "&", "")
+    }
+
+    queryParams.map(makeQueryString)
+  }
 
   def getLetterContent(rawId: String, lang: Lang)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Letter] =
-    httpClient.GET[Letter](s"$secureMessageBaseUrl/secure-messaging/messages/$rawId?lang=${lang.language}")
+    httpClient
+      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId?lang=${lang.language}").toURL)
+      .execute[Letter]
 
   def getConversationContent(rawId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Conversation] =
-    httpClient.GET[Conversation](s"$secureMessageBaseUrl/secure-messaging/messages/$rawId")
+    httpClient.get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId").toURL).execute[Conversation]
 
   def saveCustomerMessage(id: String, message: CustomerMessage)(implicit
     ec: ExecutionContext,
     hc: HeaderCarrier
   ): Future[Boolean] =
     httpClient
-      .POST[CustomerMessage, HttpResponse](
-        s"$secureMessageBaseUrl/secure-messaging/messages/$id/customer-message",
-        message
+      .post(
+        new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$id/customer-message").toURL
       )
+      .withBody(Json.toJson(message))
+      .execute[HttpResponse]
       .map { response =>
         response.status match {
           case CREATED => true

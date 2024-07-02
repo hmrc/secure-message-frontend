@@ -14,18 +14,12 @@
  * limitations under the License.
  *@
 
-@import controllers.routes.LanguageSwitchController._
-@import config.AppConfig
-@import models.Language
+@import views.helpers.HtmlUtil
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcLanguageSelect
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.LanguageSelect
 
 @this(hmrcLanguageSelect: HmrcLanguageSelect)
 
 @()(implicit messages: Messages, appConfig: AppConfig)
-@hmrcLanguageSelect(LanguageSelect(
-  if (messages.lang.code == "cy") Cy else En,
-  (En, selectLanguage(Language.English).url),
-  (Cy, selectLanguage(Language.Cymraeg).url)
-))
+
+@hmrcLanguageSelect(HtmlUtil.languageSelect(messages))
 

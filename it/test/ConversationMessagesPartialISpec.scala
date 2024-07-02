@@ -29,7 +29,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
-
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import scala.concurrent.{ ExecutionContext, Future }
 
 class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with MockitoSugar with BeforeAndAfterEach {
@@ -87,30 +87,11 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
 
     private val wsClient = app.injector.instanceOf[WSClient]
 
-    val payload = ""
-
-    wsClient
-      .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
-      .withHttpHeaders(("Content-Type", "application/json"))
-      .post(payload)
-      .futureValue
-
     lazy val ggAuthPort: Int = 8585
 
     implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
 
     case class GatewayToken(gatewayToken: String)
-
-    private val NO_EORI_USER_PAYLOAD =
-      """
-        | {
-        |  "credId": "1235",
-        |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 200,
-        |  "credentialStrength": "strong",
-        |  "enrolments": []
-        |  }
-     """.stripMargin
 
     private val EORI_USER_PAYLOAD =
       """
@@ -138,13 +119,12 @@ class ConversationMessagesPartialISpec extends PlaySpec with ServiceSpec with Mo
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(payload)
+        .post(Json.parse(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))
     }
 
     def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
-    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
   }
 }

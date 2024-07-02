@@ -27,7 +27,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import play.api.http.Status.{ BAD_REQUEST, OK }
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{ Json, Reads }
+import play.api.libs.json.{ JsString, Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -65,14 +65,14 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         .url(
           resource(
             "/secure-message-frontend/messages/count?" +
-              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS%20Exports"
+              "enrolmentKey=HMRC-CUS-ORG&enrolment=HMRC-CUS-ORG~EORIName~GB7777777777&tag=notificationType~CDS Exports"
           )
         )
         .withHttpHeaders(AuthUtil.buildEoriToken)
         .get()
         .futureValue
       response.status mustBe OK
-      response.body mustBe """{"total":5,"unread":2}"""
+      response.json.toString mustBe """{"total":5,"unread":2}"""
     }
 
     "return status code BAD REQUEST 400 when provided with filter parameters that are invalid (not allowed)" in {
@@ -84,13 +84,15 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
           ArgumentMatchers.eq(None),
           ArgumentMatchers.eq(None)
         )(any[ExecutionContext], any[HeaderCarrier])
-      )
-        .thenReturn(Future.successful(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
+      ).thenReturn(Future.successful(Count(total = totalMessagesCount, unread = unreadMessagesCount)))
+
+      import play.api.libs.ws.DefaultBodyReadables.readableAsString
+
       val response = wsClient
         .url(
           resource(
             "/secure-message-frontend/messages/count?" +
-              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS%20Exports"
+              "enrolment_key=HMRC-CUS-ORG&enrolement=HMRC-CUS-ORG~EORIName~GB7777777777&tags=notificationType~CDS Exports"
           )
         )
         .withHttpHeaders(AuthUtil.buildEoriToken)
@@ -108,17 +110,6 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
     implicit val deserialiser: Reads[GatewayToken] = Json.reads[GatewayToken]
 
     case class GatewayToken(gatewayToken: String)
-
-    private val NO_EORI_USER_PAYLOAD =
-      """
-        | {
-        |  "credId": "1235",
-        |  "affinityGroup": "Organisation",
-        |  "confidenceLevel": 200,
-        |  "credentialStrength": "strong",
-        |  "enrolments": []
-        |  }
-     """.stripMargin
 
     private val EORI_USER_PAYLOAD =
       """
@@ -142,17 +133,18 @@ class ApiEndpointsISpec extends PlaySpec with ServiceSpec with MockitoSugar with
         |  }
      """.stripMargin
 
+    import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+
     private def buildUserToken(payload: String): (String, String) = {
       val response = wsClient
         .url(s"http://localhost:$ggAuthPort/government-gateway/session/login")
         .withHttpHeaders(("Content-Type", "application/json"))
-        .post(payload)
+        .post(Json.parse(payload))
         .futureValue
 
       ("Authorization", response.header("Authorization").getOrElse(""))
     }
 
     def buildEoriToken: (String, String) = buildUserToken(EORI_USER_PAYLOAD)
-    def buildNonEoriToken: (String, String) = buildUserToken(NO_EORI_USER_PAYLOAD)
   }
 }

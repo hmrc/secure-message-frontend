@@ -22,7 +22,12 @@ If your build fails due to poor testing coverage, *DO NOT* lower the test covera
 
 Then run the integration tests:
 
-`sbt it:test`
+## Integration Tests
+`sm2 --start DC_SECURE_MESSAGE_FRONTEND_IT`
+
+`sbt it / test`
+
+`sm2 --stop DC_SECURE_MESSAGE_FRONTEND_IT`
 
 ## Service endpoints
  `/:clientService/messages`                                          
