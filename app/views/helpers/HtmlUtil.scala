@@ -17,18 +17,20 @@
 package views.helpers
 
 import cats.implicits.catsSyntaxEq
-import com.ibm.icu.text.{ DateFormatSymbols, SimpleDateFormat }
-import com.ibm.icu.util.{ TimeZone, ULocale }
+import com.ibm.icu.text.{DateFormatSymbols, SimpleDateFormat}
+import com.ibm.icu.util.{TimeZone, ULocale}
 import controllers.routes.LanguageSwitchController
-import models.{ Language, MessageHeader, MessageType }
+import model.MessageListItem
+import models.{Language, MessageHeader, MessageType}
 
-import java.util.{ Base64, Date }
-import java.time.{ Instant, LocalDate, ZoneOffset }
+import java.util.{Base64, Date}
+import java.time.{Instant, LocalDate, ZoneOffset}
 import play.api.i18n.Messages
 import play.twirl.api.Html
-import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{ Cy, En, LanguageSelect }
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{Cy, En, LanguageSelect}
+import views.helpers.HtmlUtil.getTaxpayerName
 
-import scala.xml.{ Utility, Xhtml }
+import scala.xml.{Utility, Xhtml}
 
 object HtmlUtil {
 
@@ -114,4 +116,32 @@ object HtmlUtil {
       (En, LanguageSwitchController.selectLanguage(Language.English).url),
       (Cy, LanguageSwitchController.selectLanguage(Language.Cymraeg).url)
     )
+
+  def ensureEscaped(text: String): String =
+    text.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+
+  private def getTaxpayerName(message: MessageListItem): String =
+    message.taxpayerName match {
+      case Some(name) =>
+        val taxpayerName = NameCase.nc(name.toString).trim
+        if (taxpayerName != "") {
+          taxpayerName.replaceAll("\\s+", " ")
+        } else {
+          "You"
+        }
+      case _ => "You"
+    }
+  
+  def getSenderName(message: MessageListItem)(implicit messages: Messages): String =
+    message.messageDesc match {
+      case Some(msgDesc) =>
+        if (msgDesc.toLowerCase.contains("2wsm-customer")) {
+          getTaxpayerName(message)
+        } else if (msgDesc.toLowerCase.contains("2wsm-advisor")) {
+          messages("hmrc.adviser.sender.name")
+        } else {
+          messages("hmrc.default.sender.name")
+        }
+      case None => messages("hmrc.default.sender.name")
+    }
 }
