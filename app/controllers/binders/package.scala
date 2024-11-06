@@ -17,11 +17,11 @@
 package controllers
 
 import com.typesafe.config.ConfigFactory
-import controllers.generic.models.{CustomerEnrolment, Tag}
+import controllers.generic.models.{ CustomerEnrolment, Tag }
 import model.*
 import play.api.Logger
-import play.api.mvc.{PathBindable, QueryStringBindable}
-import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, PlainText, SymmetricCryptoFactory}
+import play.api.mvc.{ PathBindable, QueryStringBindable }
+import uk.gov.hmrc.crypto.{ Crypted, Decrypter, Encrypter, PlainText, SymmetricCryptoFactory }
 
 import scala.util.Try
 import java.util.Base64
@@ -61,8 +61,8 @@ private trait EncryptedStringPathBinder extends PathBindable[Encrypted[String]] 
     def decrypt(s: String) = Try(crypto.decrypt(Crypted(s))).map(Right(_)).getOrElse(Left(s"Could not decrypt $key"))
 
     for {
-      decoded <- base64Decode(value)
-      bound <- stringBinder.bind(key, decoded)
+      decoded   <- base64Decode(value)
+      bound     <- stringBinder.bind(key, decoded)
       decrypted <- decrypt(bound)
     } yield Encrypted(decrypted.value)
   }
@@ -72,7 +72,6 @@ private trait EncryptedStringPathBinder extends PathBindable[Encrypted[String]] 
       stringBinder.unbind(key, crypto.encrypt(PlainText(value.decryptedValue)).value).getBytes
     )
 }
-
 
 package object binders {
   implicit def queryStringBindableCustomerEnrolment(implicit
@@ -104,8 +103,8 @@ package object binders {
     }
 
   implicit def encryptedStringPathBinder(implicit
-                                         implStringBinder: PathBindable[String]
-                                        ): PathBindable[Encrypted[String]] =
+    implStringBinder: PathBindable[String]
+  ): PathBindable[Encrypted[String]] =
     new EncryptedStringPathBinder {
       val crypto: Encrypter with Decrypter =
         SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "queryParameter.encryption", ConfigFactory.load())
@@ -113,8 +112,8 @@ package object binders {
     }
 
   implicit def readPreferenceBinder(implicit
-                                    stringBinder: QueryStringBindable[String]
-                                   ): QueryStringBindable[ReadPreference.Value] =
+    stringBinder: QueryStringBindable[String]
+  ): QueryStringBindable[ReadPreference.Value] =
     new QueryStringBindable[ReadPreference.Value] {
       override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ReadPreference.Value]] =
         stringBinder.bind("read", params).flatMap { param =>
@@ -128,8 +127,8 @@ package object binders {
     }
 
   implicit def encryptedParameterisedUrlBinder(implicit
-                                               implStringBinder: PathBindable[String]
-                                              ): PathBindable[Encrypted[ParameterisedUrl]] =
+    implStringBinder: PathBindable[String]
+  ): PathBindable[Encrypted[ParameterisedUrl]] =
     new EncryptedParameterisedUrlBinder {
       val crypto: Encrypter with Decrypter =
         SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "queryParameter.encryption", ConfigFactory.load())

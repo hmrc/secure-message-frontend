@@ -17,20 +17,20 @@
 package views.helpers
 
 import cats.implicits.catsSyntaxEq
-import com.ibm.icu.text.{DateFormatSymbols, SimpleDateFormat}
-import com.ibm.icu.util.{TimeZone, ULocale}
+import com.ibm.icu.text.{ DateFormatSymbols, SimpleDateFormat }
+import com.ibm.icu.util.{ TimeZone, ULocale }
 import controllers.routes.LanguageSwitchController
 import model.MessageListItem
-import models.{Language, MessageHeader, MessageType}
+import models.{ Language, MessageHeader, MessageType }
 
-import java.util.{Base64, Date}
-import java.time.{Instant, LocalDate, ZoneOffset}
+import java.util.{ Base64, Date }
+import java.time.{ Instant, LocalDate, ZoneOffset }
 import play.api.i18n.Messages
 import play.twirl.api.Html
-import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{Cy, En, LanguageSelect}
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{ Cy, En, LanguageSelect }
 import views.helpers.HtmlUtil.getTaxpayerName
 
-import scala.xml.{Utility, Xhtml}
+import scala.xml.{ Utility, Xhtml }
 
 object HtmlUtil {
 
@@ -131,7 +131,7 @@ object HtmlUtil {
         }
       case _ => "You"
     }
-  
+
   def getSenderName(message: MessageListItem)(implicit messages: Messages): String =
     message.messageDesc match {
       case Some(msgDesc) =>

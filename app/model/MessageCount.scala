@@ -16,7 +16,7 @@
 
 package model
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{ Json, OFormat }
 
 case class MessageCount(count: Int)
 

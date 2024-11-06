@@ -19,7 +19,7 @@ package model
 import model.utils.DateFormats
 import play.api.libs.json.*
 
-import java.time.{Instant, LocalDate}
+import java.time.{ Instant, LocalDate }
 
 case class MessageListItem(
   id: String,

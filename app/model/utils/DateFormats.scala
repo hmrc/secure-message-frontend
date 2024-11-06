@@ -19,8 +19,8 @@ package model.utils
 import play.api.libs.json.*
 
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate}
-import scala.util.{Failure, Success, Try}
+import java.time.{ Instant, LocalDate }
+import scala.util.{ Failure, Success, Try }
 
 object DateFormats {
   implicit val instantReads: Reads[Instant] = new Reads[Instant] {

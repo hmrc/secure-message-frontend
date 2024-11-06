@@ -16,18 +16,18 @@
 
 package controllers
 
-import controllers.{Encrypted, ParameterisedUrl}
+import controllers.{ Encrypted, ParameterisedUrl }
 import config.AppConfig
-import connectors.{MessageConnector, RendererConnector, SecureMessageConnector}
+import connectors.{ MessageConnector, RendererConnector, SecureMessageConnector }
 import model.*
-import model.RenderMessageMetadata.{ReadMessageMetadata, UnreadMessageMetadata}
-import play.api.{Configuration, Environment, Logger}
+import model.RenderMessageMetadata.{ ReadMessageMetadata, UnreadMessageMetadata }
+import play.api.{ Configuration, Environment, Logger }
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.*
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, MessagesRequest, Result, Results}
+import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, MessagesRequest, Result, Results }
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, MissingBearerToken, SessionRecordNotFound}
+import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions, MissingBearerToken, SessionRecordNotFound }
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -39,21 +39,21 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 
 import java.net.URL
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success, Try }
 
 class MessageFrontEndController @Inject() (
-                                            val appConfig: AppConfig,
-                                            val authConnector: AuthConnector,
-                                            rendererConnector: RendererConnector,
-                                            http: HttpClientV2,
-                                            val messageConnector: MessageConnector,
-                                            val config: Configuration,
-                                            val env: Environment,
-                                            val portalUrlBuilder: PortalUrlBuilder,
-                                            val cc: MessagesControllerComponents,
-                                            servicesConfig: ServicesConfig,
-                                            val encryptAndEncode: EncryptAndEncode
+  val appConfig: AppConfig,
+  val authConnector: AuthConnector,
+  rendererConnector: RendererConnector,
+  http: HttpClientV2,
+  val messageConnector: MessageConnector,
+  val config: Configuration,
+  val env: Environment,
+  val portalUrlBuilder: PortalUrlBuilder,
+  val cc: MessagesControllerComponents,
+  servicesConfig: ServicesConfig,
+  val encryptAndEncode: EncryptAndEncode
 )(implicit ec: ExecutionContext)
     extends FrontendController(cc) with AuthorisedFunctions with I18nSupport with PartialHtml {
 

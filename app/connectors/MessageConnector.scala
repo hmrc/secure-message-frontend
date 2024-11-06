@@ -16,20 +16,20 @@
 
 package connectors
 
-import model.{MessageCount, MessageListItem, MessagesCounts, MessagesWithCount, RenderMessageMetadata}
+import model.{ MessageCount, MessageListItem, MessagesCounts, MessagesWithCount, RenderMessageMetadata }
 import play.api.http.Status
 import play.api.i18n.Messages
 import play.api.libs.json.*
-import play.api.{Configuration, Environment}
+import play.api.{ Configuration, Environment }
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import java.net.{URI, URL}
+import java.net.{ URI, URL }
 import java.util.Base64
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.{ Inject, Singleton }
+import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
 class MessageConnector @Inject() (

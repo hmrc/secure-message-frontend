@@ -19,11 +19,11 @@ package views.helpers
 import config.AppConfig
 import play.api.Logger
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 import scala.annotation.tailrec
 
 @Singleton
-class PortalUrlBuilder @Inject()(appConfig: AppConfig) {
+class PortalUrlBuilder @Inject() (appConfig: AppConfig) {
 
   private val logger = Logger(getClass.getName)
 

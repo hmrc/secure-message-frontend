@@ -18,17 +18,17 @@ package controllers
 
 import config.AppConfig
 import connectors.MessageConnector
-import model.{EncryptAndEncode, MessageListItem, MessagesCounts, ReadPreference}
-import play.api.i18n.{Lang, Messages}
+import model.{ EncryptAndEncode, MessageListItem, MessagesCounts, ReadPreference }
+import play.api.i18n.{ Lang, Messages }
 import play.api.mvc.Request
-import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
+import play.twirl.api.{ Html, HtmlFormat }
+import uk.gov.hmrc.auth.core.{ Enrolment, Enrolments }
 import uk.gov.hmrc.http.HeaderCarrier
 import views.helpers.PortalUrlBuilder
 import views.html.*
 
 import scala.annotation.unused
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait PartialHtml {
 
