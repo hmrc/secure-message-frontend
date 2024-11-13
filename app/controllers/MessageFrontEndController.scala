@@ -16,9 +16,8 @@
 
 package controllers
 
-import controllers.{ Encrypted, ParameterisedUrl }
 import config.AppConfig
-import connectors.{ MessageConnector, RendererConnector, SecureMessageConnector }
+import connectors.{ MessageConnector, RendererConnector }
 import model.*
 import model.RenderMessageMetadata.{ ReadMessageMetadata, UnreadMessageMetadata }
 import play.api.{ Configuration, Environment, Logger }
@@ -28,7 +27,7 @@ import play.api.mvc.*
 import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, MessagesRequest, Result, Results }
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions, MissingBearerToken, SessionRecordNotFound }
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{ Authorization, HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -70,6 +69,8 @@ class MessageFrontEndController @Inject() (
 
   def list(taxIdentifiers: List[String], regimes: List[String] = List()): Action[AnyContent] = Action.async {
     implicit request =>
+      val authorisationHeader = request.headers.get("Authorization")
+      implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
       authorised().retrieve(Retrievals.allEnrolments) { case enrolments =>
         asListHtml(enrolments, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
       }
@@ -77,6 +78,8 @@ class MessageFrontEndController @Inject() (
 
   def btaList(taxIdentifiers: List[String], regimes: List[String] = List()): Action[AnyContent] = Action.async {
     implicit request =>
+      val authorisationHeader = request.headers.get("Authorization")
+      implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
       authorised().retrieve(Retrievals.allEnrolments) { case enrolments =>
         btaListHtml(enrolments, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
       }
@@ -84,6 +87,8 @@ class MessageFrontEndController @Inject() (
 
   def read(encryptedUrl: Encrypted[ParameterisedUrl]): Action[AnyContent] = Action.async {
     implicit request: MessagesRequest[AnyContent] =>
+      val authorisationHeader = request.headers.get("Authorization")
+      implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
       authorised() {
         if (encryptedUrl.decryptedValue.url.isEmpty) {
           logger.warn(s"Valid encryptedUrl needs to be present in the path ${request.uri}")
@@ -120,6 +125,8 @@ class MessageFrontEndController @Inject() (
     taxIdentifiers: List[String],
     regimes: List[String] = List()
   ): Action[AnyContent] = Action.async { implicit request =>
+    val authorisationHeader = request.headers.get("Authorization")
+    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
     authorised() {
       messageConnector
         .messageCount(
@@ -141,6 +148,8 @@ class MessageFrontEndController @Inject() (
     taxIdentifiers: List[String],
     regimes: List[String] = List()
   ): Action[AnyContent] = Action.async { implicit request =>
+    val authorisationHeader = request.headers.get("Authorization")
+    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
     authorised() {
       asLinkHtml(messagesInboxUrl, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
     }

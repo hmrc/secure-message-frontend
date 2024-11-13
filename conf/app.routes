@@ -34,7 +34,7 @@ GET         /assets/*file                                                      c
 GET   /messages                                     controllers.MessageFrontEndController.list(taxIdentifiers: List[String], regimes: List[String])
 GET   /messages/bta                                 controllers.MessageFrontEndController.btaList(taxIdentifiers: List[String], regimes: List[String])
 
-GET   /messages/count                               controllers.MessageFrontEndController.count(read: Option[model.ReadPreference.Value], taxIdentifiers: List[String], regimes: List[String])
+GET   /messages/message-count                       controllers.MessageFrontEndController.count(read: Option[model.ReadPreference.Value], taxIdentifiers: List[String], regimes: List[String])
 
 GET   /messages/inbox-link                          controllers.MessageFrontEndController.inboxLink(messagesInboxUrl: String, taxIdentifiers: List[String], regimes: List[String])
 GET   /messages/:encryptedUrl                       controllers.MessageFrontEndController.read(encryptedUrl: controllers.Encrypted[controllers.ParameterisedUrl])
