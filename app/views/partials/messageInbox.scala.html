@@ -153,7 +153,7 @@ a.underline-fix { text-decoration: none; }
 
 
 <td class="govuk-table__cell ">
-      <a href=@{getMessageUrl(clientService,conversationHeader)} tabindex="-1" target="_self" data-sso="false" class="underline-fix no--underline" >
+      <a href=@{getMessageUrl(clientService,conversationHeader)} target="_self" data-sso="false" class="underline-fix no--underline" >
       
       <div>@{
         val senderSpan = if(conversationHeader.unreadMessages){
@@ -195,7 +195,7 @@ a.underline-fix { text-decoration: none; }
 
 
  <td class="govuk-table__cell mob-align-right">
-  <a aria-hidden="true" href=@{getMessageUrl(clientService,conversationHeader)} tabindex="-1" target="_self" data-sso="false" class="underline-fix no--underline" >
+  <a aria-hidden="true" href=@{getMessageUrl(clientService,conversationHeader)} target="_self" data-sso="false" class="underline-fix no--underline" >
     <span class='@{if(conversationHeader.unreadMessages){"govuk-!-font-weight-bold"}} black-text'>@{getMessageDate(conversationHeader)}</span>
   </a>
   <span class="govuk-visually-hidden">@{getMessageDate(conversationHeader)}</span>
