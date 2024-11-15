@@ -19,10 +19,12 @@ package controllers.utils
 trait QueryStringValidationSuccess
 case object ValidQueryParameters extends QueryStringValidationSuccess
 
+case object ValidOtherQueryParameters extends QueryStringValidationSuccess
+
 class InvalidQueryStringException(message: String) extends Exception(message) {}
 final case class InvalidQueryParameterException(invalidParams: List[String])
     extends InvalidQueryStringException(
-      s"Invalid query parameter(s) found: [${invalidParams.sorted.mkString(", ")}]"
+      s"Invalid query parameter(s) found: [${invalidParams.sorted.toSet.mkString(", ")}]"
     ) {}
 
 trait QueryStringValidation {
@@ -35,4 +37,21 @@ trait QueryStringValidation {
       case List()                      => Right(ValidQueryParameters)
       case invalidParams: List[String] => Left(InvalidQueryParameterException(invalidParams))
     }
+
+  val validCdsQueryParams = List("enrolment", "enrolmentKey", "tag", "lang", "sent")
+  val validNonCdsQueryParams = List("taxIdentifiers", "regimes", "lang")
+
+  protected def validateQueryParameters(
+    queryString: Map[String, Seq[String]]
+  ): Either[InvalidQueryStringException, QueryStringValidationSuccess] = {
+    val cdsParams = queryString.keys.toList diff validCdsQueryParams
+    val nonCdsParams = queryString.keys.toList diff validNonCdsQueryParams
+    (cdsParams, nonCdsParams) match {
+      case (_, _) if queryString.isEmpty => Right(ValidOtherQueryParameters)
+      case (List(), _)                   => Right(ValidQueryParameters)
+      case (_, List())                   => Right(ValidOtherQueryParameters)
+      case (invalidParams1: List[String], invalidParams2: List[String]) =>
+        Left(InvalidQueryParameterException(invalidParams1 ++ invalidParams2))
+    }
+  }
 }

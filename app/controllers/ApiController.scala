@@ -20,8 +20,11 @@ import config.AppConfig
 import connectors.SecureMessageConnector
 import controllers.generic.models.{ CustomerEnrolment, Tag }
 import controllers.utils.QueryStringValidation
+import controllers.utils.ValidQueryParameters
+import controllers.routes
+import model.ReadPreference
 import play.api.i18n.I18nSupport
-import play.api.mvc.{ MessagesControllerComponents, _ }
+import play.api.mvc.{ MessagesControllerComponents, * }
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions }
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -48,12 +51,15 @@ class ApiController @Inject() (
   def count(
     enrolmentKeys: Option[List[String]],
     customerEnrolments: Option[List[CustomerEnrolment]],
-    tags: Option[List[Tag]]
+    tags: Option[List[Tag]],
+    readPreference: Option[ReadPreference.Value] = None,
+    taxIdentifiers: List[String] = List(),
+    regimes: List[String] = List()
   ): Action[AnyContent] = Action.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-    validateQueryParameters(request.queryString, "enrolment", "enrolmentKey", "tag", "sent") match {
+    validateQueryParameters(request.queryString) match {
       case Left(e) => Future.successful(BadRequest(e.getMessage))
-      case _ =>
+      case Right(ValidQueryParameters) =>
         authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
           val enrolmentKeysToCheck =
             if (request.queryString.filter(_._1 != "sent").isEmpty) {
@@ -65,6 +71,8 @@ class ApiController @Inject() (
             Future.successful(Ok(Json.toJson(messageCount)))
           }
         }
+      case Right(_) =>
+        Future.successful(Redirect(routes.MessageFrontEndController.count(readPreference, taxIdentifiers, regimes)))
     }
   }
 }
