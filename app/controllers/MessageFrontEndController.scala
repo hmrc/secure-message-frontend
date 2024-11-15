@@ -69,8 +69,6 @@ class MessageFrontEndController @Inject() (
 
   def list(taxIdentifiers: List[String], regimes: List[String] = List()): Action[AnyContent] = Action.async {
     implicit request =>
-      val authorisationHeader = request.headers.get("Authorization")
-      implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
       authorised().retrieve(Retrievals.allEnrolments) { case enrolments =>
         asListHtml(enrolments, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
       }
@@ -78,8 +76,6 @@ class MessageFrontEndController @Inject() (
 
   def btaList(taxIdentifiers: List[String], regimes: List[String] = List()): Action[AnyContent] = Action.async {
     implicit request =>
-      val authorisationHeader = request.headers.get("Authorization")
-      implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
       authorised().retrieve(Retrievals.allEnrolments) { case enrolments =>
         btaListHtml(enrolments, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
       }
@@ -87,8 +83,6 @@ class MessageFrontEndController @Inject() (
 
   def read(encryptedUrl: Encrypted[ParameterisedUrl]): Action[AnyContent] = Action.async {
     implicit request: MessagesRequest[AnyContent] =>
-      val authorisationHeader = request.headers.get("Authorization")
-      implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
       authorised() {
         if (encryptedUrl.decryptedValue.url.isEmpty) {
           logger.warn(s"Valid encryptedUrl needs to be present in the path ${request.uri}")
@@ -125,8 +119,6 @@ class MessageFrontEndController @Inject() (
     taxIdentifiers: List[String],
     regimes: List[String] = List()
   ): Action[AnyContent] = Action.async { implicit request =>
-    val authorisationHeader = request.headers.get("Authorization")
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
     authorised() {
       messageConnector
         .messageCount(
@@ -148,8 +140,7 @@ class MessageFrontEndController @Inject() (
     taxIdentifiers: List[String],
     regimes: List[String] = List()
   ): Action[AnyContent] = Action.async { implicit request =>
-    val authorisationHeader = request.headers.get("Authorization")
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = authorisationHeader.map(Authorization(_)))
+    hc.authorization
     authorised() {
       asLinkHtml(messagesInboxUrl, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
     }
