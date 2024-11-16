@@ -3,7 +3,7 @@
 
 GET         /:clientService/messages                                           controllers.MessagesInboxController.display(clientService: String, enrolmentKey: Option[List[String]], enrolment: Option[List[CustomerEnrolment]], tag: Option[List[Tag]])
 
-GET         /messages/count                                                    controllers.ApiController.count(enrolmentKey: Option[List[String]], enrolment: Option[List[CustomerEnrolment]], tag: Option[List[Tag]],read: Option[model.ReadPreference.Value], taxIdentifiers: List[String], regimes: List[String])
+GET         /messages/count                                                    controllers.ApiController.count(enrolmentKey: Option[List[String]], enrolment: Option[List[CustomerEnrolment]], tag: Option[List[Tag]])
 
 GET         /:clientService/messages/:id                                       controllers.MessageController.displayMessage(clientService, id, showReplyForm: Boolean ?= false)
 
