@@ -17,7 +17,7 @@
 package controllers
 
 import config.AppConfig
-import connectors.{ MessageConnector, RendererConnector }
+import connectors.{ RendererConnector, SecureMessageConnector }
 import model.*
 import model.RenderMessageMetadata.{ ReadMessageMetadata, UnreadMessageMetadata }
 import play.api.{ Configuration, Environment, Logger }
@@ -46,7 +46,7 @@ class MessageFrontEndController @Inject() (
   val authConnector: AuthConnector,
   rendererConnector: RendererConnector,
   http: HttpClientV2,
-  val messageConnector: MessageConnector,
+  val messageConnector: SecureMessageConnector,
   val config: Configuration,
   val env: Environment,
   val portalUrlBuilder: PortalUrlBuilder,

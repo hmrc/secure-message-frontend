@@ -17,7 +17,7 @@
 package controllers
 
 import config.AppConfig
-import connectors.MessageConnector
+import connectors.SecureMessageConnector
 import model.{ EncryptAndEncode, MessageListItem, MessagesCounts, ReadPreference }
 import play.api.i18n.{ Lang, Messages }
 import play.api.mvc.Request
@@ -34,7 +34,7 @@ trait PartialHtml {
 
   type RenderView = Seq[MessageListItem] => HtmlFormat.Appendable
 
-  def messageConnector: MessageConnector
+  def messageConnector: SecureMessageConnector
   def portalUrlBuilder: PortalUrlBuilder
   def encryptAndEncode: EncryptAndEncode
   val appConfig: AppConfig
