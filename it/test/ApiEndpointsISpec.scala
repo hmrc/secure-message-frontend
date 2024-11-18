@@ -27,7 +27,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import play.api.http.Status.{ BAD_REQUEST, OK }
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{ JsString, Json, Reads }
+import play.api.libs.json.{ Json, Reads }
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.HeaderCarrier
 

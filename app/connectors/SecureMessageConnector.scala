@@ -17,10 +17,11 @@
 package connectors
 
 import controllers.generic.models.{ CustomerEnrolment, Tag }
+import model.{ MessageCount, MessageListItem, MessagesCounts, MessagesWithCount, RenderMessageMetadata }
 import models.{ Conversation, Count, CustomerMessage, Letter, MessageHeader }
 import play.api.Logging
-import play.api.i18n.Lang
-import play.api.libs.json.Json
+import play.api.i18n.{ Lang, Messages }
+import play.api.libs.json.{ Json, Reads, __ }
 import play.mvc.Http.Status.CREATED
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -29,12 +30,15 @@ import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{ URI, URLEncoder }
+import java.util.Base64
 import javax.inject.Inject
 import scala.concurrent.{ ExecutionContext, Future }
 
-class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig: ServicesConfig) extends Logging {
-
-  private val secureMessageBaseUrl = servicesConfig.baseUrl("secure-message")
+class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig: ServicesConfig)(implicit
+  ec: ExecutionContext
+) extends Logging {
+  import SecureMessageConnector.*
+  private val secureMessageBaseUrl = servicesConfig.baseUrl("secure-message") + "/secure-messaging"
 
   def getInboxList(
     enrolmentKeys: Option[List[String]],
@@ -46,7 +50,7 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
       queryParamsBuilder(enrolmentKeys, customerEnrolments, tags, List(("lang", lang.language))).getOrElse("")
 
     httpClient
-      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages" + queryParams).toURL)
+      .get(new URI(s"$secureMessageBaseUrl/messages" + queryParams).toURL)
       .execute[List[MessageHeader]]
   }
 
@@ -58,7 +62,7 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
     val queryParams: String = queryParamsBuilder(enrolmentKeys, customerEnrolments, tags, Nil).getOrElse("")
 
     httpClient
-      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/count" + queryParams).toURL)
+      .get(new URI(s"$secureMessageBaseUrl/messages/count" + queryParams).toURL)
       .execute[Count]
   }
 
@@ -86,11 +90,11 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
 
   def getLetterContent(rawId: String, lang: Lang)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Letter] =
     httpClient
-      .get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId?lang=${lang.language}").toURL)
+      .get(new URI(s"$secureMessageBaseUrl/messages/$rawId?lang=${lang.language}").toURL)
       .execute[Letter]
 
   def getConversationContent(rawId: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Conversation] =
-    httpClient.get(new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$rawId").toURL).execute[Conversation]
+    httpClient.get(new URI(s"$secureMessageBaseUrl/messages/$rawId").toURL).execute[Conversation]
 
   def saveCustomerMessage(id: String, message: CustomerMessage)(implicit
     ec: ExecutionContext,
@@ -98,7 +102,7 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
   ): Future[Boolean] =
     httpClient
       .post(
-        new URI(s"$secureMessageBaseUrl/secure-messaging/messages/$id/customer-message").toURL
+        new URI(s"$secureMessageBaseUrl/messages/$id/customer-message").toURL
       )
       .withBody(Json.toJson(message))
       .execute[HttpResponse]
@@ -110,4 +114,69 @@ class SecureMessageConnector @Inject() (httpClient: HttpClientV2, servicesConfig
             false
         }
       }
+
+  def messages(taxIdentifiers: List[String], regimes: List[String] = List(), language: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Seq[MessageListItem]] = {
+    val identifiersParams = formatQueryParam(taxIdentifiers = taxIdentifiers, regimes = regimes)
+    val paramsWithLanguage = withLangQueryParam(language, identifiersParams)
+
+    httpClient
+      .get(URI.create(s"$secureMessageBaseUrl/messages$paramsWithLanguage").toURL)
+      .execute[MessagesWithCount]
+      .map {
+        _.items
+      }
+  }
+
+  def getMessageMetadata(
+    id: String
+  )(implicit hc: HeaderCarrier, messagesProvider: Messages): Future[RenderMessageMetadata] = {
+    val messageId = Base64.getEncoder.encodeToString(id.getBytes("UTF-8"))
+    httpClient
+      .get(URI.create(s"$secureMessageBaseUrl/messages/$messageId?lang=${messagesProvider.lang.language}").toURL)
+      .execute[RenderMessageMetadata]
+  }
+
+  def messageCount(
+    transform: MessagesCounts => MessageCount,
+    taxIdentifiers: List[String],
+    regimes: List[String] = List()
+  )(implicit
+    hc: HeaderCarrier
+  ): Future[MessageCount] = {
+    implicit def messagesCountsReads: Reads[MessagesCounts] =
+      (__ \ "count").read[MessagesCounts](MessagesCounts.format)
+
+    val identifiersQueryParam = formatQueryParam(taxIdentifiers, regimes = regimes)
+
+    httpClient
+      .get(URI.create(s"$secureMessageBaseUrl/messages/count$identifiersQueryParam").toURL)
+      .execute[MessagesCounts]
+      .map {
+        transform
+      }
+  }
+}
+
+object SecureMessageConnector {
+  def formatQueryParam(
+    taxIdentifiers: List[String],
+    alwaysAppend: Boolean = false,
+    regimes: List[String] = List()
+  ): String =
+    (taxIdentifiers.map(("taxIdentifiers", _)) ++ regimes.map(("regimes", _)))
+      .foldLeft("") {
+        case (accumulator, (name, identifier)) if accumulator.isEmpty && !alwaysAppend => s"?$name=$identifier"
+        case (accumulator, (name, identifier)) => s"$accumulator&$name=$identifier"
+      }
+
+  def withLangQueryParam(language: String, queryParams: String): String = {
+    val langParam = s"lang=$language"
+    if (queryParams.startsWith("?")) {
+      s"$queryParams&$langParam"
+    } else {
+      s"?$langParam"
+    }
+  }
 }
