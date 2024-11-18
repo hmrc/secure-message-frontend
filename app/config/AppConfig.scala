@@ -20,7 +20,6 @@ import play.api.Configuration
 
 import javax.inject.{ Inject, Singleton }
 import play.api.i18n.Lang
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class AppConfig @Inject() (val configuration: Configuration) {

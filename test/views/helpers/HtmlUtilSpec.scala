@@ -16,16 +16,21 @@
 
 package views.helpers
 
+import model.{ MessageListItem, TaxpayerName }
 import models.{ MessageHeader, MessageType }
 
 import java.time.{ Instant, LocalDate, ZoneOffset }
 import org.scalatestplus.play.PlaySpec
-import play.api.i18n.{ DefaultMessagesApi, Lang, MessagesImpl }
-import views.helpers.HtmlUtil._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{ DefaultMessagesApi, Lang, Messages, MessagesApi, MessagesImpl }
+import play.api.inject.Injector
+import play.api.test.FakeRequest
+import play.api.mvc.AnyContentAsEmpty
+import views.helpers.HtmlUtil.*
 
 import java.time.format.DateTimeFormatter
 
-class HtmlUtilSpec extends PlaySpec {
+class HtmlUtilSpec extends PlaySpec with GuiceOneAppPerSuite {
   val messagesApi = new DefaultMessagesApi()
   implicit val messages: MessagesImpl = MessagesImpl(Lang("en"), messagesApi)
 
@@ -61,19 +66,21 @@ class HtmlUtilSpec extends PlaySpec {
 
     "return just time if message creation is today" in {
       val instant = Instant.parse(s"${LocalDate.now()}T05:29:47.275Z")
+      val times: Int = 5
       val messageDateOrTime =
         getMessageDate(MessageHeader(MessageType.Conversation, "", "", instant, None, false, 1, Some(""), Some("")))
-      messageDateOrTime.takeRight(5) must be(":29am")
+      messageDateOrTime.takeRight(times) must be(":29am")
     }
 
     "return just time if message creation is today, in Welsh" in {
       val messagesCy = MessagesImpl(Lang("cy"), messagesApi)
+      val times: Int = 5
       val instant = Instant.parse(s"${LocalDate.now()}T05:29:47.275Z")
       val messageDateOrTime =
         getMessageDate(MessageHeader(MessageType.Conversation, "", "", instant, None, false, 1, Some(""), Some("")))(
           messagesCy
         )
-      messageDateOrTime.takeRight(5) must be(":29yb")
+      messageDateOrTime.takeRight(times) must be(":29yb")
     }
   }
 
@@ -116,6 +123,66 @@ class HtmlUtilSpec extends PlaySpec {
         "someclient",
         MessageHeader(MessageType.Letter, id, "subject", Instant.now(), None, false, 1, None, None)
       ) mustBe s"/someclient/messages/$id"
+    }
+  }
+
+  "HtmlUtil.getSenderName" must {
+    lazy val injector: Injector = app.injector
+    lazy val messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
+    implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    implicit lazy val resourcesMessages: Messages = messagesApi.preferred(fakeRequest)
+
+    "return the customer's name when the message is a 2-way secure message from the customer and the name is available" in {
+      val messageListitem = new MessageListItem(
+        id = "123",
+        subject = "test",
+        validFrom = LocalDate.now(),
+        taxpayerName = Some(TaxpayerName(forename = Some("test"), surname = Some("user"))),
+        readTime = None,
+        sentInError = false,
+        messageDesc = Some("2wsm-customer")
+      )
+      val senderName = HtmlUtil.getSenderName(messageListitem)
+      senderName mustBe "Test User"
+    }
+    "return 'You' when the message is a 2-way secure message from the customer and the name is not available" in {
+      val messageListitem = new MessageListItem(
+        id = "123",
+        subject = "test",
+        validFrom = LocalDate.now(),
+        taxpayerName = Some(TaxpayerName()),
+        readTime = None,
+        sentInError = false,
+        messageDesc = Some("2wsm-customer")
+      )
+      val senderName = HtmlUtil.getSenderName(messageListitem)
+      senderName mustBe "You"
+    }
+    "return the 'HMRC digital team' name when the message is a 2-way secure message from the advisor" in {
+      val messageListitem = new MessageListItem(
+        id = "123",
+        subject = "test",
+        validFrom = LocalDate.now(),
+        taxpayerName = None,
+        readTime = None,
+        sentInError = false,
+        messageDesc = Some("2wsm-advisor")
+      )
+      val senderName = HtmlUtil.getSenderName(messageListitem)
+      senderName mustBe "HMRC digital team"
+    }
+    "return the 'HMRC' name when the message is from HMRC but not a 2-way secure message" in {
+      val messageListitem = new MessageListItem(
+        id = "123",
+        subject = "test",
+        validFrom = LocalDate.now(),
+        taxpayerName = None,
+        readTime = None,
+        sentInError = false,
+        messageDesc = Some("other")
+      )
+      val senderName = HtmlUtil.getSenderName(messageListitem)(resourcesMessages)
+      senderName mustBe "HMRC"
     }
   }
 

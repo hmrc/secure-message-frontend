@@ -28,7 +28,6 @@ import java.time.{ Instant, LocalDate, ZoneOffset }
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{ Cy, En, LanguageSelect }
-import views.helpers.HtmlUtil.getTaxpayerName
 
 import scala.xml.{ Utility, Xhtml }
 

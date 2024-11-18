@@ -27,7 +27,7 @@ import play.api.mvc.*
 import play.api.mvc.{ Action, AnyContent, MessagesControllerComponents, MessagesRequest, Result, Results }
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisedFunctions, MissingBearerToken, SessionRecordNotFound }
-import uk.gov.hmrc.http.{ Authorization, HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
