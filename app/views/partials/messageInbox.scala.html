@@ -41,7 +41,14 @@
 
 }
 
+.govuk-table__cell {
+    padding: 10px 20px 0 0;
+}
 
+.govuk-table__cell:last-child, .govuk-table__header:last-child {
+    padding-left: 200px;
+    padding-right: 0;
+}
 
 .conversation-status-marker {
   display:inline-block;
@@ -53,7 +60,15 @@
   color:#0b0c0c;
 }
 
-
+.dot-unread {
+  height: 10px;
+  width: 10px;
+  background-color: #1d70b8;
+  border-radius: 50%;
+  display: inline-block;
+  overflow: hidden;
+  text-indent: -99999px;
+}
 
 .underline {
   text-decoration: underline !important;
@@ -81,9 +96,14 @@
   padding:10px;
 }
 
+        .black-text {
+            color: #0b0c0c;
+        }
 
-
-
+       .black-text:hover {
+          color: #003078;
+          border-bottom-color: #003078;
+        }
 
 
 a.underline-fix { text-decoration: none; }
@@ -101,6 +121,10 @@ a.underline-fix { text-decoration: none; }
 
     .hover-effect:hover {
       color: #003078;
+    }
+
+    .default-color{
+    color:  #0b0c0c;
     }
 
 
@@ -140,26 +164,26 @@ a.underline-fix { text-decoration: none; }
 </td>
 
 <td class="govuk-table__cell" >
-    <a href=@{getMessageUrl(clientService,conversationHeader)} class="govuk-task-list__link hover-effect"  data-sso="false" >
+    <a href=@{getMessageUrl(clientService,conversationHeader)} class="govuk-task-list__link govuk-!-font-weight-bold hover-effect" style="font-weight:400; text-decoration: none;" data-sso="false" >
         @{
         val senderSpan = if(conversationHeader.unreadMessages){
         <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span>{getSenderName(conversationHeader)}<span class="govuk-visually-hidden">.&nbsp;</span></span>
         } else {
-        <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span>{getSenderName(conversationHeader)}<span class="govuk-visually-hidden">.&nbsp;</span></span>
+        <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span style="font-weight:400; text-decoration: none;">{getSenderName(conversationHeader)} yet<span class="govuk-visually-hidden">.&nbsp;</span></span>
         }
         senderSpan
         }
     </a>
 <br>
-    <div class="govuk-task-list__name-and-hint">
-        <a class="govuk-link govuk-task-list__link" href=@{getMessageUrl(clientService,conversationHeader)} aria-describedby="company-details-1-status">
+    <div class="govuk-task-list__name-and-hint black-text govuk-body">
+        <a class="govuk-link govuk-task-list__link"  href=@{getMessageUrl(clientService,conversationHeader)} aria-describedby="company-details-1-status" data-sso="false">
             @{
             val subjectMaybeRead = if(conversationHeader.unreadMessages){
-            <span>{messages("conversation.inbox.heading.subject")}:</span>
-            <span class="govuk-!-font-weight-bold">{conversationHeader.subject}</span> <span class="govuk-visually-hidden">,&nbsp;</span>
+            <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.subject")}:</span>
+            <span class="govuk-!-font-weight-bold default-color">{conversationHeader.subject}</span> <span class="govuk-visually-hidden">,&nbsp;</span>
             } else {
             <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.subject")}:</span>
-            <span>{conversationHeader.subject}</span><span class="govuk-visually-hidden">,&nbsp;</span>
+            <span class="black-text no--underline">{conversationHeader.subject}</span><span class="govuk-visually-hidden">,&nbsp;</span>
             }
             val subjectMaybeWithCount = if(conversationHeader.count > 1){
             subjectMaybeRead ++ <span aria-hidden="true" class="message-counter non-breaking">({conversationHeader.count})</span><span class="govuk-visually-hidden">{conversationHeader.count}
