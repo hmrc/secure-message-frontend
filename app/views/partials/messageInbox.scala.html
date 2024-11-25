@@ -95,6 +95,10 @@
   padding:10px;
 }
 
+.default-text {
+    color: #0b0c0c;
+}
+
         .black-text {
             color: #0b0c0c;
         }
@@ -126,6 +130,14 @@ a.underline-fix { text-decoration: none; }
     color:  #0b0c0c;
     }
 
+
+.govuk-task-list__link:after {
+    content: none;
+}
+
+    .govuk-task-list__hint{
+    margin-top: 0px;
+    }
 
 </style>
 
@@ -163,19 +175,18 @@ a.underline-fix { text-decoration: none; }
 </td>
 
 <td class="govuk-table__cell" >
-    <a href=@{getMessageUrl(clientService,conversationHeader)} class="govuk-!-font-weight-bold hover-effect" style="font-weight:400; text-decoration: none;" data-sso="false" >
-        @{
-        val senderSpan = if(conversationHeader.unreadMessages){
-        <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span>{getSenderName(conversationHeader)}<span class="govuk-visually-hidden">.&nbsp;</span></span>
-        } else {
-        <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span style="font-weight:400; text-decoration: none;">{getSenderName(conversationHeader)} yet<span class="govuk-visually-hidden">.&nbsp;</span></span>
-        }
-        senderSpan
-        }
-    </a>
-<br>
-    <div class="govuk-task-list__name-and-hint black-text">
-        <a class="govuk-link"  href=@{getMessageUrl(clientService,conversationHeader)} aria-describedby="company-details-1-status" data-sso="false">
+    <div class="govuk-task-list__name-and-hint">
+        <div id=@{s"message-index-$index"} class="govuk-task-list__hint govuk-!-font-weight-bold default-text">
+            @{
+            val senderSpan = if(conversationHeader.unreadMessages){
+            <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span>{getSenderName(conversationHeader)}<span class="govuk-visually-hidden">.&nbsp;</span></span>
+            } else {
+            <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span style="font-weight:400; text-decoration: none;">{getSenderName(conversationHeader)} yet<span class="govuk-visually-hidden">.&nbsp;</span></span>
+            }
+            senderSpan
+            }
+        </div>
+        <a class="govuk-link govuk-task-list__link" href=@{getMessageUrl(clientService,conversationHeader)} aria-describedby=@{s"message-index-$index"}>
             @{
             val subjectMaybeRead = if(conversationHeader.unreadMessages){
             <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.subject")}:</span>
@@ -200,7 +211,7 @@ a.underline-fix { text-decoration: none; }
 
     <span class='@{if(conversationHeader.unreadMessages){"govuk-!-font-weight-bold"}}'>@{getMessageDate(conversationHeader)}</span>
 
-  <span class="govuk-visually-hidden">@{getMessageDate(conversationHeader)}</span>
+
  </td>
 
 </tr>
