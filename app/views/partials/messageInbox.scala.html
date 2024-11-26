@@ -186,7 +186,7 @@ a.underline-fix { text-decoration: none; }
             senderSpan
             }
         </div>
-        <a class="govuk-link govuk-task-list__link" href=@{getMessageUrl(clientService,conversationHeader)} aria-describedby=@{s"message-index-$index"}>
+        <a class="govuk-link govuk-task-list__link" href="@{getMessageUrl(clientService,conversationHeader)}" aria-describedby=@{s"message-index-$index"}>
             @{
             val subjectMaybeRead = if(conversationHeader.unreadMessages){
             <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.subject")}:</span>
