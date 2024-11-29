@@ -38,9 +38,6 @@ Then run the integration tests:
 
   `/:clientService/messages/result`
 
-## Swagger endpoint
-
-Available locally here: http://localhost:9055/secure-message-frontend/api/schema.json
 
 ### License
 
