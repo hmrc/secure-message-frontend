@@ -1,0 +1,114 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@(btaBaseUrl: String, messageItems: Seq[model.MessageListItem], taxIdentifiersPartial: Html, encryptAndEncode: model.EncryptAndEncode)(implicit messages: Messages, lang: Lang)
+
+@import views.helpers.DateFormat._
+@import views.helpers.HtmlUtil._
+
+<style>
+    .black-text {
+        color:#0b0c0c;
+    }
+    .non-breaking {
+        white-space:nowrap;
+    }
+    .message-counter {
+        font-size: 90%;
+        color: #6F777B;
+    }
+    .marker-column,
+    .marker-column__marker {
+        vertical-align: middle;
+    }
+    .marker-column__marker {
+      background-color: #d4351c;
+      display: block;
+      margin: 0 auto;
+      overflow: hidden;
+      text-indent: -99999px;
+      width: 0.625rem;
+      height: 0.625rem;
+      border-radius: 50%;
+    }
+    .visuallyhidden {
+        position: absolute;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        width: 1px;
+        margin: -1px;
+        padding: 0;
+        border: 0;
+    }
+    .black-text:hover {
+        color: #003078;
+        border-bottom-color: #003078;
+        text-decoration-thickness: 3px;
+    }
+    @@media (-ms-high-contrast: active), (forced-colors: active) {
+        .preserveOriginalColors {
+            -ms-high-contrast-adjust: none;
+            forced-color-adjust: none;
+        }
+    }
+</style>
+
+@taxIdentifiersPartial
+
+<table id="sa-messages-table" class="messages table--borderless partial-highlight govuk-table">
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header"><span class="visuallyhidden govuk-body">@messages("sa.heading.status")</span></th>
+            <th scope="col" class="govuk-table__header">@messages("sa.heading.subject")</th>
+            <th scope="col" class="govuk-table__header">@messages("sa.heading.date")</th>
+        </tr>
+    </thead>
+
+    @if(messageItems.nonEmpty) {
+        <tbody class="govuk-table__body">
+        @for(message <- messageItems) {
+
+            <tr class="govuk-table__row clickable-row message@{if(message.readTime.isDefined) " read" else " unread table__row--bold"}">
+                <td class="govuk-table__cell marker-column">@if(message.readTime.isEmpty){<span class="marker-column__marker preserveOriginalColors govuk-body">@messages("unread")</span>}</td>
+                <td class="govuk-table__cell">
+                @defining({
+                    val messageSubject = ensureEscaped(message.subject)
+                    val subjectAsBoldIfUnread = if(message.readTime.isDefined) "<span class='underline black-text govuk-body'>" + messageSubject + "</span>" else "<span class='underline black-text govuk-body bold'>" + messageSubject + "</span>"
+                    val subjectWithCounter = if (message.counter.isDefined && message.counter.get != 1) subjectAsBoldIfUnread + "&nbsp;&nbsp;<span class='non-breaking message-counter govuk-body'>" + "(" + message.counter.get + ")" + "</span>" else subjectAsBoldIfUnread
+                    val subject = if(message.sentInError) subjectWithCounter + "&nbsp;&nbsp;-&nbsp;&nbsp;<span class='non-breaking sent-in-error govuk-body'>" + Messages("withdrawn") + "</span>" else subjectWithCounter
+                    val messageUrl = s"messages/${encryptAndEncode.generateEncryptedUrl(message.id, btaBaseUrl)}"
+
+                    (Html(subject), messageUrl, message.lang)
+                }) { case (messageSubjectHtml, messageUrl, lang) =>
+                    <a href="@messageUrl" class="link--no-underline message-subject govuk-link" data-sso="false" lang="@lang">
+                        @messageSubjectHtml
+                    </a>
+                }
+                </td>
+                <td class='govuk-table__cell @{if(message.readTime.isDefined) "" else "bold"}'>@{messageDateFormat(message.validFrom)}</td>
+            </tr>
+        }
+        </tbody>
+    } else {
+        <tbody class="govuk-table">
+            <tr class="govuk-table__row">
+                <td class="marker-column govuk-table__cell"></td>
+                <td colspan="2" class="govuk-table__cell">@messages("sa.no.messages")</td>
+            </tr>
+        </tbody>
+    }
+</table>
