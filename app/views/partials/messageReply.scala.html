@@ -14,14 +14,15 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.charactercount.CharacterCount
+@import  uk.gov.hmrc.hmrcfrontend.views.Aliases.CharacterCount
 @import views.viewmodels.MessageReply
 @import forms.MessageFormProvider.CONTENT_MAX_LENGTH
 
 @this(
     formWithCSRF: FormWithCSRF,
     govukCharacterCount: GovukCharacterCount,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    hmrcCharacterCount: HmrcCharacterCount
 )
 
 @(reply: MessageReply)(implicit messages: Messages, requestHeader: RequestHeader, request: Request[_])
@@ -39,7 +40,7 @@
     <hr aria-hidden="true" class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
     @formWithCSRF(Call(method = "POST", url = replyFormUrl)) {
 
-        @govukCharacterCount(CharacterCount(
+        @hmrcCharacterCount(CharacterCount(
             id = "reply-form",
             name = "content",
             maxLength = Some(CONTENT_MAX_LENGTH),
@@ -51,13 +52,11 @@
             ),
             errorMessage = formErrors.headOption.map(error => ErrorMessage(content = Text(messages(error.message, error.args:_*)))),
             value = Some(content),
-            classes = "",
             attributes = Map("spellcheck" -> "true")
         ))
 
         @govukButton(Button(
-            content = Text(messages("conversation.reply.form.send.button"))
-        ))
+            content = Text(messages("conversation.reply.form.send.button"))))
     }
 } else {
     <div class="govuk-body" id="reply-link">
