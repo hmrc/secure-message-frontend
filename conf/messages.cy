@@ -41,5 +41,35 @@ confirmation.step1 = Does dim rhaid i chi wneud unrhyw beth ar hyn o bryd.
 confirmation.step2 = Byddwn yn cysylltu â chi os bydd angen rhagor o wybodaeth arnom.
 confirmation.back = Yn ôl i’ch negeseuon
 
+sa.messages.heading=Negeseuon
+sa.inbox.heading=Eich mewnflwch
+sa.heading.status=Statws y neges
+sa.heading.subject=Neges
+sa.heading.date=Dyddiad
+sa.no.messages=Nid oes gennych negeseuon
+tax.identifiers.heading=Mae’r negeseuon hyn ar gyfer y cyfrif hwn
+tax.identifiers.sautr=UTR ar gyfer Hunanasesiad
+tax.identifiers.nino=Rhif Yswiriant Gwladol
+tax.identifiers.ctutr=Treth Cwmni
+empty.message=Nid oes negeseuon wedi’u hanfon i’ch mewnflwch hyd yn hyn.
+unread=Heb ddarllen
+unread.lowercase=heb ddarllen
+withdrawn=neges wedi’i thynnu’n ôl
+sa.header=Neges
+go.inbox=Ewch i’ch negeseuon
+read.other.message=Ewch i’ch cyfrif
+
+month.1 = Ionawr
+month.2 = Chwefror
+month.3 = Mawrth
+month.4 = Ebrill
+month.5 = Mai
+month.6 = Mehefin
+month.7 = Gorffennaf
+month.8 = Awst
+month.9 = Medi
+month.10 = Hydref
+month.11 = Tachwedd
+month.12 = Rhagfyr
 
 

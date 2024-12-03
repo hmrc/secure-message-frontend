@@ -1,3 +1,4 @@
 # Add all the application routes to the app.routes file
 ->         /secure-message-frontend     app.Routes
+->         /                            message_frontend.Routes
 ->         /                            health.Routes

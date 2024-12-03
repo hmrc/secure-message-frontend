@@ -1,0 +1,30 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@(identifiersToDisplay: Map[String, String])(implicit messages: Messages)
+
+@if(identifiersToDisplay.nonEmpty) {
+    <div class="has-messages taxid-heading govuk-body">
+        <p class="govuk-body">@messages("tax.identifiers.heading"):</p>
+    </div>
+}
+
+@for(key <- Seq("sautr", "nino", "ctutr"); taxId <- identifiersToDisplay.get(key)) {
+    <div class="tabular-data__entry tabular-data__entry--grouped govuk-body">
+        <span class="tabular-data__heading govuk-body">@messages(s"tax.identifiers.$key"):</span>
+        <div class="tabular-data__data-1 govuk-body">@{taxId}</div>
+    </div>
+}
