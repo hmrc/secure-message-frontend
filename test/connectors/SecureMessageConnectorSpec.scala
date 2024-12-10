@@ -206,6 +206,56 @@ class SecureMessageConnectorSpec extends PlaySpec with MockitoSugar {
     }
   }
 
+  "The SecureMessageConnector for message-frontend routes" should {
+    val sampleIdentifiers = List("nino", "sautr", "ctutr")
+    val sampleRegimes = List("sdil", "fhdds")
+
+    "correctly format an empty list of tax identifiers" in {
+      SecureMessageConnector.formatQueryParam(List()) must be("")
+    }
+
+    "correctly format a list of tax identifiers where we use the default value for existing query strings" in {
+      SecureMessageConnector.formatQueryParam(sampleIdentifiers) must be(
+        "?taxIdentifiers=nino&taxIdentifiers=sautr&taxIdentifiers=ctutr"
+      )
+    }
+
+    "correctly format a list of tax identifiers where we are not appending it to an existing query string" in {
+      SecureMessageConnector.formatQueryParam(sampleIdentifiers, alwaysAppend = false) must be(
+        "?taxIdentifiers=nino&taxIdentifiers=sautr&taxIdentifiers=ctutr"
+      )
+    }
+
+    "correctly format a list of tax identifiers where we are appending it to an existing query string" in {
+      SecureMessageConnector.formatQueryParam(sampleIdentifiers, alwaysAppend = true) must be(
+        "&taxIdentifiers=nino&taxIdentifiers=sautr&taxIdentifiers=ctutr"
+      )
+    }
+
+    "correctly format a list of regimes" in {
+      SecureMessageConnector.formatQueryParam(List(), regimes = sampleRegimes) must be("?regimes=sdil&regimes=fhdds")
+    }
+
+    "correctly format a list of taxIdentifiers and regimes" in {
+      SecureMessageConnector.formatQueryParam(sampleIdentifiers, regimes = sampleRegimes) must be(
+        "?taxIdentifiers=nino&taxIdentifiers=sautr&taxIdentifiers=ctutr&regimes=sdil&regimes=fhdds"
+      )
+    }
+
+    "correctly add the language params with other query params present" in {
+      val otherQueryParams = SecureMessageConnector.formatQueryParam(sampleIdentifiers, regimes = sampleRegimes)
+      SecureMessageConnector.withLangQueryParam("cy", otherQueryParams) must be(
+        "?taxIdentifiers=nino&taxIdentifiers=sautr&taxIdentifiers=ctutr&regimes=sdil&regimes=fhdds&lang=cy"
+      )
+    }
+
+    "correctly add the language params with no other query params are present" in {
+      SecureMessageConnector.withLangQueryParam("en", "") must be(
+        "?lang=en"
+      )
+    }
+  }
+
   trait TestCase {
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val aClient: String = "cdcm"

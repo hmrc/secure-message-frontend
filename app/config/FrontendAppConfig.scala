@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,24 @@
 
 package config
 
-import play.api.Configuration
-
 import javax.inject.{ Inject, Singleton }
-import play.api.i18n.Lang
+import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import scala.annotation.unused
 
 @Singleton
-class AppConfig @Inject() (val configuration: Configuration) {
-
-  lazy val languageTranslationEnabled: Boolean =
-    configuration.getOptional[Boolean]("features.languageTranslationEnabled").getOrElse(false)
-
-  val en: String = "en"
-  val cy: String = "cy"
-  val defaultLanguage: Lang = Lang(en)
+class FrontendAppConfig @Inject() (override val configuration: Configuration, @unused servicesConfig: ServicesConfig)
+    extends AppConfig(configuration) {
 
   private def loadConfig(key: String) =
     configuration.getOptional[String](key).getOrElse("")
 
-  val btaHost = loadConfig(s"business-account.host")
-  val btaBaseUrl = s"$btaHost/business-account"
-  val ptaHost = loadConfig(s"personal-account.host")
-  val ptaBaseUrl = s"$ptaHost/personal-account"
+  override val btaHost = loadConfig(s"business-account.host")
+  override val btaBaseUrl = s"$btaHost/business-account"
+  override val ptaHost = loadConfig(s"personal-account.host")
+  override val ptaBaseUrl = s"$ptaHost/personal-account"
 
-  def getPortalPath(pathKey: String): String =
+  override def getPortalPath(pathKey: String): String =
     configuration.getOptional[String](s"portal.destinationPath.$pathKey").getOrElse("")
 }
