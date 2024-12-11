@@ -179,7 +179,7 @@ a.underline-fix { text-decoration: none; }
             val senderSpan = if(conversationHeader.unreadMessages){
             <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span>{getSenderName(conversationHeader)}<span class="govuk-visually-hidden">.&nbsp;</span></span>
             } else {
-            <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span style="font-weight:400; text-decoration: none;">{getSenderName(conversationHeader)} yet<span class="govuk-visually-hidden">.&nbsp;</span></span>
+            <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.from")}:</span><span style="font-weight:400; text-decoration: none;">{getSenderName(conversationHeader)}<span class="govuk-visually-hidden">.&nbsp;</span></span>
             }
             senderSpan
             }
