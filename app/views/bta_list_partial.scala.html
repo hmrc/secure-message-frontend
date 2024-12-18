@@ -19,54 +19,6 @@
 @import views.helpers.DateFormat._
 @import views.helpers.HtmlUtil._
 
-<style>
-    .black-text {
-        color:#0b0c0c;
-    }
-    .non-breaking {
-        white-space:nowrap;
-    }
-    .message-counter {
-        font-size: 90%;
-        color: #6F777B;
-    }
-    .marker-column,
-    .marker-column__marker {
-        vertical-align: middle;
-    }
-    .marker-column__marker {
-      background-color: #d4351c;
-      display: block;
-      margin: 0 auto;
-      overflow: hidden;
-      text-indent: -99999px;
-      width: 0.625rem;
-      height: 0.625rem;
-      border-radius: 50%;
-    }
-    .visuallyhidden {
-        position: absolute;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        height: 1px;
-        width: 1px;
-        margin: -1px;
-        padding: 0;
-        border: 0;
-    }
-    .black-text:hover {
-        color: #003078;
-        border-bottom-color: #003078;
-        text-decoration-thickness: 3px;
-    }
-    @@media (-ms-high-contrast: active), (forced-colors: active) {
-        .preserveOriginalColors {
-            -ms-high-contrast-adjust: none;
-            forced-color-adjust: none;
-        }
-    }
-</style>
-
 @taxIdentifiersPartial
 
 <table id="sa-messages-table" class="messages table--borderless partial-highlight govuk-table">
