@@ -45,9 +45,11 @@ class RendererConnector @Inject() (
   ): Future[HtmlPartial] = {
     implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
-    val deprecateAtsRenderer = servicesConfig.getBoolean("deprecate.ats-message-renderer")
+    val deprecateRenderer = servicesConfig.getBoolean("deprecate.message-renderer")
     val url =
-      if (rendererUrl.service == "ats-message-renderer" && deprecateAtsRenderer) {
+      if (
+        (rendererUrl.service == "ats-message-renderer" || rendererUrl.service == "two-way-message") && deprecateRenderer
+      ) {
         s"${servicesConfig.baseUrl("secure-message")}/secure-messaging${rendererUrl.url}"
       } else {
         s"${servicesConfig.baseUrl(rendererUrl.service)}${rendererUrl.url}"
