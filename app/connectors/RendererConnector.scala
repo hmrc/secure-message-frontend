@@ -47,10 +47,10 @@ class RendererConnector @Inject() (
 
     val deprecateRenderer = servicesConfig.getBoolean("deprecate.message-renderer")
     val url =
-      if (
-        (rendererUrl.service == "ats-message-renderer" || rendererUrl.service == "two-way-message") && deprecateRenderer
-      ) {
+      if (rendererUrl.service == "ats-message-renderer" && deprecateRenderer) {
         s"${servicesConfig.baseUrl("secure-message")}/secure-messaging${rendererUrl.url}"
+      } else if (rendererUrl.service == "two-way-message" && deprecateRenderer) {
+        s"${servicesConfig.baseUrl("secure-message")}/secure-messaging/two-way-message${rendererUrl.url}"
       } else {
         s"${servicesConfig.baseUrl(rendererUrl.service)}${rendererUrl.url}"
       }
