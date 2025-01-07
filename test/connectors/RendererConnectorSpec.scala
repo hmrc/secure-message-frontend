@@ -73,7 +73,8 @@ class RendererConnectorSpec extends PlaySpec with ScalaFutures with MockitoSugar
     }
 
     "render two-way secure-messages from secure-message service when deprecate flag is enabled" in new TestCase {
-      val expectedUrl: URL = URI("http://localhost:9051/secure-messaging/message/messageId/content").toURL
+      val expectedUrl: URL =
+        URI("http://localhost:9051/secure-messaging/two-way-message/messages/messageId/content").toURL
       when(mockServicesConfig.getBoolean(ArgumentMatchers.eq("deprecate.message-renderer"))).thenReturn(true)
       when(mockServicesConfig.baseUrl(ArgumentMatchers.eq("secure-message"))).thenReturn("http://localhost:9051")
       when(mockHttp.get(ArgumentMatchers.eq(expectedUrl))(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
@@ -82,7 +83,7 @@ class RendererConnectorSpec extends PlaySpec with ScalaFutures with MockitoSugar
           Future.successful(HtmlPartial.Success(Some("two-way-message"), Html("<p>Secure message from advisor</p>")))
         )
 
-      val serviceUrl: ServiceUrl = ServiceUrl("two-way-message", "/message/messageId/content")
+      val serviceUrl: ServiceUrl = ServiceUrl("two-way-message", "/messages/messageId/content")
       val response: Future[HtmlPartial] = renderer.getRenderedMessage(serviceUrl, Map.empty)(FakeRequest())
 
       response.futureValue.toString must include("<p>Secure message from advisor</p>")
@@ -100,6 +101,22 @@ class RendererConnectorSpec extends PlaySpec with ScalaFutures with MockitoSugar
       val response: Future[HtmlPartial] = renderer.getRenderedMessage(serviceUrl, Map.empty)(FakeRequest())
 
       response.futureValue.toString must include("<p>Annual Tax Summary</p>")
+    }
+
+    "render 2WSM messages from two-way-message renderer service when deprecate flag is disabled" in new TestCase {
+      val expectedUrl: URL = URI("http://localhost:8970/messages/messageId/content").toURL
+      when(mockServicesConfig.getBoolean(ArgumentMatchers.eq("deprecate.message-renderer"))).thenReturn(false)
+      when(mockServicesConfig.baseUrl(ArgumentMatchers.eq("two-way-message"))).thenReturn("http://localhost:8970")
+      when(mockHttp.get(ArgumentMatchers.eq(expectedUrl))(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute(any(), any()))
+        .thenReturn(
+          Future.successful(HtmlPartial.Success(Some("two-way-message"), Html("<p>Secure message from advisor</p>")))
+        )
+
+      val serviceUrl: ServiceUrl = ServiceUrl("two-way-message", "/messages/messageId/content")
+      val response: Future[HtmlPartial] = renderer.getRenderedMessage(serviceUrl, Map.empty)(FakeRequest())
+
+      response.futureValue.toString must include("<p>Secure message from advisor</p>")
     }
 
     "render non-ats messages from other services even if deprecate flag is enabled" in new TestCase {
