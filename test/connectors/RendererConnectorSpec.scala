@@ -57,7 +57,7 @@ class RendererConnectorSpec extends PlaySpec with ScalaFutures with MockitoSugar
     )
   }
 
-  "RendererConnector" should {
+  "RendererConnector for V3 messages" should {
     "render ats messages from secure-message service when deprecate flag is enabled" in new TestCase {
       val expectedUrl: URL = URI("http://localhost:9051/secure-messaging/message/messageId").toURL
       when(mockServicesConfig.getBoolean(ArgumentMatchers.eq("deprecate.message-renderer"))).thenReturn(true)
@@ -87,6 +87,23 @@ class RendererConnectorSpec extends PlaySpec with ScalaFutures with MockitoSugar
       val response: Future[HtmlPartial] = renderer.getRenderedMessage(serviceUrl, Map.empty)(FakeRequest())
 
       response.futureValue.toString must include("<p>Secure message from advisor</p>")
+    }
+
+    "render sa-messages from secure-message service when deprecate flag is enabled" in new TestCase {
+      val expectedUrl: URL =
+        URI("http://localhost:9051/secure-messaging/messages/sa/utr/messageId").toURL
+      when(mockServicesConfig.getBoolean(ArgumentMatchers.eq("deprecate.message-renderer"))).thenReturn(true)
+      when(mockServicesConfig.baseUrl(ArgumentMatchers.eq("secure-message"))).thenReturn("http://localhost:9051")
+      when(mockHttp.get(ArgumentMatchers.eq(expectedUrl))(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute(any(), any()))
+        .thenReturn(
+          Future.successful(HtmlPartial.Success(Some("sa-message-renderer"), Html("<p>Self assessment message</p>")))
+        )
+
+      val serviceUrl: ServiceUrl = ServiceUrl("sa-message-renderer", "/messages/sa/utr/messageId")
+      val response: Future[HtmlPartial] = renderer.getRenderedMessage(serviceUrl, Map.empty)(FakeRequest())
+
+      response.futureValue.toString must include("<p>Self assessment message</p>")
     }
 
     "render ats messages from ats-message-renderer service when deprecate flag is disabled" in new TestCase {
