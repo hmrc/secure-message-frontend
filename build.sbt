@@ -30,7 +30,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(defaultSettings(): _*)
   .settings(
     name := appName,
-    RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._"),
+    RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._","uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"),
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     TwirlKeys.templateImports ++= Seq(
       "config.AppConfig",
