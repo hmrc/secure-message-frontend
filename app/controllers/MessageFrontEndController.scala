@@ -34,6 +34,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.helpers.PortalUrlBuilder
 import org.jsoup.Jsoup
 import play.utils.UriEncoding
+import uk.gov.hmrc.play.bootstrap.binders.{ OnlyRelative, RedirectUrl }
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.partials.HtmlPartial
 
 import java.net.URL
@@ -136,13 +138,19 @@ class MessageFrontEndController @Inject() (
   }
 
   def inboxLink(
-    messagesInboxUrl: String,
+    messagesInboxUrl: RedirectUrl,
     taxIdentifiers: List[String],
     regimes: List[String] = List()
   ): Action[AnyContent] = Action.async { implicit request =>
     hc.authorization
     authorised() {
-      asLinkHtml(messagesInboxUrl, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
+      messagesInboxUrl
+        .getEither(OnlyRelative)
+        .fold(
+          errorMessage => Future.successful(BadRequest(errorMessage)),
+          safeUrl =>
+            asLinkHtml(safeUrl.url, getOrElseDefaultTaxIdentifiers(taxIdentifiers, regimes), regimes).map(Ok(_))
+        )
     }
   }
 
