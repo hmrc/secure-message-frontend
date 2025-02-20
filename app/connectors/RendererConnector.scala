@@ -44,18 +44,7 @@ class RendererConnector @Inject() (
     request: RequestHeader
   ): Future[HtmlPartial] = {
     implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
-
-    val deprecateRenderer = servicesConfig.getBoolean("deprecate.message-renderer")
-    val secureMessageUrl = s"${servicesConfig.baseUrl("secure-message")}/secure-messaging"
-    val url =
-      if (List("ats-message-renderer", "sa-message-renderer").contains(rendererUrl.service) && deprecateRenderer) {
-        s"$secureMessageUrl${rendererUrl.url}"
-      } else if (rendererUrl.service == "two-way-message" && deprecateRenderer) {
-        s"$secureMessageUrl/two-way-message${rendererUrl.url}"
-      } else {
-        s"${servicesConfig.baseUrl(rendererUrl.service)}${rendererUrl.url}"
-      }
-
+    val url = s"${servicesConfig.baseUrl(rendererUrl.service)}${rendererUrl.url}"
     val queryParams = parameters.flatMap { case (k, v) => v.map((k, _)) }.toSeq
     val eventualPartial = http.get(new URL(url + makeQueryString(queryParams))).execute[HtmlPartial]
 
