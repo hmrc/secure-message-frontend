@@ -59,7 +59,6 @@ sa.header=Neges
 go.inbox=Ewch i’ch negeseuon
 read.other.message=Ewch i’ch cyfrif
 hmrc.default.sender.name=CThEF
-hmrc.adviser.sender.name=HMRC digital team
 
 month.1 = Ionawr
 month.2 = Chwefror
