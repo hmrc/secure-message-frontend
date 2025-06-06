@@ -24,6 +24,7 @@
 @taxIdentifiersPartial
 
 <table id="sa-messages-table" class="messages table--borderless partial-highlight govuk-table">
+    <caption class="govuk-visually-hidden">@messages("sa.messages.heading")</caption>
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header"><span class="visuallyhidden govuk-body">@messages("sa.heading.status")</span></th>
@@ -37,7 +38,9 @@
         @for(message <- messageItems) {
 
             <tr class="govuk-table__row clickable-row message@{if(message.readTime.isDefined) " read" else " unread table__row--bold"}">
-                <td class="govuk-table__cell marker-column">@if(message.readTime.isEmpty){<span class="marker-column__marker preserveOriginalColors govuk-body">@messages("unread")</span>}</td>
+                <td class="govuk-table__cell marker-column">@if(message.readTime.isEmpty){<span class="marker-column__marker preserveOriginalColors govuk-body">@messages("unread")</span>}
+                else {<span class="visuallyhidden govuk-body">@messages("read")</span>}
+                </td>
                 <td class="govuk-table__cell">
                 @defining({
                     val messageSubject = ensureEscaped(message.subject)

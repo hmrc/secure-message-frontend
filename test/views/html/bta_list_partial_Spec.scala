@@ -106,6 +106,8 @@ class bta_list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with Mocki
       )
 
       html.body must not include "Unread"
+      html.body must include("Read")
+      html.body must include("""<caption class="govuk-visually-hidden">Messages</caption>""")
     }
   }
 }
