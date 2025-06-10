@@ -55,6 +55,7 @@ tax.identifiers.ctutr=Company Tax
 empty.message=You’ve not been sent any inbox messages yet.
 read.other.message=Go to your account
 unread=Unread
+read=Read
 unread.lowercase=unread
 withdrawn=message withdrawn
 sa.header=Message

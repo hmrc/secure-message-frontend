@@ -53,6 +53,7 @@ tax.identifiers.nino=Rhif Yswiriant Gwladol
 tax.identifiers.ctutr=Treth Cwmni
 empty.message=Nid oes negeseuon wedi’u hanfon i’ch mewnflwch hyd yn hyn.
 unread=Heb ddarllen
+read=Darllen
 unread.lowercase=heb ddarllen
 withdrawn=neges wedi’i thynnu’n ôl
 sa.header=Neges
