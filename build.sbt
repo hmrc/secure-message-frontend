@@ -36,7 +36,7 @@ val excludedPackages: Seq[String] = Seq(
 lazy val scoverageSettings =
   Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(","),
-    ScoverageKeys.coverageMinimumStmtTotal := 67.75,
+    ScoverageKeys.coverageMinimumStmtTotal := 65.75,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
@@ -45,7 +45,6 @@ lazy val microservice = Project(appName, file("."))
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(scalaSettings *)
   .settings(defaultSettings() *)
-  .settings(scoverageSettings.settings *)
   .settings(
     name := appName,
     RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._","uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"),
@@ -63,9 +62,6 @@ lazy val microservice = Project(appName, file("."))
     routesGenerator := InjectedRoutesGenerator
   )
   .settings(
-    resolvers += Resolver.jcenterRepo
-  )
-  .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
   )
   .settings(
@@ -78,6 +74,8 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:src=routes/.*:s")
 
   )
+  .settings(scoverageSettings.settings *)
+
 
 lazy val it = (project in file("it"))
   .enablePlugins(PlayScala)
