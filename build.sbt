@@ -17,17 +17,35 @@
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import play.twirl.sbt.Import.TwirlKeys
 import play.sbt.routes.RoutesKeys
+import scoverage.ScoverageKeys
 
 val appName = "secure-message-frontend"
 
 Global / majorVersion := 1
-Global / scalaVersion := "3.3.3"
+Global / scalaVersion := "3.3.4"
 
+val excludedPackages: Seq[String] = Seq(
+  "<empty>",
+  "Reverse.*",
+  ".*Routes.*",
+  ".*BuildInfo.*",
+  ".*\\$anon.*",
+  "testOnlyDoNotUseInAppConf.*"
+)
+
+lazy val scoverageSettings =
+  Seq(
+    ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(","),
+    ScoverageKeys.coverageMinimumStmtTotal := 67.75,
+    ScoverageKeys.coverageFailOnMinimum := true,
+    ScoverageKeys.coverageHighlighting := true
+  )
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin, BuildInfoPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .settings(scalaSettings: _*)
-  .settings(defaultSettings(): _*)
+  .settings(scalaSettings *)
+  .settings(defaultSettings() *)
+  .settings(scoverageSettings.settings *)
   .settings(
     name := appName,
     RoutesKeys.routesImport ++= Seq("models._", "controllers.generic.models._", "controllers.binders._","uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"),
@@ -47,9 +65,18 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     resolvers += Resolver.jcenterRepo
   )
-  .settings(ScoverageSettings())
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
+  )
+  .settings(
+    scalacOptions ++= Seq(
+      // Silence unused imports in template files
+      "-Wconf:msg=unused import&src=.*:s",
+      // Silence "Flag -XXX set repeatedly"
+      "-Wconf:msg=Flag.*repeatedly:s",
+      // Silence unused warnings on Play `routes` files
+      "-Wconf:src=routes/.*:s")
+
   )
 
 lazy val it = (project in file("it"))
