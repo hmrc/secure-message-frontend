@@ -30,13 +30,15 @@ val excludedPackages: Seq[String] = Seq(
   ".*Routes.*",
   ".*BuildInfo.*",
   ".*\\$anon.*",
-  "testOnlyDoNotUseInAppConf.*"
+  "testOnlyDoNotUseInAppConf.*",
+  "views.viewmodels.*"
+
 )
 
 lazy val scoverageSettings =
   Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(","),
-    ScoverageKeys.coverageMinimumStmtTotal := 67.05,
+    ScoverageKeys.coverageMinimumStmtTotal := 67.90,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
