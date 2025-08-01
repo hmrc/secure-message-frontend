@@ -16,14 +16,22 @@
 
 package models
 
-import enumeratum.EnumEntry.Lowercase
-import enumeratum._
+import play.api.libs.json.{ Format, JsError, JsResult, JsString, JsSuccess, JsValue }
 
-sealed trait MessageType extends EnumEntry with Lowercase
+enum MessageType {
+  case Conversation
+  case Letter
+}
 
-object MessageType extends Enum[MessageType] with PlayJsonEnum[MessageType] {
-  override def values: IndexedSeq[MessageType] = findValues
+object MessageType {
 
-  case object Conversation extends MessageType
-  case object Letter extends MessageType
+  implicit val format: Format[MessageType] = new Format[MessageType] {
+    def reads(json: JsValue): JsResult[MessageType] = json match {
+      case JsString("conversation") => JsSuccess(Conversation)
+      case JsString("letter")       => JsSuccess(Letter)
+      case _                        => JsError("Invalid Message Type")
+    }
+
+    def writes(messageType: MessageType): JsValue = JsString(messageType.toString.toLowerCase)
+  }
 }
