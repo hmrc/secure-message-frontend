@@ -35,6 +35,7 @@ object HtmlUtil {
 
   private def dtf(implicit messages: Messages): SimpleDateFormat = createDateFormatForPattern("d MMMM yyyy")
   private def dtfHours(implicit messages: Messages): SimpleDateFormat = createDateFormatForPattern("h:mma")
+  private def isConversation(messageType: MessageType): Boolean = messageType == MessageType.Conversation
 
   private def createDateFormatForPattern(pattern: String)(implicit messages: Messages): SimpleDateFormat = {
     val langCode = messages.lang.code
@@ -58,9 +59,8 @@ object HtmlUtil {
     }
 
   def getMessageDate(conversationHeader: MessageHeader)(implicit messages: Messages): String = {
-    val isConversation = conversationHeader.messageType.entryName === MessageType.Conversation.entryName
     val isToday = LocalDate.now().isEqual(LocalDate.ofInstant(conversationHeader.issueDate, ZoneOffset.UTC))
-    if (isToday && isConversation) {
+    if (isToday && isConversation(conversationHeader.messageType)) {
       dtfHours.format(conversationHeader.issueDate.toEpochMilli)
     } else {
       dtf.format(conversationHeader.issueDate.toEpochMilli)
@@ -68,7 +68,7 @@ object HtmlUtil {
   }
 
   def getMessageUrl(clientService: String, messageHeader: MessageHeader): String =
-    if (messageHeader.messageType.entryName === MessageType.Conversation.entryName) {
+    if (isConversation(messageHeader.messageType)) {
       s"/$clientService/conversation/CDCM/${messageHeader.id}"
     } else {
       s"/$clientService/messages/${messageHeader.id}"
