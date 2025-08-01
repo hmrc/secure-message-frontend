@@ -19,8 +19,7 @@ package models
 import play.api.libs.json.{ Format, JsError, JsResult, JsString, JsSuccess, JsValue }
 
 enum MessageType {
-  case Conversation
-  case Letter
+  case Conversation, Letter
 }
 
 object MessageType {
