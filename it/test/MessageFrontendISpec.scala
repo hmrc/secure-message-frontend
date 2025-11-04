@@ -128,7 +128,7 @@ class MessageFrontendISpec
     lazy val refundMessage = createMessageJson("mdtp", "R002A", TaxEntity("sa", utr), Some("user@email.com"))
 
     def ninoMessage(nino: Nino): JsObject =
-      createMessageJson("mdtp", "SA300", TaxEntity("paye", nino), Some("user@email.com"))
+      createMessageJson("mdtp", "SA300", TaxEntity("paye", nino), Some("test_user@email.com"))
 
     def tavcMessage(ctUtr: CtUtr): JsObject =
       createMessageJson("tavcfe", "TAVC001", TaxEntity("ct", ctUtr), Some("user@email.com"))
