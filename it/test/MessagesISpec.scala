@@ -55,7 +55,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
 
     "return count as 1 for an authenticated nino-only user with 1 message" in new TestCase {
       val utr = SaUtr("UNUSED")
-      val nino = Nino("SN305432A")
+      val nino = Nino("NH123456D")
 
       lazy val authBuilderNino = testAuthorisationProvider.governmentGatewayAuthority().withNino(nino)
 
@@ -63,9 +63,12 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
 
       val request = messagesCount(None, List("nino"))
         .withSession(SessionKeys.authToken -> authBuilderNino.bearerTokenHeader()._2)
-      val result: Result = await(route(app, request).get)
+      val result: Future[Result] = route(app, request).get
 
-      result.header.status must be(Status.OK)
+      eventually {
+        status(result) must be(Status.OK)
+        contentAsJson(result).as[MessageCount] must be(MessageCount(1))
+      }
     }
 
     "not throw a missing bearer token or session record not found exception" in new TestCase {
@@ -316,7 +319,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     "return PODS regime and PSPID taxIdentifier messages when filtering the /messages/bta endpoint" ignore new AuthenticatedUserMessageCount {
       val authContext = testAuthorisationProvider
         .governmentGatewayAuthority()
-        .withNino(Nino("SN305432A"))
+        .withNino(Nino("NH123456D"))
         .withPodsPp(HmrcPodsPpOrg("A12345678"))
 
       externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", "A1234567"))

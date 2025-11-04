@@ -345,12 +345,14 @@ class MessageFrontendISpec
     }
 
     def messagesPost(body: JsObject): String = {
-      val response =
-        httpClient
-          .url(s"${messageResource}messages")
-          .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
-          .post(body)
-          .futureValue
+      val response: WSResponse =
+        await(
+          httpClient
+            .url(s"${messageResource}messages")
+            .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
+            .post(body)
+        )
+
       response.status must be(Status.CREATED)
       (response.json \\ "id").map(_.as[JsString].value).head
     }
