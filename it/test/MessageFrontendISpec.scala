@@ -66,8 +66,8 @@ class MessageFrontendISpec
   val secureMessageResource = "http://localhost:9051/secure-messaging/"
 
   override protected def beforeEach() = {
-    ws.url(s"${messageResource}test-only/messages").delete().futureValue
-    ws.url(s"${messageResource}test-only/qmessages").delete().futureValue
+    await(ws.url(s"${messageResource}test-only/messages").delete())
+    await(ws.url(s"${messageResource}test-only/qmessages").delete())
   }
 
   trait TestCase {
@@ -128,7 +128,7 @@ class MessageFrontendISpec
     lazy val refundMessage = createMessageJson("mdtp", "R002A", TaxEntity("sa", utr), Some("user@email.com"))
 
     def ninoMessage(nino: Nino): JsObject =
-      createMessageJson("mdtp", "SA300", TaxEntity("paye", nino), Some("test_user@email.com"))
+      createMessageJson("mdtp", "SA300", TaxEntity("paye", nino), Some("user@email.com"))
 
     def tavcMessage(ctUtr: CtUtr): JsObject =
       createMessageJson("tavcfe", "TAVC001", TaxEntity("ct", ctUtr), Some("user@email.com"))
