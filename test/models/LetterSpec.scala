@@ -17,7 +17,7 @@
 package models
 
 import com.fasterxml.jackson.core.JsonParseException
-import helpers.TestData.{ DAY_30, MONTH_10, YEAR_2025 }
+import helpers.TestData.{ DAY_30, MONTH_10, TEST_CONTENT, TEST_NAME, TEST_SUBJECT, YEAR_2025 }
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{ JsResultException, JsString, Json }
 import views.helpers.DateFormat
@@ -124,7 +124,7 @@ class LetterSpec extends PlaySpec {
                                             |"name":"test_name"
                                             |}""".stripMargin
 
-    val sender: Sender = Sender(name = "test_name", sent = date)
+    val sender: Sender = Sender(name = TEST_NAME, sent = date)
 
     val firstReaderInformationJson: String =
       """{
@@ -133,7 +133,7 @@ class LetterSpec extends PlaySpec {
         |}""".stripMargin
 
     val firstReaderInformation: FirstReaderInformation =
-      FirstReaderInformation(name = Some("test_name"), read = timeInstant)
+      FirstReaderInformation(name = Some(TEST_NAME), read = timeInstant)
 
     val letterJsonString: String =
       s"""{
@@ -160,16 +160,16 @@ class LetterSpec extends PlaySpec {
          |}""".stripMargin
 
     val letter: Letter = Letter(
-      subject = "test_subject",
-      content = "test_content",
+      subject = TEST_SUBJECT,
+      content = TEST_CONTENT,
       firstReaderInformation = None,
       senderInformation = sender,
       readTime = Some(defaultTimeInstant)
     )
 
     val letterObjectForCustomJsonReads: Letter = Letter(
-      subject = "test_subject",
-      content = "test_content",
+      subject = TEST_SUBJECT,
+      content = TEST_CONTENT,
       firstReaderInformation = Some(firstReaderInformation),
       senderInformation = sender,
       readTime = Some(timeInstant)

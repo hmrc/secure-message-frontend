@@ -16,6 +16,7 @@
 
 package views.partials
 
+import helpers.TestData.{ FIVE, TEST_CLIENT, TEST_HEADING, TEST_ID, TEST_NAME, TEST_SERVICE_NAME, TEST_SUBJECT, TWO }
 import models.{ Conversation, MessageHeader, MessageType }
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -32,26 +33,23 @@ class MessageInboxSpec extends PlaySpec with GuiceOneAppPerSuite {
   "view" should {
     "display the correct contents" in {
 
-      val totalMessage = 5
-      val unreadMsg = 2
-
       val msgHeader = MessageHeader(
         messageType = MessageType.Conversation,
-        id = "test_id",
-        subject = "test_subject",
+        id = TEST_ID,
+        subject = TEST_SUBJECT,
         issueDate = Instant.now(),
-        senderName = Some("test_name"),
+        senderName = Some(TEST_NAME),
         unreadMessages = true,
-        count = totalMessage,
-        conversationId = Some("test_id"),
-        client = Some("test_client")
+        count = FIVE,
+        conversationId = Some(TEST_ID),
+        client = Some(TEST_CLIENT)
       )
 
       val msgInboxModel = MessageInbox(
-        clientService = "test_service",
-        heading = "test_heading",
-        total = totalMessage,
-        unread = unreadMsg,
+        clientService = TEST_SERVICE_NAME,
+        heading = TEST_HEADING,
+        total = FIVE,
+        unread = TWO,
         conversationHeaders = List(msgHeader)
       )
 
@@ -75,7 +73,6 @@ class MessageInboxSpec extends PlaySpec with GuiceOneAppPerSuite {
             "</span>"
         )
       )
-
     }
   }
 

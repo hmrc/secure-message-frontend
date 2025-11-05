@@ -37,12 +37,21 @@ object TestData {
   val TEST_NAME = "test_name"
   val TEST_ID = "test_id"
   val TEST_FORENAME = "test_forename"
+  val TEST_SECOND_FORENAME = "test_second_fore_name"
+  val TEST_SURNAME = "test_surname"
   val TEST_LINE1 = "test_line1"
   val TEST_LINE2 = "test_line2"
+  val TEST_ADDRESS_STRING = "test_address"
 
   val TEST_TITLE = "test_title"
   val TEST_HEADING = "test_heading"
   val TEST_MESSAGE = "test_message"
   val TEST_CLIENT = "test_client"
   val TEST_SENDER_NAME = "test_sender"
+  val TEST_STATUS = "test_status"
+  val TEST_HONOURS = "test_honours"
+
+  val TEST_SERVICE_NAME = "test_service"
+
+  val TEST_LANGUAGE_ENGLISH = "English"
 }

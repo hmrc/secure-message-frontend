@@ -23,6 +23,7 @@ import java.time.{ Instant, LocalDate, LocalDateTime }
 import play.api.libs.json.{ JsResultException, JsString, Json }
 import models.{ Conversation, SenderInformation }
 import com.fasterxml.jackson.core.JsonParseException
+import helpers.TestData.{ TEST_CLIENT, TEST_CONTENT, TEST_ID, TEST_LANGUAGE_ENGLISH, TEST_NAME, TEST_STATUS, TEST_SUBJECT }
 
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -141,7 +142,7 @@ class ConversationSpec extends PlaySpec {
         |}""".stripMargin
 
     val senderInformation: SenderInformation =
-      SenderInformation(name = Some("test_name"), sent = timeInstant1, self = true)
+      SenderInformation(name = Some(TEST_NAME), sent = timeInstant1, self = true)
 
     val firstReaderInformationJson: String =
       """{
@@ -155,7 +156,7 @@ class ConversationSpec extends PlaySpec {
         |}""".stripMargin
 
     val firstReaderInformation: FirstReaderInformation =
-      FirstReaderInformation(name = Some("test_name"), read = timeInstant1)
+      FirstReaderInformation(name = Some(TEST_NAME), read = timeInstant1)
 
     val messageJson: String = """{
                                 |"senderInformation":{"name":"test_name","sent":20251012233000000,"self":true},
@@ -165,7 +166,7 @@ class ConversationSpec extends PlaySpec {
       """{
         |"content":"test_content"}""".stripMargin
 
-    val message: Message = Message(senderInformation = senderInformation, firstReader = None, content = "test_content")
+    val message: Message = Message(senderInformation = senderInformation, firstReader = None, content = TEST_CONTENT)
 
     val conversationJsonString: String =
       s"""{
@@ -185,12 +186,12 @@ class ConversationSpec extends PlaySpec {
                                              |}""".stripMargin
 
     val conversationObject: Conversation = Conversation(
-      client = "test_client",
-      conversationId = "test_id",
-      status = "test_status",
+      client = TEST_CLIENT,
+      conversationId = TEST_ID,
+      status = TEST_STATUS,
       tags = None,
-      subject = "test_subject",
-      language = "English",
+      subject = TEST_SUBJECT,
+      language = TEST_LANGUAGE_ENGLISH,
       messages = List(message)
     )
   }

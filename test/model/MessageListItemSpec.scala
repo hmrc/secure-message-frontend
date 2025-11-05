@@ -22,7 +22,7 @@ import play.api.libs.json.{ JsResultException, Json }
 import java.time.format.DateTimeFormatter
 import java.time.{ Instant, LocalDate, LocalDateTime }
 import java.util.Locale
-import helpers.TestData.{ TEST_ID, TEST_LOCAL_DATE, TEST_TITLE }
+import helpers.TestData.{ TEST_ADDRESS_STRING, TEST_FORENAME, TEST_HONOURS, TEST_ID, TEST_LINE1, TEST_LINE2, TEST_LOCAL_DATE, TEST_SECOND_FORENAME, TEST_SUBJECT, TEST_SURNAME, TEST_TITLE }
 
 class MessageListItemSpec extends PlaySpec {
 
@@ -61,22 +61,22 @@ class MessageListItemSpec extends PlaySpec {
 
     val taxpayerName: TaxpayerName = TaxpayerName(
       title = Some(TEST_TITLE),
-      forename = Some("test_forename"),
-      secondForename = Some("test_second_fore_name"),
-      surname = Some("test_surname"),
-      honours = Some("test_honours"),
-      line1 = Some("test_line1"),
-      line2 = Some("test_line2")
+      forename = Some(TEST_FORENAME),
+      secondForename = Some(TEST_SECOND_FORENAME),
+      surname = Some(TEST_SURNAME),
+      honours = Some(TEST_HONOURS),
+      line1 = Some(TEST_LINE1),
+      line2 = Some(TEST_LINE2)
     )
 
     val messageListItem: MessageListItem = MessageListItem(
       id = TEST_ID,
-      subject = "Test_subject",
+      subject = TEST_SUBJECT,
       validFrom = TEST_LOCAL_DATE,
       taxpayerName = Some(taxpayerName),
       readTime = Some(readTime),
       sentInError = false,
-      replyTo = Some("test_address"),
+      replyTo = Some(TEST_ADDRESS_STRING),
       messageDesc = None,
       counter = Some(1),
       language = None
@@ -85,7 +85,7 @@ class MessageListItemSpec extends PlaySpec {
     val messageListItemJsonStringWithDefaultReadTimeInstant: String =
       s"""{
          |"id":"test_id",
-         |"subject":"Test_subject",
+         |"subject":"test_subject",
          |"validFrom":"2025-11-01",
          |"taxpayerName":{"title":"test_title",
          |"forename":"test_forename",
@@ -103,7 +103,7 @@ class MessageListItemSpec extends PlaySpec {
     val messageListItemJsonStringWithCustomReadTimeInstant: String =
       s"""{
          |"id":"test_id",
-         |"subject":"Test_subject",
+         |"subject":"test_subject",
          |"validFrom":"2025-11-01",
          |"taxpayerName":{
          |"title":"test_title",
