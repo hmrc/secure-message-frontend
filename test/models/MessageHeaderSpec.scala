@@ -16,6 +16,7 @@
 
 package models
 
+import helpers.TestData.{ FIVE, TEST_CLIENT, TEST_ID, TEST_SENDER_NAME, TEST_SUBJECT }
 import org.scalatestplus.play.PlaySpec
 
 import java.time.Instant
@@ -50,30 +51,28 @@ class MessageHeaderSpec extends PlaySpec {
     val issueDateJsonString = "2025-10-12T23:30:00Z"
     val issueDateJsonForCustomRead = "20251012233000000"
 
-    val countFive = 5
-
     val messageHeader: MessageHeader = MessageHeader(
       messageType = MessageType.Conversation,
-      id = "test_id",
-      subject = "test_subject",
+      id = TEST_ID,
+      subject = TEST_SUBJECT,
       issueDate = issueDate,
-      senderName = Some("test_sender"),
+      senderName = Some(TEST_SENDER_NAME),
       unreadMessages = true,
-      count = countFive,
-      conversationId = Some("test_id"),
-      client = Some("test_client")
+      count = FIVE,
+      conversationId = Some(TEST_ID),
+      client = Some(TEST_CLIENT)
     )
 
     val messageHeaderWithCustomIssueDate: MessageHeader = MessageHeader(
       messageType = MessageType.Conversation,
-      id = "test_id",
-      subject = "test_subject",
+      id = TEST_ID,
+      subject = TEST_SUBJECT,
       issueDate = issueDateFosCustomReads,
-      senderName = Some("test_sender"),
+      senderName = Some(TEST_SENDER_NAME),
       unreadMessages = true,
-      count = countFive,
-      conversationId = Some("test_id"),
-      client = Some("test_client")
+      count = FIVE,
+      conversationId = Some(TEST_ID),
+      client = Some(TEST_CLIENT)
     )
 
     val messageHeaderJsonString: String =

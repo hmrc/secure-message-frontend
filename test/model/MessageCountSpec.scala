@@ -18,6 +18,7 @@ package model
 
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{ JsResult, JsResultException, Json }
+import helpers.TestData.FIVE
 
 class MessageCountSpec extends PlaySpec {
 
@@ -40,9 +41,7 @@ class MessageCountSpec extends PlaySpec {
   }
 
   trait Setup {
-    val msgCount = 5
-
-    val messageCount: MessageCount = MessageCount(msgCount)
+    val messageCount: MessageCount = MessageCount(FIVE)
     val messageCountJsonString: String = """{"count":5}""".stripMargin
   }
 }

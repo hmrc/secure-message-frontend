@@ -22,7 +22,7 @@ import ReadPreference.{ Both, No, Yes }
 class ReadPreferenceSpec extends PlaySpec {
 
   "validate" should {
-    "return the correct Enum value for the valid ones" in {
+    "return the correct Enum value for the valid input" in {
       val result: Either[String, ReadPreference.Value] = ReadPreference.validate("Yes")
       result mustBe Right(Yes)
 

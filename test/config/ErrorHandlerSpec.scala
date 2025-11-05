@@ -16,6 +16,7 @@
 
 package config
 
+import helpers.TestData.{ TEST_HEADING, TEST_MESSAGE, TEST_TITLE }
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -91,10 +92,6 @@ class ErrorHandlerSpec extends PlaySpec with ScalaFutures with GuiceOneAppPerSui
     }
 
     "return correct error template for provided pageTitle, heading and message" in new Setup {
-      val pageTitle = "test_title"
-      val pageHeading = "test_heading"
-      val message = "test_message"
-
       implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
         FakeRequest("GET", "/test/path").withCSRFToken.asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
 
@@ -103,12 +100,12 @@ class ErrorHandlerSpec extends PlaySpec with ScalaFutures with GuiceOneAppPerSui
 
       val errorTemplate: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
 
-      val result: Html = await(errorHandler.standardErrorTemplate(pageTitle, pageHeading, message)(fakeRequest))
+      val result: Html = await(errorHandler.standardErrorTemplate(TEST_TITLE, TEST_HEADING, TEST_MESSAGE)(fakeRequest))
 
       val actualTemplateBody: String = result.body
-      val expectedTemplateBody: String = errorTemplate(pageTitle, pageHeading, message).body
+      val expectedTemplateBody: String = errorTemplate(TEST_TITLE, TEST_HEADING, TEST_MESSAGE).body
 
-      assert(actualTemplateBody.contains(message))
+      assert(actualTemplateBody.contains(TEST_MESSAGE))
     }
   }
 }

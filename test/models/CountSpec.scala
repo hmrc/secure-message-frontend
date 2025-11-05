@@ -18,6 +18,7 @@ package models
 
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{ JsResultException, Json }
+import helpers.TestData.{ FIVE, TWO }
 
 class CountSpec extends PlaySpec {
 
@@ -42,10 +43,7 @@ class CountSpec extends PlaySpec {
   }
 
   trait Setup {
-    val totalMessagesCount: Long = 5
-    val unreadMessagesCount: Long = 2
-
-    val count: Count = Count(total = totalMessagesCount, unread = unreadMessagesCount)
+    val count: Count = Count(total = FIVE, unread = TWO)
 
     val countJsonString: String = """{"total":5,"unread":2}""".stripMargin
     val countJsonStringInvalid = """{"total":5}"""

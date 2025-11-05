@@ -22,6 +22,7 @@ import play.api.libs.json.{ JsResultException, Json }
 import java.time.format.DateTimeFormatter
 import java.time.{ Instant, LocalDate, LocalDateTime }
 import java.util.Locale
+import helpers.TestData.{ TEST_ID, TEST_LOCAL_DATE, TEST_TITLE }
 
 class MessageListItemSpec extends PlaySpec {
 
@@ -55,16 +56,11 @@ class MessageListItemSpec extends PlaySpec {
   }
 
   trait Setup {
-    val year = 2025
-    val month = 11
-    val day = 1
-
-    val localDate: LocalDate = LocalDate.of(year, month, day)
     val readTime: Instant = Instant.parse("2025-11-01T23:30:00Z")
     val readTimeInstantForCustomReads: Instant = Instant.parse("+643699-01-11T15:50:00Z")
 
     val taxpayerName: TaxpayerName = TaxpayerName(
-      title = Some("test_title"),
+      title = Some(TEST_TITLE),
       forename = Some("test_forename"),
       secondForename = Some("test_second_fore_name"),
       surname = Some("test_surname"),
@@ -74,9 +70,9 @@ class MessageListItemSpec extends PlaySpec {
     )
 
     val messageListItem: MessageListItem = MessageListItem(
-      id = "test_id",
+      id = TEST_ID,
       subject = "Test_subject",
-      validFrom = localDate,
+      validFrom = TEST_LOCAL_DATE,
       taxpayerName = Some(taxpayerName),
       readTime = Some(readTime),
       sentInError = false,

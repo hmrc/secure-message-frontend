@@ -17,6 +17,7 @@
 package models
 
 import com.fasterxml.jackson.core.JsonParseException
+import helpers.TestData.{ DAY_30, MONTH_10, YEAR_2025 }
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{ JsResultException, JsString, Json }
 import views.helpers.DateFormat
@@ -108,12 +109,9 @@ class LetterSpec extends PlaySpec {
     val defaultTimeInstant: Instant = Instant.parse("2025-10-12T23:30:00Z")
     val timeInstant: Instant = Instant.parse("+643699-01-11T15:50:00Z")
 
-    val year = 2025
     val year1970 = 1970
-    val month = 10
-    val day = 30
 
-    val date: LocalDate = LocalDate.of(year, month, day)
+    val date: LocalDate = LocalDate.of(YEAR_2025, MONTH_10, DAY_30)
     val date1: LocalDate = LocalDate.of(year1970, 1, 1)
 
     val senderJsonString: String =
