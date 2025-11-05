@@ -25,7 +25,7 @@ import play.api.http.Status
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{ route, * }
 import uk.gov.hmrc.auth.core.MissingBearerToken
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{ CtUtr, Nino, SaUtr }
 import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.duration.*
@@ -44,9 +44,7 @@ class MessagesPartialsISpec
   }
 
   "Message link" must {
-    "successfully view message when step and returnUrl are missing" in new TestCase {
-
-      val utr = SaUtr("1555369043")
+    "successfully view message when step and returnUrl are missing" in new AuthenticatedUserMessageCount {
 
       val authProvider = testAuthorisationProvider.governmentGatewayAuthority().withSaUtr(utr)
 
@@ -62,9 +60,7 @@ class MessagesPartialsISpec
 
     }
 
-    "return Forbidden message when encryptedUrl is null" in new TestCase {
-
-      val utr = SaUtr("1555369043")
+    "return Forbidden message when encryptedUrl is null" in new AuthenticatedUserMessageCount {
 
       val authProvider = testAuthorisationProvider.governmentGatewayAuthority().withSaUtr(utr)
 
@@ -78,8 +74,8 @@ class MessagesPartialsISpec
   }
 
   "Inbox link partial" must {
-    "show message count of one when filtering for nino messages only" in new TestCase {
-      val utr = SaUtr("1555369043")
+    "show message count of one when filtering for nino messages only" in new AuthenticatedUserMessageCount {
+      messagesPost(ninoMessage(Nino("NH123456D")))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -93,8 +89,8 @@ class MessagesPartialsISpec
       link must be(Some("1 unread"))
     }
 
-    "show message count of one when filtering for sa utr messages only" in new TestCase {
-      val utr = SaUtr("1555369043")
+    "show message count of one when filtering for sa utr messages only" in new AuthenticatedUserMessageCount {
+      messagesPost(statementMessage)
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -108,8 +104,8 @@ class MessagesPartialsISpec
       link must be(Some("1 unread"))
     }
 
-    "show message count of one when filtering for ct utr messages only" in new TestCase {
-      val utr = SaUtr("1555369043")
+    "show message count of one when filtering for ct utr messages only" in new AuthenticatedUserMessageCount {
+      messagesPost(tavcMessage(CtUtr("876487234")))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -124,8 +120,7 @@ class MessagesPartialsISpec
   }
 
   "Messages partials" should {
-    "throw a missing bearer token exception if token missing" in new TestCase {
-      val utr = SaUtr("1555369043")
+    "throw a missing bearer token exception if token missing" in new AuthenticatedUserMessageCount {
       val request = messages()
       // Testing the controller for exception raised
       // ErrorHandler.resolveError is unit tested
@@ -134,10 +129,7 @@ class MessagesPartialsISpec
       }
     }
 
-    "return portal messages list and change read count in inbox-link when they are read" in new TestCase {
-
-      val utr = SaUtr("1555369043")
-
+    "return portal messages list and change read count in inbox-link when they are read" in new AuthenticatedUserMessageCount {
       messagesInboxLink() must be(None)
 
       messagesPost(statementMessage)
@@ -177,5 +169,9 @@ class MessagesPartialsISpec
 
       messagesInboxLink() must be(None)
     }
+  }
+
+  trait AuthenticatedUserMessageCount extends TestCase {
+    val utr: SaUtr = SaUtr("1555369043")
   }
 }

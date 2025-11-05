@@ -48,6 +48,7 @@ import scala.util.Random
 
 class MessageFrontendISpec
     extends PlaySpec with GuiceOneServerPerSuite with ScalaFutures with BeforeAndAfterEach with Eventually {
+
   val duration15: Int = 15
   implicit val defaultTimeout: FiniteDuration = Duration(duration15, TimeUnit.SECONDS)
 
@@ -449,15 +450,6 @@ class MessageFrontendISpec
         .withPpt(ppt)
         .withPods(pods)
         .withEPaye(epaye)
-
-      messagesPost(ninoMessage(nino))
-      messagesPost(statementMessage)
-      messagesPost(tavcMessage(ctUtr))
-      messagesPost(fhddsMessage(fhdds))
-      messagesPost(pptMessage(ppt))
-      messagesPost(vatMessage(vat))
-      externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", pods.value))
-      messagesPost(epayeMessage(epaye))
 
       (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value)
     }

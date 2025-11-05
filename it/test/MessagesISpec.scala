@@ -18,7 +18,7 @@
  * Copyright 2023 HM Revenue & Customs
  *
  */
-import model.{ EPaye, MessageCount, ReadPreference }
+import model.{ EPaye, HmrcPptOrg, MessageCount, ReadPreference }
 import org.scalatest.Inspectors
 import org.scalatest.time.{ Millis, Span }
 import play.api.http.Status
@@ -26,7 +26,7 @@ import play.api.mvc.Result
 import play.api.test.Helpers.*
 import test.models.HmrcPodsPpOrg
 import test.utils.AuthorityBuilder
-import uk.gov.hmrc.domain.{ CtUtr, HmrcObtdsOrg, Nino, SaUtr }
+import uk.gov.hmrc.domain.{ CtUtr, HmrcMtdVat, HmrcObtdsOrg, Nino, SaUtr }
 import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
@@ -78,35 +78,45 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       status(result) must be(Status.UNAUTHORIZED)
     }
 
-    "return count as 1 for an authenticated user with nino, ct utr & sa utr, with 1 message of each type while asking for only nino messages" in new TestCase {
-      val utr = SaUtr("UNUSED")
+    "return count as 1 for an authenticated user with nino, ct utr & sa utr, with 1 message of each type while asking" +
+      " for only nino messages" in new TestCase {
+        val utr = SaUtr("UNUSED")
 
-      lazy val authProvider: AuthorityBuilder = setupFilterableMessages._1
+        lazy val authProvider: AuthorityBuilder = setupFilterableMessages._1
+        val nino = Nino("NH123456D")
 
-      val request = messagesCount(None, List("nino"))
-        .withSession(SessionKeys.authToken -> authProvider.bearerTokenHeader()._2)
+        messagesPost(ninoMessage(nino))
 
-      val result = route(app, request).get
-      status(result) must be(Status.OK)
-      contentAsJson(result).as[MessageCount] must be(MessageCount(1))
-    }
+        val request = messagesCount(None, List("nino"))
+          .withSession(SessionKeys.authToken -> authProvider.bearerTokenHeader()._2)
 
-    "return count as 1 for an authenticated user with nino, ct utr & sa utr, with 1 message of each type while asking for only sautr messages" in new TestCase {
-      val utr = SaUtr("UNUSED")
+        val result = route(app, request).get
+        status(result) must be(Status.OK)
+        contentAsJson(result).as[MessageCount] must be(MessageCount(1))
+      }
 
-      lazy val authProvider: AuthorityBuilder = setupFilterableMessages._1
+    "return count as 1 for an authenticated user with nino, ct utr & sa utr, with 1 message of each type while asking" +
+      " for only sautr messages" in new TestCase {
+        val utr = SaUtr("UNUSED")
 
-      val request = messagesCount(None, List("sautr"))
-        .withSession(SessionKeys.authToken -> authProvider.bearerTokenHeader()._2)
+        lazy val authProvider: AuthorityBuilder = setupFilterableMessages._1
+        messagesPost(statementMessage)
 
-      val result = route(app, request).get
-      status(result) must be(Status.OK)
-      contentAsJson(result).as[MessageCount] must be(MessageCount(1))
-    }
+        val request = messagesCount(None, List("sautr"))
+          .withSession(SessionKeys.authToken -> authProvider.bearerTokenHeader()._2)
+
+        val result = route(app, request).get
+        status(result) must be(Status.OK)
+        contentAsJson(result).as[MessageCount] must be(MessageCount(1))
+      }
 
     "return count as 2 for an authenticated user with nino, ct utr & sa utr, " +
       "with 1 message of each type while asking for nino & sautr messages" in new TestCase {
         val utr = SaUtr("UNUSED")
+        val nino = Nino("NH123456D")
+
+        messagesPost(ninoMessage(nino))
+        messagesPost(statementMessage)
 
         lazy val authProvider = setupFilterableMessages._1
 
@@ -119,26 +129,36 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
         contentAsJson(result).as[MessageCount] must be(MessageCount(2))
       }
 
-    "return count as 3 for an authenticated user with nino, ct utr & sa utr, with 1 message of each type while asking for all messages" in new TestCase {
-      override def utr: SaUtr = SaUtr("123456789")
+    "return count as 3 for an authenticated user with nino, ct utr & sa utr, with 1 message of each type while asking" +
+      " for all messages" in new TestCase {
+        override def utr: SaUtr = SaUtr("123456789")
 
-      lazy val authProvider = setupFilterableMessages._1
+        val nino = Nino("NH123456D")
+        val ctUtr = CtUtr("876487234")
 
-      val request = messagesCount(None, List("nino", "ctutr", "sautr"))
-        .withSession(
-          authProvider.bearerTokenHeader(),
-          authProvider.sessionCookie(authProvider.bearerTokenHeader()._2),
-          SessionKeys.authToken -> authProvider.bearerTokenHeader()._2
-        )
-      val result = route(app, request).get
-      status(result) must be(Status.OK)
-      contentAsJson(result).as[MessageCount] must be(MessageCount(3))
-    }
+        messagesPost(ninoMessage(nino))
+        messagesPost(statementMessage)
+        messagesPost(tavcMessage(ctUtr))
+
+        lazy val authProvider = setupFilterableMessages._1
+
+        val request = messagesCount(None, List("nino", "ctutr", "sautr"))
+          .withSession(
+            authProvider.bearerTokenHeader(),
+            authProvider.sessionCookie(authProvider.bearerTokenHeader()._2),
+            SessionKeys.authToken -> authProvider.bearerTokenHeader()._2
+          )
+        val result = route(app, request).get
+        status(result) must be(Status.OK)
+        contentAsJson(result).as[MessageCount] must be(MessageCount(3))
+      }
   }
 
   "Message List" should {
     "return 1 message for nino-only user" in new TestCase {
       val utr = SaUtr("UNUSED")
+      val nino = Nino("NH123456D")
+      messagesPost(ninoMessage(nino))
 
       val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
 
@@ -148,12 +168,14 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
 
       status(result) must be(Status.OK)
       expectedMessages(contentAsString(result), 1)
-
     }
 
     "return no messages for ct-utr user" in new TestCase {
       val utr = SaUtr("UNUSED")
       val ctUtr = CtUtr("9874923499")
+
+      messagesPost(tavcMessage(ctUtr))
+
       lazy val authProvider = testAuthorisationProvider.governmentGatewayAuthority().withCtUtr(ctUtr)
       lazy val authHeader = authProvider.bearerTokenHeader()
 
@@ -192,6 +214,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only nino messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(ninoMessage(Nino("NH123456D")))
+
       val (authProvider, nino, _, _, _, _, _, _) = setupFilterableMessages
 
       val request = messages(List("nino"))
@@ -205,6 +229,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only sautr messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(statementMessage)
+
       val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
 
       val request = messages(List("sautr"))
@@ -218,6 +244,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only ctutr messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(tavcMessage(CtUtr("876487234")))
+
       val (_, _, ctUtr, _, _, _, _, _) = setupFilterableMessages
 
       val authBuilderForCtUtr = testAuthorisationProvider.governmentGatewayAuthority().withCtUtr(CtUtr(ctUtr))
@@ -232,6 +260,11 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return all enrolments messages when a filter isn't provided on the /messages endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(ninoMessage(Nino("NH123456D")))
+      messagesPost(fhddsMessage(HmrcObtdsOrg("XZFH00000100024")))
+      messagesPost(vatMessage(HmrcMtdVat("123456789")))
+      messagesPost(statementMessage)
+
       val (authContext, nino, _, fhdds, vat, _, _, _) = setupFilterableMessages
 
       val request = messages()
@@ -247,8 +280,11 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
 
       hasMessageSubHeading(contentAsString(result)) must be(true)
       headingIdentifiers(contentAsString(result)) must be(idHeadings)
+
       val countVal: Int = 8
+
       exactMessageCount(contentAsString(result), countVal)
+
       val actualSubjects = emailMessagesSubject(contentAsString(result))
       actualSubjects must contain(s"$b1${b2}Here is the subject for $nino$a$a")
       actualSubjects must contain(s"$b1${b2}Here is the subject for ${utr.value}$a$a")
@@ -257,6 +293,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only nino messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(ninoMessage(Nino("NH123456D")))
+
       val (authContext, nino, _, _, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("nino"))
         .withSession(
@@ -271,6 +309,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only FHDDS messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(fhddsMessage(HmrcObtdsOrg("XZFH00000100024")))
+
       val (authContext, _, _, fhdds, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("HMRC-OBTDS-ORG"))
         .withSession(
@@ -279,6 +319,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
           SessionKeys.authToken -> authContext.bearerTokenHeader()._2
         )
       val result = route(app, request).get
+
       status(result) must be(Status.OK)
       exactMessageCount(contentAsString(result), 1)
       emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for $fhdds$a")
@@ -286,6 +327,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only PPT messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(pptMessage(HmrcPptOrg("XMPPT0000000001")))
+
       val (authContext, _, _, _, _, ppt, _, _) = setupFilterableMessages
       val request = messagesBta(List("ETMPREGISTRATIONNUMBER"), List("ppt"))
         .withSession(
@@ -339,6 +382,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only VAT messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(vatMessage(HmrcMtdVat("123456789")))
+
       val (authContext, _, _, _, vat, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("HMRC-MTD-VAT"))
         .withSession(
@@ -372,6 +417,8 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only sautr messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(statementMessage)
+
       val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("sautr"))
         .withSession(
@@ -399,12 +446,18 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
           SessionKeys.authToken -> authContext.bearerTokenHeader()._2
         )
       val result = route(app, request).get
+
       status(result) must be(Status.OK)
       exactMessageCount(contentAsString(result), 1)
       emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for ${epayeId.value}$a")
     }
 
     "return all enrolments messages when a filter isn't provided on the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
+      messagesPost(ninoMessage(Nino("NH123456D")))
+      messagesPost(fhddsMessage(HmrcObtdsOrg("XZFH00000100024")))
+      messagesPost(vatMessage(HmrcMtdVat("123456789")))
+      messagesPost(statementMessage)
+
       val (authContext, nino, _, fhdds, vat, _, _, _) = setupFilterableMessages
       val request = messagesBta()
         .withSession(SessionKeys.authToken -> authContext.bearerTokenHeader()._2)
@@ -416,7 +469,9 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       status(result) must be(Status.OK)
       hasMessageSubHeading(contentAsString(result)) must be(true)
       headingIdentifiers(contentAsString(result)) must be(idHeadings)
+
       val countVal: Int = 4
+
       exactMessageCount(contentAsString(result), countVal)
       emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for $nino$a")
       emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for ${utr.value}$a")
