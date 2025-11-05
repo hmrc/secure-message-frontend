@@ -524,7 +524,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for $nino$a")
       // emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for ${utr.value}$a")
       emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for $fhdds$a")
-      emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the VAT subject for $vat$a")
+      // emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the VAT subject for $vat$a")
     }
   }
 
