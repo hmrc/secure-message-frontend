@@ -22,12 +22,14 @@ import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{ BeforeAndAfterEach, Inspectors }
 import play.api.Logger
 import play.api.http.Status
+import play.api.libs.ws.WSResponse
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{ route, * }
 import uk.gov.hmrc.auth.core.MissingBearerToken
 import uk.gov.hmrc.domain.{ CtUtr, Nino, SaUtr }
 import uk.gov.hmrc.http.SessionKeys
 
+import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 
@@ -38,7 +40,19 @@ class MessagesPartialsISpec
   implicit override val patienceConfig: PatienceConfig =
     PatienceConfig(timeout = scaled(30 seconds), interval = scaled(200 millis))
 
-  override protected def beforeEach() = {
+  override implicit val eContext: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+
+  /*override protected def beforeEach() = {
+    await(ws.url(s"${messageResource}test-only/messages").delete())
+    await(ws.url(s"${messageResource}test-only/qmessages").delete())
+  }*/
+
+  /*override protected def afterEach() = {
+    await(ws.url(s"${messageResource}test-only/messages").delete())
+    await(ws.url(s"${messageResource}test-only/qmessages").delete())
+  }*/
+
+  override def performCommonTask(): Future[WSResponse] = {
     ws.url(s"${messageResource}test-only/messages").delete()
     ws.url(s"${messageResource}test-only/qmessages").delete()
   }
@@ -75,7 +89,7 @@ class MessagesPartialsISpec
 
   "Inbox link partial" must {
     "show message count of one when filtering for nino messages only" in new AuthenticatedUserMessageCount {
-      messagesPost(ninoMessage(Nino("NH123456D")))
+      performCommonTask().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -90,7 +104,7 @@ class MessagesPartialsISpec
     }
 
     "show message count of one when filtering for sa utr messages only" in new AuthenticatedUserMessageCount {
-      messagesPost(statementMessage)
+      performCommonTask().map(_ => messagesPost(statementMessage))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -105,7 +119,7 @@ class MessagesPartialsISpec
     }
 
     "show message count of one when filtering for ct utr messages only" in new AuthenticatedUserMessageCount {
-      messagesPost(tavcMessage(CtUtr("876487234")))
+      performCommonTask().map(_ => messagesPost(tavcMessage(CtUtr("876487234"))))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -132,9 +146,11 @@ class MessagesPartialsISpec
     "return portal messages list and change read count in inbox-link when they are read" in new AuthenticatedUserMessageCount {
       messagesInboxLink() must be(None)
 
-      messagesPost(statementMessage)
-      messagesPost(refundMessage)
-      messagesPost(atsMessage)
+      performCommonTask().map { _ =>
+        messagesPost(statementMessage)
+        messagesPost(refundMessage)
+        messagesPost(atsMessage)
+      }
 
       val bt = ggAuthorisationHeader
 

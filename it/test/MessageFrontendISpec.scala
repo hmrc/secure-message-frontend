@@ -42,6 +42,7 @@ import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 import java.time.LocalDate
 import java.util.Base64
 import java.util.concurrent.TimeUnit
+import scala.concurrent.Future
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
@@ -51,6 +52,7 @@ class MessageFrontendISpec
 
   val duration15: Int = 15
   implicit val defaultTimeout: FiniteDuration = Duration(duration15, TimeUnit.SECONDS)
+  implicit val eContext: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -66,10 +68,20 @@ class MessageFrontendISpec
   val messageResource = "http://localhost:8910/"
   val secureMessageResource = "http://localhost:9051/secure-messaging/"
 
-  override protected def beforeEach() = {
+  /*override protected def beforeEach() = {
     await(ws.url(s"${messageResource}test-only/messages").delete())
     await(ws.url(s"${messageResource}test-only/qmessages").delete())
+  }*/
+
+  def performCommonTask(): Future[WSResponse] = {
+    ws.url(s"${messageResource}test-only/messages").delete()
+    ws.url(s"${messageResource}test-only/qmessages").delete()
   }
+
+  /*override protected def afterEach() = {
+    await(ws.url(s"${messageResource}test-only/messages").delete())
+    await(ws.url(s"${messageResource}test-only/qmessages").delete())
+  }*/
 
   trait TestCase {
 
