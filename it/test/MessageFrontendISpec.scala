@@ -68,7 +68,7 @@ class MessageFrontendISpec
   val messageResource = "http://localhost:8910/"
   val secureMessageResource = "http://localhost:9051/secure-messaging/"
 
-  def cleanupExistingMessages(): Future[WSResponse] = {
+  def deleteAllMessages(): Future[WSResponse] = {
     ws.url(s"${messageResource}test-only/messages").delete()
     ws.url(s"${messageResource}test-only/qmessages").delete()
   }

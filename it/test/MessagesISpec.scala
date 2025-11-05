@@ -59,7 +59,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
 
       lazy val authBuilderNino = testAuthorisationProvider.governmentGatewayAuthority().withNino(nino)
 
-      cleanupExistingMessages().map(_ => messagesPost(ninoMessage(nino)))
+      deleteAllMessages().map(_ => messagesPost(ninoMessage(nino)))
 
       val request = messagesCount(None, List("nino"))
         .withSession(SessionKeys.authToken -> authBuilderNino.bearerTokenHeader()._2)
@@ -87,7 +87,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
         lazy val authProvider: AuthorityBuilder = setupFilterableMessages._1
         val nino = Nino("NH123456D")
 
-        cleanupExistingMessages().map { _ =>
+        deleteAllMessages().map { _ =>
           messagesPost(ninoMessage(nino))
         }
 
@@ -105,7 +105,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       " for only sautr messages" in new TestCase {
         val utr = SaUtr("UNUSED")
 
-        cleanupExistingMessages().map { _ =>
+        deleteAllMessages().map { _ =>
           messagesPost(statementMessage)
         }
 
@@ -126,7 +126,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
         val utr = SaUtr("UNUSED")
         val nino = Nino("NH123456D")
 
-        cleanupExistingMessages().map { _ =>
+        deleteAllMessages().map { _ =>
           messagesPost(ninoMessage(nino))
           messagesPost(statementMessage)
         }
@@ -151,7 +151,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
         val nino = Nino("NH123456D")
         val ctUtr = CtUtr("876487234")
 
-        cleanupExistingMessages().map { _ =>
+        deleteAllMessages().map { _ =>
           messagesPost(ninoMessage(nino))
           messagesPost(statementMessage)
           messagesPost(tavcMessage(ctUtr))
@@ -179,7 +179,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       val utr = SaUtr("UNUSED")
       val nino = Nino("NH123456D")
 
-      cleanupExistingMessages().map { _ =>
+      deleteAllMessages().map { _ =>
         messagesPost(ninoMessage(nino))
       }
 
@@ -197,7 +197,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       val utr = SaUtr("UNUSED")
       val ctUtr = CtUtr("9874923499")
 
-      cleanupExistingMessages().map(_ => messagesPost(tavcMessage(ctUtr)))
+      deleteAllMessages().map(_ => messagesPost(tavcMessage(ctUtr)))
 
       lazy val authProvider = testAuthorisationProvider.governmentGatewayAuthority().withCtUtr(ctUtr)
       lazy val authHeader = authProvider.bearerTokenHeader()
@@ -213,7 +213,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return all messages user using /messages endpoint for sa-utr user" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(refundMessage))
+      deleteAllMessages().map(_ => messagesPost(refundMessage))
 
       val bt = authBuilder.bearerTokenHeader()
       val request = messages()
@@ -227,7 +227,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     "return all messages using /messages endpoint for ctUtr user" in new AuthenticatedUserMessageCount {
       val ctUtr = CtUtr("9874923499")
 
-      cleanupExistingMessages().map(_ => messagesPost(tavcMessage(ctUtr)))
+      deleteAllMessages().map(_ => messagesPost(tavcMessage(ctUtr)))
 
       val authBuilderForCtUtr = testAuthorisationProvider.governmentGatewayAuthority().withCtUtr(ctUtr)
 
@@ -240,7 +240,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only nino messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
+      deleteAllMessages().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
 
       val (authProvider, nino, _, _, _, _, _, _) = setupFilterableMessages
 
@@ -255,7 +255,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only sautr messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(statementMessage))
+      deleteAllMessages().map(_ => messagesPost(statementMessage))
 
       val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
 
@@ -270,7 +270,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only ctutr messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(tavcMessage(CtUtr("876487234"))))
+      deleteAllMessages().map(_ => messagesPost(tavcMessage(CtUtr("876487234"))))
 
       val (_, _, ctUtr, _, _, _, _, _) = setupFilterableMessages
 
@@ -288,7 +288,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return all enrolments messages when a filter isn't provided on the /messages endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map { x =>
+      deleteAllMessages().map { x =>
         messagesPost(ninoMessage(Nino("NH123456D")))
         messagesPost(fhddsMessage(HmrcObtdsOrg("XZFH00000100024")))
         messagesPost(vatMessage(HmrcMtdVat("123456789")))
@@ -324,7 +324,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only nino messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
+      deleteAllMessages().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
 
       val (authContext, nino, _, _, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("nino"))
@@ -341,7 +341,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only FHDDS messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(fhddsMessage(HmrcObtdsOrg("XZFH00000100024"))))
+      deleteAllMessages().map(_ => messagesPost(fhddsMessage(HmrcObtdsOrg("XZFH00000100024"))))
 
       val (authContext, _, _, fhdds, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("HMRC-OBTDS-ORG"))
@@ -360,7 +360,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only PPT messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(pptMessage(HmrcPptOrg("XMPPT0000000001"))))
+      deleteAllMessages().map(_ => messagesPost(pptMessage(HmrcPptOrg("XMPPT0000000001"))))
 
       val (authContext, _, _, _, _, ppt, _, _) = setupFilterableMessages
       val request = messagesBta(List("ETMPREGISTRATIONNUMBER"), List("ppt"))
@@ -401,7 +401,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
         .withNino(Nino("NH123456D"))
         .withPodsPp(HmrcPodsPpOrg("A12345678"))
 
-      cleanupExistingMessages().map { _ =>
+      deleteAllMessages().map { _ =>
         externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", "A1234567"))
         externalMessagesPost(podsMessage("HMRC-PODSPP-ORG.PSPID", "A12345678"))
       }
@@ -420,7 +420,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only VAT messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(vatMessage(HmrcMtdVat("123456789"))))
+      deleteAllMessages().map(_ => messagesPost(vatMessage(HmrcMtdVat("123456789"))))
 
       val (authContext, _, _, _, vat, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("HMRC-MTD-VAT"))
@@ -442,7 +442,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       val fhdds = HmrcObtdsOrg("XZFH00000100024")
       val authContext = testAuthorisationProvider.governmentGatewayAuthority().withFhdds(fhdds)
 
-      cleanupExistingMessages().map(_ => messagesPost(fhddsMessage(fhdds)))
+      deleteAllMessages().map(_ => messagesPost(fhddsMessage(fhdds)))
 
       val request = messagesBta(List("HMRC-OBTDS-ORG"))
         .withSession(
@@ -459,7 +459,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only sautr messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(statementMessage))
+      deleteAllMessages().map(_ => messagesPost(statementMessage))
 
       val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("sautr"))
@@ -482,7 +482,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       val epayeId: EPaye = EPaye("840PR12345678")
       val authContext = testAuthorisationProvider.governmentGatewayAuthority().withEPaye(epayeId)
 
-      cleanupExistingMessages().map(_ => messagesPost(epayeMessage(epayeId)))
+      deleteAllMessages().map(_ => messagesPost(epayeMessage(epayeId)))
 
       val request = messagesBta(List("EMPREF"), List("epaye"))
         .withSession(
@@ -498,7 +498,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return all enrolments messages when a filter isn't provided on the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map { _ =>
+      deleteAllMessages().map { _ =>
         messagesPost(ninoMessage(Nino("NH123456D")))
         messagesPost(fhddsMessage(HmrcObtdsOrg("XZFH00000100024")))
         messagesPost(vatMessage(HmrcMtdVat("123456789")))

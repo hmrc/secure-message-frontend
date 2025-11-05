@@ -70,7 +70,7 @@ class MessagesPartialsISpec
 
   "Inbox link partial" must {
     "show message count of one when filtering for nino messages only" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
+      deleteAllMessages().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -85,7 +85,7 @@ class MessagesPartialsISpec
     }
 
     "show message count of one when filtering for sa utr messages only" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(statementMessage))
+      deleteAllMessages().map(_ => messagesPost(statementMessage))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -100,7 +100,7 @@ class MessagesPartialsISpec
     }
 
     "show message count of one when filtering for ct utr messages only" in new AuthenticatedUserMessageCount {
-      cleanupExistingMessages().map(_ => messagesPost(tavcMessage(CtUtr("876487234"))))
+      deleteAllMessages().map(_ => messagesPost(tavcMessage(CtUtr("876487234"))))
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -127,7 +127,7 @@ class MessagesPartialsISpec
     "return portal messages list and change read count in inbox-link when they are read" in new AuthenticatedUserMessageCount {
       messagesInboxLink() must be(None)
 
-      cleanupExistingMessages().map { _ =>
+      deleteAllMessages().map { _ =>
         messagesPost(statementMessage)
         messagesPost(refundMessage)
         messagesPost(atsMessage)
