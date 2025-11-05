@@ -42,14 +42,17 @@ import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 import java.time.LocalDate
 import java.util.Base64
 import java.util.concurrent.TimeUnit
+import scala.concurrent.Future
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
 
 class MessageFrontendISpec
     extends PlaySpec with GuiceOneServerPerSuite with ScalaFutures with BeforeAndAfterEach with Eventually {
+
   val duration15: Int = 15
   implicit val defaultTimeout: FiniteDuration = Duration(duration15, TimeUnit.SECONDS)
+  implicit val executionContext: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -65,9 +68,9 @@ class MessageFrontendISpec
   val messageResource = "http://localhost:8910/"
   val secureMessageResource = "http://localhost:9051/secure-messaging/"
 
-  override protected def beforeEach() = {
-    ws.url(s"${messageResource}test-only/messages").delete().futureValue
-    ws.url(s"${messageResource}test-only/qmessages").delete().futureValue
+  def cleanupExistingMessages(): Future[WSResponse] = {
+    ws.url(s"${messageResource}test-only/messages").delete()
+    ws.url(s"${messageResource}test-only/qmessages").delete()
   }
 
   trait TestCase {
@@ -345,12 +348,14 @@ class MessageFrontendISpec
     }
 
     def messagesPost(body: JsObject): String = {
-      val response =
-        httpClient
-          .url(s"${messageResource}messages")
-          .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
-          .post(body)
-          .futureValue
+      val response: WSResponse =
+        await(
+          httpClient
+            .url(s"${messageResource}messages")
+            .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
+            .post(body)
+        )
+
       response.status must be(Status.CREATED)
       (response.json \\ "id").map(_.as[JsString].value).head
     }
@@ -448,15 +453,6 @@ class MessageFrontendISpec
         .withPods(pods)
         .withEPaye(epaye)
 
-      messagesPost(ninoMessage(nino))
-      messagesPost(statementMessage)
-      messagesPost(tavcMessage(ctUtr))
-      messagesPost(fhddsMessage(fhdds))
-      messagesPost(pptMessage(ppt))
-      messagesPost(vatMessage(vat))
-      externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", pods.value))
-      messagesPost(epayeMessage(epaye))
-
       (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value)
     }
   }
@@ -480,7 +476,6 @@ class MessageFrontendISpec
   }
 
   def emailMessagesSubject(responseBody: String): List[String] = {
-
     val parsedMessages = Jsoup.parse(responseBody)
     parsedMessages
       .getElementsByClass("table--borderless")
