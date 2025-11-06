@@ -42,17 +42,15 @@ import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 import java.time.LocalDate
 import java.util.Base64
 import java.util.concurrent.TimeUnit
-import scala.concurrent.Future
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
+import play.api.http.ContentTypes
 
 class MessageFrontendISpec
     extends PlaySpec with GuiceOneServerPerSuite with ScalaFutures with BeforeAndAfterEach with Eventually {
-
   val duration15: Int = 15
   implicit val defaultTimeout: FiniteDuration = Duration(duration15, TimeUnit.SECONDS)
-  implicit val eContext: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -66,22 +64,13 @@ class MessageFrontendISpec
   lazy val ws = app.injector.instanceOf[WSClient]
   lazy val testAuthorisationProvider = app.injector.instanceOf[TestAuthorisationProvider]
   val messageResource = "http://localhost:8910/"
-  val secureMessageResource = "http://localhost:9051/secure-messaging/"
+  val secureMessageResource = "http://localhost:9051/"
 
-  /*override protected def beforeEach() = {
-    await(ws.url(s"${messageResource}test-only/messages").delete())
-    await(ws.url(s"${messageResource}test-only/qmessages").delete())
-  }*/
-
-  def performCommonTask(): Future[WSResponse] = {
-    ws.url(s"${messageResource}test-only/messages").delete()
-    ws.url(s"${messageResource}test-only/qmessages").delete()
-  }
-
-  /*override protected def afterEach() = {
-    await(ws.url(s"${messageResource}test-only/messages").delete())
-    await(ws.url(s"${messageResource}test-only/qmessages").delete())
-  }*/
+  override protected def beforeEach() =
+    ws.url(s"${secureMessageResource}test-only/delete/secure-messages")
+      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+      .delete()
+      .futureValue
 
   trait TestCase {
 
@@ -358,14 +347,13 @@ class MessageFrontendISpec
     }
 
     def messagesPost(body: JsObject): String = {
-      val response: WSResponse =
+      val response =
         await(
           httpClient
-            .url(s"${messageResource}messages")
+            .url(s"${secureMessageResource}messages")
             .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
             .post(body)
         )
-
       response.status must be(Status.CREATED)
       (response.json \\ "id").map(_.as[JsString].value).head
     }
@@ -422,7 +410,9 @@ class MessageFrontendISpec
       val bt = authBuilder.bearerTokenHeader()
 
       val response =
-        ws.url(s"${secureMessageResource}messages").withHttpHeaders(HeaderNames.AUTHORIZATION -> bt._2).get()
+        ws.url(s"${secureMessageResource}secure-messaging/messages")
+          .withHttpHeaders(HeaderNames.AUTHORIZATION -> bt._2)
+          .get()
       val responseValue = response.futureValue
       responseValue.status must be(Status.OK)
       val alerts = Jsoup.parse(responseValue.body).getElementById("unreadMessages")
@@ -462,6 +452,15 @@ class MessageFrontendISpec
         .withPpt(ppt)
         .withPods(pods)
         .withEPaye(epaye)
+
+      messagesPost(ninoMessage(nino))
+      messagesPost(statementMessage)
+      messagesPost(tavcMessage(ctUtr))
+      messagesPost(fhddsMessage(fhdds))
+      messagesPost(pptMessage(ppt))
+      messagesPost(vatMessage(vat))
+      externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", pods.value))
+      messagesPost(epayeMessage(epaye))
 
       (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value)
     }
