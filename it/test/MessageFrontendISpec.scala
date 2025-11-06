@@ -42,17 +42,16 @@ import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 import java.time.LocalDate
 import java.util.Base64
 import java.util.concurrent.TimeUnit
-import scala.concurrent.Future
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 import scala.jdk.CollectionConverters.*
 import scala.util.Random
+import play.api.http.ContentTypes
 
 class MessageFrontendISpec
     extends PlaySpec with GuiceOneServerPerSuite with ScalaFutures with BeforeAndAfterEach with Eventually {
 
   val duration15: Int = 15
   implicit val defaultTimeout: FiniteDuration = Duration(duration15, TimeUnit.SECONDS)
-  implicit val executionContext: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -63,15 +62,17 @@ class MessageFrontendISpec
     )
     .build()
 
-  lazy val ws = app.injector.instanceOf[WSClient]
-  lazy val testAuthorisationProvider = app.injector.instanceOf[TestAuthorisationProvider]
-  val messageResource = "http://localhost:8910/"
-  val secureMessageResource = "http://localhost:9051/secure-messaging/"
+  lazy val ws: WSClient = app.injector.instanceOf[WSClient]
+  lazy val testAuthorisationProvider: TestAuthorisationProvider = app.injector.instanceOf[TestAuthorisationProvider]
 
-  def deleteAllMessages(): Future[WSResponse] = {
-    ws.url(s"${messageResource}test-only/messages").delete()
-    ws.url(s"${messageResource}test-only/qmessages").delete()
-  }
+  val messageResource = "http://localhost:8910/"
+  val secureMessageResource = "http://localhost:9051/"
+
+  override protected def beforeEach(): Unit =
+    ws.url(s"${secureMessageResource}test-only/delete/secure-messages")
+      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+      .delete()
+      .futureValue
 
   trait TestCase {
 
@@ -79,8 +80,8 @@ class MessageFrontendISpec
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    lazy val authBuilder = testAuthorisationProvider.governmentGatewayAuthority().withSaUtr(utr)
-    lazy val ggAuthorisationHeader = authBuilder.bearerTokenHeader()(Duration(1, TimeUnit.MINUTES))
+    lazy val authBuilder: AuthorityBuilder = testAuthorisationProvider.governmentGatewayAuthority().withSaUtr(utr)
+    lazy val ggAuthorisationHeader: (String, String) = authBuilder.bearerTokenHeader()(Duration(1, TimeUnit.MINUTES))
     lazy val cookie: (String, String) = authBuilder.sessionCookie(ggAuthorisationHeader._2)
 
     def authResource(path: String): String = s"http://localhost:8585/$path"
@@ -90,9 +91,9 @@ class MessageFrontendISpec
     val duration16: Int = 16
     def randomDetailsId: String = "C" + Random.alphanumeric.filter(_.isDigit).take(duration16).mkString
 
-    val now = LocalDate.now
+    val now: LocalDate = LocalDate.now
 
-    lazy val atsMessage = Json
+    lazy val atsMessage: JsObject = Json
       .parse(s"""
                 | {
                 | "externalRef":{
@@ -126,9 +127,10 @@ class MessageFrontendISpec
       """.stripMargin)
       .as[JsObject]
 
-    lazy val statementMessage = createMessageJson("mdtp", "SA300", TaxEntity("sa", utr), Some("user@email.com"))
+    lazy val statementMessage: JsObject =
+      createMessageJson("mdtp", "SA300", TaxEntity("sa", utr), Some("user@email.com"))
 
-    lazy val refundMessage = createMessageJson("mdtp", "R002A", TaxEntity("sa", utr), Some("user@email.com"))
+    lazy val refundMessage: JsObject = createMessageJson("mdtp", "R002A", TaxEntity("sa", utr), Some("user@email.com"))
 
     def ninoMessage(nino: Nino): JsObject =
       createMessageJson("mdtp", "SA300", TaxEntity("paye", nino), Some("user@email.com"))
@@ -348,13 +350,12 @@ class MessageFrontendISpec
     }
 
     def messagesPost(body: JsObject): String = {
-      val response: WSResponse =
-        await(
-          httpClient
-            .url(s"${messageResource}messages")
-            .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
-            .post(body)
-        )
+      val response =
+        httpClient
+          .url(s"${secureMessageResource}messages")
+          .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
+          .post(body)
+          .futureValue
 
       response.status must be(Status.CREATED)
       (response.json \\ "id").map(_.as[JsString].value).head
@@ -412,7 +413,10 @@ class MessageFrontendISpec
       val bt = authBuilder.bearerTokenHeader()
 
       val response =
-        ws.url(s"${secureMessageResource}messages").withHttpHeaders(HeaderNames.AUTHORIZATION -> bt._2).get()
+        ws.url(s"${secureMessageResource}secure-messaging/messages")
+          .withHttpHeaders(HeaderNames.AUTHORIZATION -> bt._2)
+          .get()
+
       val responseValue = response.futureValue
       responseValue.status must be(Status.OK)
       val alerts = Jsoup.parse(responseValue.body).getElementById("unreadMessages")
@@ -453,6 +457,15 @@ class MessageFrontendISpec
         .withPods(pods)
         .withEPaye(epaye)
 
+      messagesPost(ninoMessage(nino))
+      messagesPost(statementMessage)
+      messagesPost(tavcMessage(ctUtr))
+      messagesPost(fhddsMessage(fhdds))
+      messagesPost(pptMessage(ppt))
+      messagesPost(vatMessage(vat))
+      externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", pods.value))
+      messagesPost(epayeMessage(epaye))
+
       (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value)
     }
   }
@@ -477,6 +490,7 @@ class MessageFrontendISpec
 
   def emailMessagesSubject(responseBody: String): List[String] = {
     val parsedMessages = Jsoup.parse(responseBody)
+
     parsedMessages
       .getElementsByClass("table--borderless")
       .first()

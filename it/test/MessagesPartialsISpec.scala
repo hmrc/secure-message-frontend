@@ -25,37 +25,51 @@ import play.api.http.Status
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{ route, * }
 import uk.gov.hmrc.auth.core.MissingBearerToken
-import uk.gov.hmrc.domain.{ CtUtr, Nino, SaUtr }
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.SessionKeys
+import play.api.http.{ ContentTypes, HeaderNames }
+import play.api.mvc.{ AnyContentAsEmpty, Result }
+import test.utils.AuthorityBuilder
 
+import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 
 class MessagesPartialsISpec
     extends MessageFrontendISpec with IntegrationPatience with Inspectors with BeforeAndAfterEach {
 
-  val logger = Logger(getClass)
+  val logger: Logger = Logger(getClass)
   implicit override val patienceConfig: PatienceConfig =
     PatienceConfig(timeout = scaled(30 seconds), interval = scaled(200 millis))
 
+  override protected def beforeEach(): Unit =
+    ws.url(s"${secureMessageResource}test-only/delete/secure-messages")
+      .withHttpHeaders((HeaderNames.CONTENT_TYPE, ContentTypes.JSON))
+      .delete()
+      .futureValue
+
   "Message link" must {
-    "successfully view message when step and returnUrl are missing" in new AuthenticatedUserMessageCount {
+    "successfully view message when step and returnUrl are missing" in new TestCase {
 
-      val authProvider = testAuthorisationProvider.governmentGatewayAuthority().withSaUtr(utr)
+      val utr: SaUtr = SaUtr("1555369043")
 
-      val bt = authProvider.bearerTokenHeader()
+      val authProvider: AuthorityBuilder = testAuthorisationProvider.governmentGatewayAuthority().withSaUtr(utr)
 
-      val messageId = messagesPost(statementMessage)
-      val request =
+      val bt: (String, String) = authProvider.bearerTokenHeader()
+
+      val messageId: String = messagesPost(statementMessage)
+      val request: FakeRequest[AnyContentAsEmpty.type] =
         getMessageForEncryptedUrl(encryptSaMessageRendererReadUrl(messageId))
           .withSession(SessionKeys.authToken -> bt._2)
 
-      val result = route(app, request).get
+      val result: Future[Result] = route(app, request).get
       status(result) must be(Status.OK)
 
     }
 
-    "return Forbidden message when encryptedUrl is null" in new AuthenticatedUserMessageCount {
+    "return Forbidden message when encryptedUrl is null" in new TestCase {
+
+      val utr = SaUtr("1555369043")
 
       val authProvider = testAuthorisationProvider.governmentGatewayAuthority().withSaUtr(utr)
 
@@ -69,8 +83,8 @@ class MessagesPartialsISpec
   }
 
   "Inbox link partial" must {
-    "show message count of one when filtering for nino messages only" in new AuthenticatedUserMessageCount {
-      deleteAllMessages().map(_ => messagesPost(ninoMessage(Nino("NH123456D"))))
+    "show message count of one when filtering for nino messages only" in new TestCase {
+      val utr = SaUtr("1555369043")
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -84,8 +98,8 @@ class MessagesPartialsISpec
       link must be(Some("1 unread"))
     }
 
-    "show message count of one when filtering for sa utr messages only" in new AuthenticatedUserMessageCount {
-      deleteAllMessages().map(_ => messagesPost(statementMessage))
+    "show message count of one when filtering for sa utr messages only" in new TestCase {
+      val utr = SaUtr("1555369043")
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -96,11 +110,11 @@ class MessagesPartialsISpec
           Some(authProvider.sessionCookie(authProvider.bearerTokenHeader()._2))
         )
 
-      link.map(linkValue => linkValue must include("unread"))
+      link must be(Some("1 unread"))
     }
 
-    "show message count of one when filtering for ct utr messages only" in new AuthenticatedUserMessageCount {
-      deleteAllMessages().map(_ => messagesPost(tavcMessage(CtUtr("876487234"))))
+    "show message count of one when filtering for ct utr messages only" in new TestCase {
+      val utr = SaUtr("1555369043")
 
       lazy val authProvider = setupFilterableMessages._1
 
@@ -115,7 +129,8 @@ class MessagesPartialsISpec
   }
 
   "Messages partials" should {
-    "throw a missing bearer token exception if token missing" in new AuthenticatedUserMessageCount {
+    "throw a missing bearer token exception if token missing" in new TestCase {
+      val utr = SaUtr("1555369043")
       val request = messages()
       // Testing the controller for exception raised
       // ErrorHandler.resolveError is unit tested
@@ -124,26 +139,25 @@ class MessagesPartialsISpec
       }
     }
 
-    "return portal messages list and change read count in inbox-link when they are read" in new AuthenticatedUserMessageCount {
+    "return portal messages list and change read count in inbox-link when they are read" in new TestCase {
+
+      val utr = SaUtr("1555369043")
+
       messagesInboxLink() must be(None)
 
-      deleteAllMessages().map { _ =>
-        messagesPost(statementMessage)
-        messagesPost(refundMessage)
-        messagesPost(atsMessage)
-      }
+      messagesPost(statementMessage)
+      messagesPost(refundMessage)
+      messagesPost(atsMessage)
 
       val bt = ggAuthorisationHeader
 
       val (rows, parsedMessages) = renderMessageListPartial(3)
-      messagesInboxLink1().map(result => result must include("unread"))
+      messagesInboxLink1() must be(Some("3 unread"))
 
       val idxRange: Seq[Int] = 0 to 2
       forAll(idxRange) { idx =>
         val row = rows.get(idx)
-        // TODO: Need to be uncommented once the tests are refactored and all apis run successfully to make
-        // TODO: sure that all required data is present in the DB
-        // row.classNames() must contain("unread")
+        row.classNames() must contain("unread")
         row.attributes().asList() must not contain "data-sso"
 
         val href = row.getElementsByTag("a").first().attr("href")
@@ -168,9 +182,5 @@ class MessagesPartialsISpec
 
       messagesInboxLink() must be(None)
     }
-  }
-
-  trait AuthenticatedUserMessageCount extends TestCase {
-    val utr: SaUtr = SaUtr("1555369043")
   }
 }
