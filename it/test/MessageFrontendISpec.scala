@@ -29,7 +29,7 @@ import play.api.http.{ HeaderNames, Status }
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.libs.ws.{ WSClient, WSResponse }
+import play.api.libs.ws.WSClient
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -64,7 +64,6 @@ class MessageFrontendISpec
   lazy val ws: WSClient = app.injector.instanceOf[WSClient]
   lazy val testAuthorisationProvider: TestAuthorisationProvider = app.injector.instanceOf[TestAuthorisationProvider]
 
-  val messageResource = "http://localhost:8910/"
   val secureMessageResource = "http://localhost:9051/"
 
   override protected def beforeEach(): Unit =
@@ -358,13 +357,6 @@ class MessageFrontendISpec
       (response.json \\ "id").map(_.as[JsString].value).head
     }
 
-    def externalMessagesPost(body: JsObject): WSResponse =
-      httpClient
-        .url(s"${messageResource}external/messages")
-        .withHttpHeaders(SessionKeys.authToken -> ggAuthorisationHeader._2)
-        .post(body)
-        .futureValue
-
     def messages(
       taxIdentifiers: List[String] = List(),
       regimes: List[String] = List()
@@ -460,7 +452,6 @@ class MessageFrontendISpec
       messagesPost(fhddsMessage(fhdds))
       messagesPost(pptMessage(ppt))
       messagesPost(vatMessage(vat))
-      externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", pods.value))
       messagesPost(epayeMessage(epaye))
 
       (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value)

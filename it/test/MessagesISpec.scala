@@ -321,9 +321,6 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
         .withNino(Nino("NH123456D"))
         .withPodsPp(HmrcPodsPpOrg("A12345678"))
 
-      externalMessagesPost(podsMessage("HMRC-PODS-ORG.PSAID", "A1234567"))
-      externalMessagesPost(podsMessage("HMRC-PODSPP-ORG.PSPID", "A12345678"))
-
       val request = messagesBta(List("PSPID"), List("pods"))
         .withSession(
           authContext.bearerTokenHeader(),
