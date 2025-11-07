@@ -25,25 +25,25 @@ import play.api.inject.guice.GuiceApplicationBuilder
 class FrontendAppConfigSpec extends PlaySpec with GuiceOneAppPerSuite {
   "btaHost" should {
     "return the correct value" in new Setup {
-      appConfig.btaHost mustBe "localhost:9020"
+      appConfig.btaHost mustBe "http://localhost:9020"
     }
   }
 
   "btaBaseUrl" should {
     "return the correct value" in new Setup {
-      appConfig.btaBaseUrl mustBe "localhost:9020/business-account"
+      appConfig.btaBaseUrl mustBe "http://localhost:9020/business-account"
     }
   }
 
   "ptaHost" should {
     "return the correct value" in new Setup {
-      appConfig.ptaHost mustBe "localhost:9232"
+      appConfig.ptaHost mustBe "http://localhost:9232"
     }
   }
 
   "ptaBaseUrl" should {
     "return the correct value" in new Setup {
-      appConfig.ptaBaseUrl mustBe "localhost:9232/personal-account"
+      appConfig.ptaBaseUrl mustBe "http://localhost:9232/personal-account"
     }
   }
 
@@ -60,10 +60,10 @@ class FrontendAppConfigSpec extends PlaySpec with GuiceOneAppPerSuite {
            |metrics.enabled=false,
            |metrics.enabled=false
            |business-account {
-           |host ="localhost:9020"
+           |host ="http://localhost:9020"
            |}
            |personal-account {
-           |host ="localhost:9232"
+           |host ="http://localhost:9232"
            |},
            |portal {
            |destinationPath {

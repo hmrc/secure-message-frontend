@@ -39,7 +39,6 @@ import uk.gov.hmrc.crypto.{ PlainText, SymmetricCryptoFactory }
 import uk.gov.hmrc.domain.*
 import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 
-import java.time.LocalDate
 import java.util.Base64
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.{ Duration, FiniteDuration }
@@ -90,8 +89,6 @@ class MessageFrontendISpec
 
     val duration16: Int = 16
     def randomDetailsId: String = "C" + Random.alphanumeric.filter(_.isDigit).take(duration16).mkString
-
-    val now: LocalDate = LocalDate.now
 
     lazy val atsMessage: JsObject = Json
       .parse(s"""

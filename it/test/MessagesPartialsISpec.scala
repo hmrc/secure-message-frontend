@@ -20,7 +20,7 @@
  */
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{ BeforeAndAfterEach, Inspectors }
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{ route, * }
@@ -36,9 +36,8 @@ import scala.concurrent.duration.*
 import scala.language.postfixOps
 
 class MessagesPartialsISpec
-    extends MessageFrontendISpec with IntegrationPatience with Inspectors with BeforeAndAfterEach {
+    extends MessageFrontendISpec with IntegrationPatience with Inspectors with BeforeAndAfterEach with Logging {
 
-  val logger: Logger = Logger(getClass)
   implicit override val patienceConfig: PatienceConfig =
     PatienceConfig(timeout = scaled(30 seconds), interval = scaled(200 millis))
 
