@@ -18,6 +18,8 @@ package views.partials
 
 import helpers.TestData.{ FIVE, TEST_CLIENT, TEST_HEADING, TEST_ID, TEST_NAME, TEST_SERVICE_NAME, TEST_SUBJECT, TWO }
 import models.{ Conversation, MessageHeader, MessageType }
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -34,97 +36,82 @@ import java.time.Instant
 class MessageInboxSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "view" should {
-    "display the correct contents" in {
+    "display the correct contents in English" in new Setup {
+      implicit val lang: Lang = Lang.apply("en")
+      implicit val messages: Messages =
+        application.injector.instanceOf[MessagesApi].preferred(FakeRequest().withTransientLang(lang))
 
-      val msgHeader = MessageHeader(
-        messageType = MessageType.Conversation,
-        id = TEST_ID,
-        subject = TEST_SUBJECT,
-        issueDate = Instant.now(),
-        senderName = Some(TEST_NAME),
-        unreadMessages = true,
-        count = FIVE,
-        conversationId = Some(TEST_ID),
-        client = Some(TEST_CLIENT)
-      )
+      val view: Document = Jsoup.parse(application.injector.instanceOf[messageInbox].apply(msgInboxModel).body)
+      val viewAsText: String = view.text()
 
-      val msgInboxModel = MessageInbox(
-        clientService = TEST_SERVICE_NAME,
-        heading = TEST_HEADING,
-        total = FIVE,
-        unread = TWO,
-        conversationHeaders = List(msgHeader)
-      )
+      view.getElementsByTag("h1").text() must be(TEST_HEADING)
 
-      implicit val messages: Messages = stubMessages()
+      assert(viewAsText.contains("Message"))
+      assert(viewAsText.contains("Date"))
+      assert(viewAsText.contains("from"))
+      assert(viewAsText.contains("Subject"))
+      assert(viewAsText.contains("messages in this conversation"))
+      assert(viewAsText.contains("Status"))
 
-      val view: HtmlFormat.Appendable = app.injector.instanceOf[messageInbox].apply(msgInboxModel)
+      val visuallyHiddenComponentText: String = view.getElementsByClass("govuk-visually-hidden").text()
 
-      val viewBody: String = view.body
-
-      assert(viewBody.contains("<h1 class=\"govuk-heading-xl\">test_heading</h1>"))
-      assert(viewBody.contains("conversation.inbox.heading.message"))
-      assert(viewBody.contains("conversation.inbox.heading.date"))
-      assert(viewBody.contains("conversation.inbox.heading.from"))
-      assert(viewBody.contains("conversation.inbox.heading.subject"))
-      assert(viewBody.contains("conversation.inbox.subject.count"))
-      assert(viewBody.contains("conversation.inbox.heading.status"))
-
-      assert(
-        viewBody.contains(
-          "<span class=\"govuk-visually-hidden\">" +
-            "2 conversation.inbox.heading.unread, 5 conversation.inbox.heading.total. conversation.inbox.heading.description" +
-            "</span>"
-        )
-      )
+      assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.unread")))
+      assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.total")))
+      assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.description")))
     }
 
-    "display the correct contents in Welsh" in {
-
-      val msgHeader = MessageHeader(
-        messageType = MessageType.Conversation,
-        id = TEST_ID,
-        subject = TEST_SUBJECT,
-        issueDate = Instant.now(),
-        senderName = Some(TEST_NAME),
-        unreadMessages = true,
-        count = FIVE,
-        conversationId = Some(TEST_ID),
-        client = Some(TEST_CLIENT)
-      )
-
-      val msgInboxModel = MessageInbox(
-        clientService = TEST_SERVICE_NAME,
-        heading = TEST_HEADING,
-        total = FIVE,
-        unread = TWO,
-        conversationHeaders = List(msgHeader)
-      )
-
-      val application: Application = new GuiceApplicationBuilder()
-        .configure(
-          "microservice.metrics.enabled" -> false,
-          "metrics.enabled"              -> false,
-          "auditing.enabled"             -> false
-        )
-        .build()
-
+    "display the correct contents in Welsh" in new Setup {
       implicit val lang: Lang = Lang.apply("cy")
       implicit val messages: Messages =
         application.injector.instanceOf[MessagesApi].preferred(FakeRequest().withTransientLang(lang))
 
-      val view: HtmlFormat.Appendable = application.injector.instanceOf[messageInbox].apply(msgInboxModel)
+      val view: Document = Jsoup.parse(application.injector.instanceOf[messageInbox].apply(msgInboxModel).body)
+      val viewAsText: String = view.text()
 
-      val viewBody: String = view.body
+      view.getElementsByTag("h1").text() must be(TEST_HEADING)
+      assert(viewAsText.contains("Neges"))
+      assert(viewAsText.contains("Dyddiad"))
+      assert(viewAsText.contains("oddi wrth"))
+      assert(viewAsText.contains("Pwnc"))
+      assert(viewAsText.contains("o negeseuon yn y sgwrs hon"))
+      assert(viewAsText.contains("Statws"))
 
-      assert(viewBody.contains("<h1 class=\"govuk-heading-xl\">test_heading</h1>"))
-      messages("conversation.inbox.heading.message") must be("Neges")
-      messages("conversation.inbox.heading.date") must be("Dyddiad")
-      messages("conversation.inbox.heading.from") must be("oddi wrth")
-      messages("conversation.inbox.heading.subject") must be("Pwnc")
-      messages("conversation.inbox.subject.count") must be("o negeseuon yn y sgwrs hon")
-      messages("conversation.inbox.heading.status") must be("Statws")
+      val visuallyHiddenComponentText: String = view.getElementsByClass("govuk-visually-hidden").text()
+
+      assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.unread")))
+      assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.total")))
+      assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.description")))
     }
+  }
+
+  trait Setup {
+    val msgHeader: MessageHeader = MessageHeader(
+      messageType = MessageType.Conversation,
+      id = TEST_ID,
+      subject = TEST_SUBJECT,
+      issueDate = Instant.now(),
+      senderName = Some(TEST_NAME),
+      unreadMessages = true,
+      count = FIVE,
+      conversationId = Some(TEST_ID),
+      client = Some(TEST_CLIENT)
+    )
+
+    val msgInboxModel: MessageInbox = MessageInbox(
+      clientService = TEST_SERVICE_NAME,
+      heading = TEST_HEADING,
+      total = FIVE,
+      unread = TWO,
+      conversationHeaders = List(msgHeader)
+    )
+
+    val application: Application = new GuiceApplicationBuilder()
+      .configure(
+        "microservice.metrics.enabled" -> false,
+        "metrics.enabled"              -> false,
+        "auditing.enabled"             -> false
+      )
+      .build()
   }
 
 }
