@@ -65,6 +65,7 @@ class MessageInboxSpec extends PlaySpec with GuiceOneAppPerSuite {
       assert(viewBody.contains("conversation.inbox.heading.from"))
       assert(viewBody.contains("conversation.inbox.heading.subject"))
       assert(viewBody.contains("conversation.inbox.subject.count"))
+      assert(viewBody.contains("conversation.inbox.heading.status"))
 
       assert(
         viewBody.contains(

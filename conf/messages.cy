@@ -11,7 +11,7 @@ conversation.page.subject = Pwnc
 conversation.page.date = Dyddiad
 
 conversation.inbox.title = Negeseuon rhyngoch chi a CThEM
-conversation.inbox.heading.status = Status
+conversation.inbox.heading.status = Statws
 conversation.inbox.heading.message = Neges
 conversation.inbox.heading.subject = Pwnc
 conversation.inbox.heading.date = Dyddiad
