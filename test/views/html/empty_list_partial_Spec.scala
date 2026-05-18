@@ -21,26 +21,23 @@ import helpers.LanguageHelper
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Configuration
 import play.api.i18n.{ Lang, Messages }
 import play.twirl.api.Html
 import views.helpers.PortalUrlBuilder
 
-import javax.inject.Inject
-
-class empty_list_partial_Spec @Inject (configuration: Configuration)
-    extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with LanguageHelper {
+class empty_list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with LanguageHelper {
 
   implicit val messages: Messages = messagesInEnglish()
   implicit val lang: Lang = langEn
-  val testUrlBuilder = new PortalUrlBuilder(new TestConfig(configuration))
+  val appConfig: AppConfig = mock[AppConfig]
+  val testUrlBuilder = new PortalUrlBuilder(appConfig)
 
   "empty_list_partial" should {
     "generate empty messages inbox" in {
       val html = views.html.empty_list_partial(
-        testUrlBuilder,
-        Some("someSaUtr"),
-        Html("")
+        urlBuilder = testUrlBuilder,
+        saUtr = Some("someSaUtr"),
+        taxIdentifiersPartial = Html("")
       )
 
       html.body must (
@@ -49,13 +46,5 @@ class empty_list_partial_Spec @Inject (configuration: Configuration)
           include("You’ve not been sent any inbox messages yet.")
       )
     }
-  }
-
-  class TestConfig(configuration: Configuration) extends AppConfig(configuration) {
-    override val btaHost: String = ""
-    override val btaBaseUrl: String = ""
-    override val ptaHost: String = ""
-    override val ptaBaseUrl: String = ""
-    override def getPortalPath(pathKey: String): String = ""
   }
 }
