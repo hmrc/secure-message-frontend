@@ -16,14 +16,12 @@
 
 package views.html
 
-import com.typesafe.config.ConfigFactory
 import config.AppConfig
 import helpers.LanguageHelper
 import model.{ Encoder, EncryptAndEncode, MessageListItem }
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -32,10 +30,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.ApplicationCrypto
 import views.helpers.PortalUrlBuilder
 
 import java.time.{ Instant, LocalDate }
-import javax.inject.Inject
 
-class list_partial_Spec @Inject (configuration: Configuration)
-    extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with LanguageHelper {
+class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with LanguageHelper {
 
   implicit val messages: Messages = messagesInEnglish()
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = engRequest
@@ -50,36 +46,30 @@ class list_partial_Spec @Inject (configuration: Configuration)
 
     val Unread = None
     val Read = Some(Instant.now)
+    val appConfig = mock[AppConfig]
+    val testUrlBuilder = new PortalUrlBuilder(appConfig)
 
-    class TestConfig(configuration: Configuration) extends AppConfig(configuration) {
-      override val btaHost: String = ""
-      override val btaBaseUrl: String = ""
-      override val ptaHost: String = ""
-      override val ptaBaseUrl: String = ""
-      override def getPortalPath(pathKey: String): String = ""
-    }
-
-    val testUrlBuilder = new PortalUrlBuilder(new TestConfig(configuration))
-
-    "generate all field for unread message" in {
-      val html = views.html.list_partial(
-        "/somePtaBaseUrl",
-        Seq(
+    def callListPartial(maybeReadTime: Option[Instant]): Html =
+      views.html.list_partial(
+        ptaBaseUrl = "/somePtaBaseUrl",
+        messageItems = Seq(
           MessageListItem(
-            "",
-            "Leaving self assessment",
-            LocalDate.parse("2014-08-14"),
-            None,
-            Unread,
+            id = "",
+            subject = "Leaving self assessment",
+            validFrom = LocalDate.parse("2014-08-14"),
+            taxpayerName = None,
+            readTime = maybeReadTime,
             sentInError = false
           )
         ),
-        testUrlBuilder,
-        Some("someSaUtr"),
-        Html(""),
-        encryptAndEncode
+        urlBuilder = testUrlBuilder,
+        saUtr = Some("someSaUtr"),
+        taxIdentifiersPartial = Html(""),
+        encryptAndEncode = encryptAndEncode
       )
 
+    "generate all field for unread message" in {
+      val html = callListPartial(maybeReadTime = Unread)
       html.body must (
         include("Unread") and
           include("Leaving self assessment") and
@@ -88,16 +78,7 @@ class list_partial_Spec @Inject (configuration: Configuration)
     }
 
     "generate all field for read message" in {
-      val html = views.html.list_partial(
-        "/somePtaBaseUrl",
-        Seq(
-          MessageListItem("", "Leaving self assessment", LocalDate.parse("2014-08-14"), None, Read, sentInError = false)
-        ),
-        testUrlBuilder,
-        Some("someSaUtr"),
-        Html(""),
-        encryptAndEncode
-      )
+      val html = callListPartial(maybeReadTime = Read)
 
       html.body must not include "Unread"
     }
