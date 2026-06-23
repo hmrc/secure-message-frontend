@@ -177,9 +177,9 @@
                             val sender = getSenderName(message)
                             val messageLang = message.lang
                             val senderSpan = if(message.readTime.isEmpty) {
-                                    <span class="govuk-!-font-weight-bold black-text govuk-body">{sender}</span>
+                                    <span class="govuk-!-font-weight-bold govuk-link--no-underline">{sender}</span>
                             } else {
-                                    <span class="black-text govuk-body">{sender}</span>
+                                    <span class="govuk-link--no-underline">{sender}</span>
                             }
 
                             <a href={messageUrl(message)} class="no--underline" data-sso="false" lang={messageLang}>
@@ -209,7 +209,7 @@
                                     )
                                     </span>
                             } else {
-                                    <span class="underline black-text govuk-body">{messageRead}</span>
+                                    <span class="govuk-link">{messageRead}</span>
                             }
                             val messageLang = message.lang
                             <a href={messageUrl(message)} class="no--underline message-subject govuk-link" data-sso="false" lang={messageLang}>

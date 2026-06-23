@@ -20,4 +20,4 @@
 @messageCount.filter(_.count > 0).map { count =>
   <p class="govuk-body-s font-xsmall messages" role="alert"><span id="unreadMessages" class="highlight-block--red govuk-body">@count.count @messages("unread.lowercase")</span> Notification@if(count.count > 1){s}</p>
 }
-<a href="@messagesInboxUrl" class="go-to-messages govuk-link" data-journey-click="messages:Click:Go to your messages" >@messages("go.inbox")</a>
+<a href="@messagesInboxUrl" class="govuk-link" data-journey-click="messages:Click:Go to your messages" >@messages("go.inbox")</a>

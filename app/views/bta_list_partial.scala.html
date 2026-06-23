@@ -48,7 +48,7 @@
                 <td class="govuk-table__cell">
                 @defining({
                     val messageSubject = ensureEscaped(message.subject)
-                    val subjectAsBoldIfUnread = if(message.readTime.isDefined) "<span class='underline black-text govuk-body'>" + messageSubject + "</span>" else "<span class='underline black-text govuk-body bold'>" + messageSubject + "</span>"
+                    val subjectAsBoldIfUnread = if(message.readTime.isDefined) "<span class='govuk-link'>" + messageSubject + "</span>" else "<span class='govuk-link bold'>" + messageSubject + "</span>"
                     val subjectWithCounter = if (message.counter.isDefined && message.counter.get != 1) subjectAsBoldIfUnread + "&nbsp;&nbsp;<span class='non-breaking message-counter govuk-body'>" + "(" + message.counter.get + ")" + "</span>" else subjectAsBoldIfUnread
                     val subject = if(message.sentInError) subjectWithCounter + "&nbsp;&nbsp;-&nbsp;&nbsp;<span class='non-breaking sent-in-error govuk-body'>" + Messages("withdrawn") + "</span>" else subjectWithCounter
                     val messageUrl = s"messages/${encryptAndEncode.generateEncryptedUrl(message.id, btaBaseUrl)}"
