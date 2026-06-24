@@ -53,26 +53,6 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
     val appConfig = mock[AppConfig]
     val testUrlBuilder = new PortalUrlBuilder(appConfig)
 
-    def callListPartial(maybeReadTime: Option[Instant], messageCounter: Option[Int] = None): Html =
-      views.html.list_partial(
-        ptaBaseUrl = "/somePtaBaseUrl",
-        messageItems = Seq(
-          MessageListItem(
-            id = "",
-            subject = "Leaving self assessment",
-            validFrom = LocalDate.parse("2014-08-14"),
-            taxpayerName = None,
-            readTime = maybeReadTime,
-            sentInError = false,
-            counter = messageCounter
-          )
-        ),
-        urlBuilder = testUrlBuilder,
-        saUtr = Some("someSaUtr"),
-        taxIdentifiersPartial = Html(""),
-        encryptAndEncode = encryptAndEncode
-      )
-
     "generate all field for unread message" when {
       "message counter is unavailable" in {
         val html = callListPartial(maybeReadTime = Unread)
@@ -115,6 +95,26 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
         html.body must not include "Unread"
       }
     }
+
+    def callListPartial(maybeReadTime: Option[Instant], messageCounter: Option[Int] = None): Html =
+      views.html.list_partial(
+        ptaBaseUrl = "/somePtaBaseUrl",
+        messageItems = Seq(
+          MessageListItem(
+            id = "",
+            subject = "Leaving self assessment",
+            validFrom = LocalDate.parse("2014-08-14"),
+            taxpayerName = None,
+            readTime = maybeReadTime,
+            sentInError = false,
+            counter = messageCounter
+          )
+        ),
+        urlBuilder = testUrlBuilder,
+        saUtr = Some("someSaUtr"),
+        taxIdentifiersPartial = Html(""),
+        encryptAndEncode = encryptAndEncode
+      )
 
     def shouldContainCorrectLinksStyleClassAndValue(htmlBody: String, isUnreadMsg: Boolean = false): Unit = {
       val htmlDoc: Document = Jsoup.parse(htmlBody)
