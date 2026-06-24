@@ -197,7 +197,7 @@
                         <span>@{
                             val messageSubject = ensureEscaped(message.subject)
                             val messageRead = if(message.readTime.isEmpty) {
-                                    <span class="govuk-!-font-weight-bold black-text govuk-body">{messageSubject}</span>
+                                    <span class="govuk-!-font-weight-bold govuk-link">{messageSubject}</span>
                             } else {
                                 messageSubject
                             }

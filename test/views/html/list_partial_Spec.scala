@@ -38,6 +38,7 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
   implicit val messages: Messages = messagesInEnglish()
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = engRequest
+
   lazy val applicationCrypto: ApplicationCrypto = app.injector.instanceOf[ApplicationCrypto]
   val encryptAndEncode: EncryptAndEncode = new EncryptAndEncode(applicationCrypto) {
     override lazy val encoder: Encoder = new Encoder {
@@ -88,7 +89,7 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
       "message counter is 2" in {
         val html = callListPartial(maybeReadTime = Unread, messageCounter = Some(2))
 
-        shouldContainCorrectLinksStyleClassAndValue(html.body)
+        shouldContainCorrectLinksStyleClassAndValue(html.body, true)
 
         html.body must (
           include("Unread") and
@@ -98,14 +99,24 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
       }
     }
 
-    "generate all field for read message" in {
-      val html = callListPartial(maybeReadTime = Read)
+    "generate all field for read message" when {
 
-      shouldContainCorrectLinksStyleClassAndValue(html.body)
-      html.body must not include "Unread"
+      "message counter is unavailable" in {
+        val html = callListPartial(maybeReadTime = Read)
+
+        shouldContainCorrectLinksStyleClassAndValue(html.body)
+        html.body must not include "Unread"
+      }
+
+      "message counter is 2" in {
+        val html = callListPartial(maybeReadTime = Read)
+
+        shouldContainCorrectLinksStyleClassAndValue(html.body)
+        html.body must not include "Unread"
+      }
     }
 
-    def shouldContainCorrectLinksStyleClassAndValue(htmlBody: String): Unit = {
+    def shouldContainCorrectLinksStyleClassAndValue(htmlBody: String, isUnreadMsg: Boolean = false): Unit = {
       val htmlDoc: Document = Jsoup.parse(htmlBody)
 
       val senderNameAndDescriptionLinks: Elements = htmlDoc.getElementsByClass("no--underline")
@@ -120,7 +131,11 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
         msgDescriptionLinkSpanElement.getElementsByClass("govuk-link").get(0).text()
 
       senderNameLinkSpanElementValue must be("HMRC")
-      msgDescriptionLinkSpanElementValue must be("Leaving self assessment")
+      if (isUnreadMsg) {
+        msgDescriptionLinkSpanElementValue must be("Leaving self assessment ( 2 )")
+      } else {
+        msgDescriptionLinkSpanElementValue must be("Leaving self assessment")
+      }
     }
   }
 }
