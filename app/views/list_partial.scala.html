@@ -202,7 +202,7 @@
                                 messageSubject
                             }
                             val subjectWithCounter = if(message.counter.isDefined && message.counter.get != 1) {
-                                    <span class="underline black-text govuk-body">{messageRead}</span>
+                                    <span class="govuk-link">{messageRead}</span>
                                     <span class="message-counter non-breaking govuk-body">
                                     (
                                     {message.counter.get}
