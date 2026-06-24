@@ -19,6 +19,9 @@ package views.html
 import com.typesafe.config.ConfigFactory
 import helpers.LanguageHelper
 import model.{ Encoder, EncryptAndEncode, MessageListItem }
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -32,12 +35,14 @@ class bta_list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with Mocki
 
   implicit val messages: Messages = messagesInEnglish()
   implicit val lang: Lang = langEn
-  lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
-  val encryptAndEncode = new EncryptAndEncode(applicationCrypto) {
+
+  lazy val applicationCrypto: ApplicationCrypto = app.injector.instanceOf[ApplicationCrypto]
+  val encryptAndEncode: EncryptAndEncode = new EncryptAndEncode(applicationCrypto) {
     override lazy val encoder: Encoder = new Encoder {
       override def encryptAndEncode(value: String) = s"encoded(encrypted($value))"
     }
   }
+
   "bta_list_partial" should {
 
     val Unread = None
@@ -58,6 +63,8 @@ class bta_list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with Mocki
         Html(""),
         encryptAndEncode
       )
+
+      shouldContainCorrectLinksStyleClassAndValue(html.body)
 
       html.body must (
         include("Unread") and
@@ -82,6 +89,8 @@ class bta_list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with Mocki
         encryptAndEncode
       )
 
+      shouldContainCorrectLinksStyleClassAndValue(html.body)
+
       html.body must (
         include("marker-column__marker") and
           include("visuallyhidden") and
@@ -105,9 +114,21 @@ class bta_list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with Mocki
         encryptAndEncode
       )
 
+      shouldContainCorrectLinksStyleClassAndValue(html.body)
+
       html.body must not include "Unread"
       html.body must include("Read")
       html.body must include("""<caption class="govuk-visually-hidden">Messages</caption>""")
+    }
+
+    def shouldContainCorrectLinksStyleClassAndValue(htmlBody: String): Unit = {
+      val htmlDoc: Document = Jsoup.parse(htmlBody)
+
+      val msgDetailsLinks: Elements = htmlDoc.getElementsByClass("link--no-underline")
+      val spanElement = msgDetailsLinks.get(0).getElementsByTag("span")
+
+      spanElement.attr("class") must include("govuk-link")
+      spanElement.text() must be("Leaving self assessment")
     }
   }
 }
