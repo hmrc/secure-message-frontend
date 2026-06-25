@@ -423,9 +423,9 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
 
   trait AuthenticatedUserMessageCount extends TestCase {
     val utr = SaUtr("123456789")
-    val b1 = """<span class="underline black-text govuk-body">"""
-    val bta_b1 = """<span class="underline black-text govuk-body bold">"""
-    val b2 = """<span class="govuk-!-font-weight-bold black-text govuk-body">"""
+    val b1 = """<span class="govuk-link">"""
+    val bta_b1 = """<span class="govuk-link bold">"""
+    val b2 = """<span class="govuk-!-font-weight-bold govuk-link">"""
     val a = """</span>"""
   }
 }
