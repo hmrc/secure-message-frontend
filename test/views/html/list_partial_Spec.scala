@@ -68,7 +68,6 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
       "message counter is 2" in {
         val html = callListPartial(maybeReadTime = Unread, messageCounter = Some(2))
-
         shouldContainCorrectLinksStyleClassAndValue(html.body, true)
 
         html.body must (
@@ -119,7 +118,7 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
     def shouldContainCorrectLinksStyleClassAndValue(htmlBody: String, isUnreadMsg: Boolean = false): Unit = {
       val htmlDoc: Document = Jsoup.parse(htmlBody)
 
-      val senderNameAndDescriptionLinks: Elements = htmlDoc.getElementsByClass("no--underline")
+      val senderNameAndDescriptionLinks: Elements = htmlDoc.getElementsByClass("govuk-link")
 
       val senderNameLinkSpanElement = senderNameAndDescriptionLinks.get(0)
       val msgDescriptionLinkSpanElement = senderNameAndDescriptionLinks.get(1)
