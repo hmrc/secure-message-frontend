@@ -19,6 +19,9 @@ package views.html
 import config.AppConfig
 import helpers.LanguageHelper
 import model.{ Encoder, EncryptAndEncode, MessageListItem }
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -35,8 +38,9 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
 
   implicit val messages: Messages = messagesInEnglish()
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = engRequest
-  lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
-  val encryptAndEncode = new EncryptAndEncode(applicationCrypto) {
+
+  lazy val applicationCrypto: ApplicationCrypto = app.injector.instanceOf[ApplicationCrypto]
+  val encryptAndEncode: EncryptAndEncode = new EncryptAndEncode(applicationCrypto) {
     override lazy val encoder: Encoder = new Encoder {
       override def encryptAndEncode(value: String) = s"encoded(encrypted($value))"
     }
@@ -49,7 +53,49 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
     val appConfig = mock[AppConfig]
     val testUrlBuilder = new PortalUrlBuilder(appConfig)
 
-    def callListPartial(maybeReadTime: Option[Instant]): Html =
+    "generate all field for unread message" when {
+      "message counter is unavailable" in {
+        val html = callListPartial(maybeReadTime = Unread)
+
+        shouldContainCorrectLinksStyleClassAndValue(html.body)
+
+        html.body must (
+          include("Unread") and
+            include("Leaving self assessment") and
+            include("14 August 2014")
+        )
+      }
+
+      "message counter is 2" in {
+        val html = callListPartial(maybeReadTime = Unread, messageCounter = Some(2))
+        shouldContainCorrectLinksStyleClassAndValue(html.body, true)
+
+        html.body must (
+          include("Unread") and
+            include("Leaving self assessment") and
+            include("14 August 2014")
+        )
+      }
+    }
+
+    "generate all field for read message" when {
+
+      "message counter is unavailable" in {
+        val html = callListPartial(maybeReadTime = Read)
+
+        shouldContainCorrectLinksStyleClassAndValue(html.body)
+        html.body must not include "Unread"
+      }
+
+      "message counter is 2" in {
+        val html = callListPartial(maybeReadTime = Read)
+
+        shouldContainCorrectLinksStyleClassAndValue(html.body)
+        html.body must not include "Unread"
+      }
+    }
+
+    def callListPartial(maybeReadTime: Option[Instant], messageCounter: Option[Int] = None): Html =
       views.html.list_partial(
         ptaBaseUrl = "/somePtaBaseUrl",
         messageItems = Seq(
@@ -59,7 +105,8 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
             validFrom = LocalDate.parse("2014-08-14"),
             taxpayerName = None,
             readTime = maybeReadTime,
-            sentInError = false
+            sentInError = false,
+            counter = messageCounter
           )
         ),
         urlBuilder = testUrlBuilder,
@@ -68,19 +115,26 @@ class list_partial_Spec extends PlaySpec with GuiceOneAppPerSuite with MockitoSu
         encryptAndEncode = encryptAndEncode
       )
 
-    "generate all field for unread message" in {
-      val html = callListPartial(maybeReadTime = Unread)
-      html.body must (
-        include("Unread") and
-          include("Leaving self assessment") and
-          include("14 August 2014")
-      )
-    }
+    def shouldContainCorrectLinksStyleClassAndValue(htmlBody: String, isUnreadMsg: Boolean = false): Unit = {
+      val htmlDoc: Document = Jsoup.parse(htmlBody)
 
-    "generate all field for read message" in {
-      val html = callListPartial(maybeReadTime = Read)
+      val senderNameAndDescriptionLinks: Elements = htmlDoc.getElementsByClass("govuk-link")
 
-      html.body must not include "Unread"
+      val senderNameLinkSpanElement = senderNameAndDescriptionLinks.get(0)
+      val msgDescriptionLinkSpanElement = senderNameAndDescriptionLinks.get(1)
+
+      val senderNameLinkSpanElementValue =
+        senderNameLinkSpanElement.getElementsByClass("govuk-link--no-underline").get(0).text()
+
+      val msgDescriptionLinkSpanElementValue =
+        msgDescriptionLinkSpanElement.getElementsByClass("govuk-link").get(0).text()
+
+      senderNameLinkSpanElementValue must be("HMRC")
+      if (isUnreadMsg) {
+        msgDescriptionLinkSpanElementValue must be("Leaving self assessment ( 2 )")
+      } else {
+        msgDescriptionLinkSpanElementValue must be("Leaving self assessment")
+      }
     }
   }
 }

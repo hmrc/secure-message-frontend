@@ -108,13 +108,13 @@
 
         .message-counter {
             font-size: 90%;
-            color: #6F777B;
+            color: #1a65a6;
             padding-left: 1ex;
         }
 
         .non-breaking {
             font-size: 90%;
-            color: #6F777B;
+            color: #1a65a6;
         }
 
         .marker-column {
@@ -177,12 +177,12 @@
                             val sender = getSenderName(message)
                             val messageLang = message.lang
                             val senderSpan = if(message.readTime.isEmpty) {
-                                    <span class="govuk-!-font-weight-bold black-text govuk-body">{sender}</span>
+                                    <span class="govuk-!-font-weight-bold govuk-link--no-underline">{sender}</span>
                             } else {
-                                    <span class="black-text govuk-body">{sender}</span>
+                                    <span class="govuk-link--no-underline">{sender}</span>
                             }
 
-                            <a href={messageUrl(message)} class="no--underline" data-sso="false" lang={messageLang}>
+                            <a href={messageUrl(message)} class="govuk-link" data-sso="false" lang={messageLang}>
                                 {senderSpan}
                             </a>
                         }
@@ -197,19 +197,19 @@
                         <span>@{
                             val messageSubject = ensureEscaped(message.subject)
                             val messageRead = if(message.readTime.isEmpty) {
-                                    <span class="govuk-!-font-weight-bold black-text govuk-body">{messageSubject}</span>
+                                    <span class="govuk-!-font-weight-bold govuk-link">{messageSubject}</span>
                             } else {
                                 messageSubject
                             }
                             val subjectWithCounter = if(message.counter.isDefined && message.counter.get != 1) {
-                                    <span class="underline black-text govuk-body">{messageRead}</span>
+                                    <span class="govuk-link">{messageRead}</span>
                                     <span class="message-counter non-breaking govuk-body">
                                     (
                                     {message.counter.get}
                                     )
                                     </span>
                             } else {
-                                    <span class="underline black-text govuk-body">{messageRead}</span>
+                                    <span class="govuk-link">{messageRead}</span>
                             }
                             val messageLang = message.lang
                             <a href={messageUrl(message)} class="no--underline message-subject govuk-link" data-sso="false" lang={messageLang}>
