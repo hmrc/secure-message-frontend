@@ -58,6 +58,9 @@ class MessageInboxSpec extends PlaySpec with GuiceOneAppPerSuite {
       assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.unread")))
       assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.total")))
       assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.description")))
+
+      shouldContainCorrectStyleClassForSubjectHyperLink(view)
+      shouldContainCorrectTextForSenderAndSubject(view)
     }
 
     "display the correct contents in Welsh" in new Setup {
@@ -81,6 +84,23 @@ class MessageInboxSpec extends PlaySpec with GuiceOneAppPerSuite {
       assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.unread")))
       assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.total")))
       assert(visuallyHiddenComponentText.contains(messages("conversation.inbox.heading.description")))
+
+      shouldContainCorrectStyleClassForSubjectHyperLink(view)
+      shouldContainCorrectTextForSenderAndSubject(view)
+    }
+
+    def shouldContainCorrectStyleClassForSubjectHyperLink(view: Document): Unit = {
+      val subjectHyperLink = view.getElementById("message-0")
+
+      assert(subjectHyperLink.html().contains("govuk-link"))
+    }
+
+    def shouldContainCorrectTextForSenderAndSubject(view: Document)(implicit msgs: Messages): Unit = {
+      val senderText = view.getElementById("message-index-0").text()
+      val subjectHyperLinkText = view.getElementById("message-0").html()
+
+      senderText must be(s"${msgs("conversation.inbox.heading.from")}:$TEST_NAME.")
+      assert(subjectHyperLinkText.contains(TEST_SUBJECT))
     }
   }
 
