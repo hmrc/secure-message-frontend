@@ -184,7 +184,7 @@ a.underline-fix { text-decoration: none; }
                             <span class="govuk-!-font-weight-bold govuk-link">{conversationHeader.subject}</span> <span class="govuk-visually-hidden">,&nbsp;</span>
                             } else {
                             <span class="govuk-visually-hidden">{messages("conversation.inbox.heading.subject")}:</span>
-                            <span class="govuk-link govuk-link--no-underline">{conversationHeader.subject}</span><span class="govuk-visually-hidden">,&nbsp;</span>
+                            <span class="govuk-link">{conversationHeader.subject}</span><span class="govuk-visually-hidden">,&nbsp;</span>
                             }
                             val subjectMaybeWithCount = if(conversationHeader.count > 1){
                             subjectMaybeRead ++ <span aria-hidden="true" class="message-counter non-breaking govuk-body">({conversationHeader.count})</span><span class="govuk-visually-hidden">{conversationHeader.count}
