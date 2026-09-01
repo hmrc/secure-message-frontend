@@ -18,22 +18,23 @@ package test.utils
 
 import config.AppConfig
 import model.{ EPaye, HmrcPptOrg }
+import models.HmrcVpdOrg
 
 import javax.inject.{ Inject, Singleton }
 import play.api.http.HeaderNames
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.ws.WSClient
 import play.api.mvc.{ Cookie, CookieHeaderEncoding, SessionCookieBaker }
 import play.api.{ Configuration, Environment, Logger }
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.crypto.PlainText
-import uk.gov.hmrc.domain._
+import uk.gov.hmrc.domain.*
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future }
-import play.api.libs.json.Reads._
+import play.api.libs.json.Reads.*
 import test.models.{ HmrcPodsOrg, HmrcPodsPpOrg }
 
 import java.time.Instant
@@ -102,6 +103,9 @@ case class AuthorityBuilder(json: JsObject, authProvider: TestAuthorisationProvi
     val newJson = json ++ Json.obj("nino" -> nino.value, "affinityGroup" -> "Individual")
     AuthorityBuilder(newJson, authProvider)
   }
+
+  def withVpd(identifier: HmrcVpdOrg): AuthorityBuilder =
+    genericEnrolemnt("HMRC-VPD-ORG", "ZVPD", identifier.value)
 
   def asyncBearerTokenHeader(): Future[Option[(String, String)]] =
     authProvider.createBearerToken(json).map(x => x.map(h => (HeaderNames.AUTHORIZATION, h)))

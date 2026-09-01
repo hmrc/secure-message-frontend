@@ -140,7 +140,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     "return 1 message for nino-only user" in new TestCase {
       val utr = SaUtr("UNUSED")
 
-      val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
+      val authContext = setupFilterableMessages._1
 
       val request = messages()
         .withSession(SessionKeys.authToken -> authContext.bearerTokenHeader()._2)
@@ -191,7 +191,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only nino messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
-      val (authProvider, nino, _, _, _, _, _, _) = setupFilterableMessages
+      val (authProvider, nino, _, _, _, _, _, _, _) = setupFilterableMessages
 
       val request = messages(List("nino"))
         .withSession(SessionKeys.authToken -> authProvider.bearerTokenHeader()._2)
@@ -204,7 +204,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only sautr messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
+      val authContext = setupFilterableMessages._1
 
       val request = messages(List("sautr"))
         .withSession(SessionKeys.authToken -> authContext.bearerTokenHeader()._2)
@@ -217,7 +217,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only ctutr messages when filtering the /messages endpoint" in new AuthenticatedUserMessageCount {
-      val (_, _, ctUtr, _, _, _, _, _) = setupFilterableMessages
+      val ctUtr = setupFilterableMessages._3
 
       val authBuilderForCtUtr = testAuthorisationProvider.governmentGatewayAuthority().withCtUtr(CtUtr(ctUtr))
 
@@ -231,7 +231,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return all enrolments messages when a filter isn't provided on the /messages endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, nino, _, fhdds, vat, _, _, _) = setupFilterableMessages
+      val (authContext, nino, _, fhdds, vat, _, _, _, _) = setupFilterableMessages
 
       val request = messages()
         .withSession(SessionKeys.authToken -> authContext.bearerTokenHeader()._2)
@@ -256,7 +256,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only nino messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, nino, _, _, _, _, _, _) = setupFilterableMessages
+      val (authContext, nino, _, _, _, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("nino"))
         .withSession(
           authContext.bearerTokenHeader(),
@@ -270,7 +270,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only FHDDS messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, _, _, fhdds, _, _, _, _) = setupFilterableMessages
+      val (authContext, _, _, fhdds, _, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("HMRC-OBTDS-ORG"))
         .withSession(
           authContext.bearerTokenHeader(),
@@ -285,7 +285,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only PPT messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, _, _, _, _, ppt, _, _) = setupFilterableMessages
+      val (authContext, _, _, _, _, ppt, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("ETMPREGISTRATIONNUMBER"), List("ppt"))
         .withSession(
           authContext.bearerTokenHeader(),
@@ -300,7 +300,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
     // Ignored due to DC-4366
     "return PODS regime and PSAID taxIdentifier messages only when filtering the /messages/bta endpoint" ignore new AuthenticatedUserMessageCount {
-      val (authContext, _, _, _, _, _, pods, _) = setupFilterableMessages
+      val (authContext, _, _, _, _, _, pods, _, _) = setupFilterableMessages
 
       val request = messagesBta(List("PSAID"), List("pods"))
         .withSession(
@@ -335,7 +335,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only VAT messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, _, _, _, vat, _, _, _) = setupFilterableMessages
+      val (authContext, _, _, _, vat, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("HMRC-MTD-VAT"))
         .withSession(
           authContext.bearerTokenHeader(),
@@ -346,6 +346,21 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
       status(result) must be(Status.OK)
       exactMessageCount(contentAsString(result), 1)
       emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the VAT subject for $vat$a")
+      hasMessageSubHeading(contentAsString(result)) must be(false)
+    }
+
+    "return only VPD messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
+      val (authContext, _, _, _, _, _, _, _, vpd) = setupFilterableMessages
+      val request = messagesBta(List(), List("vpd"))
+        .withSession(
+          authContext.bearerTokenHeader(),
+          authContext.sessionCookie(authContext.bearerTokenHeader()._2),
+          SessionKeys.authToken -> authContext.bearerTokenHeader()._2
+        )
+      val result = route(app, request).get
+      status(result) must be(Status.OK)
+      exactMessageCount(contentAsString(result), 1)
+      emailMessagesSubject(contentAsString(result)) must contain(s"${bta_b1}Here is the subject for $vpd$a")
       hasMessageSubHeading(contentAsString(result)) must be(false)
     }
 
@@ -368,7 +383,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return only sautr messages when filtering the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, _, _, _, _, _, _, _) = setupFilterableMessages
+      val (authContext, _, _, _, _, _, _, _, _) = setupFilterableMessages
       val request = messagesBta(List("sautr"))
         .withSession(
           authContext.bearerTokenHeader(),
@@ -401,7 +416,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
     }
 
     "return all enrolments messages when a filter isn't provided on the /messages/bta endpoint" in new AuthenticatedUserMessageCount {
-      val (authContext, nino, _, fhdds, vat, _, _, _) = setupFilterableMessages
+      val (authContext, nino, _, fhdds, vat, _, _, _, _) = setupFilterableMessages
       val request = messagesBta()
         .withSession(SessionKeys.authToken -> authContext.bearerTokenHeader()._2)
       val result = route(app, request).get

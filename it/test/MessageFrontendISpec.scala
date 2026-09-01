@@ -17,6 +17,7 @@
 import com.typesafe.config.ConfigFactory
 import connectors.SecureMessageConnector
 import model.{ EPaye, HmrcPptOrg, ReadPreference }
+import models.HmrcVpdOrg
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{ Document, Element }
 import org.jsoup.select.Elements
@@ -136,6 +137,9 @@ class MessageFrontendISpec
 
     def fhddsMessage(fhdds: HmrcObtdsOrg): JsObject =
       createMessageJson("sees", "TAVC001", TaxEntity("fhdds", fhdds), Some("user@email.com"))
+
+    def vpdMessage(vpd: HmrcVpdOrg): JsObject =
+      createMessageJson("mdtp", "VPD1", TaxEntity("vpd", vpd), Some("user@email.com"))
 
     def pptMessage(ppt: HmrcPptOrg): JsObject =
       Json
@@ -427,7 +431,7 @@ class MessageFrontendISpec
         (rows, parsedMessages)
       }
 
-    def setupFilterableMessages: (AuthorityBuilder, String, String, String, String, String, String, String) = {
+    def setupFilterableMessages: (AuthorityBuilder, String, String, String, String, String, String, String, String) = {
       val nino = Nino("NH123456D")
       val ctUtr = CtUtr("876487234")
       val fhdds = HmrcObtdsOrg("XZFH00000100024")
@@ -435,6 +439,7 @@ class MessageFrontendISpec
       val pods = HmrcPodsOrg("A1234567")
       val vat = HmrcMtdVat("123456789")
       val epaye = EPaye("840Pd00123456")
+      val vpd = HmrcVpdOrg("840Pd00123456")
       val authProvider = testAuthorisationProvider
         .governmentGatewayAuthority()
         .withNino(nino)
@@ -445,6 +450,7 @@ class MessageFrontendISpec
         .withPpt(ppt)
         .withPods(pods)
         .withEPaye(epaye)
+        .withVpd(vpd)
 
       messagesPost(ninoMessage(nino))
       messagesPost(statementMessage)
@@ -453,8 +459,10 @@ class MessageFrontendISpec
       messagesPost(pptMessage(ppt))
       messagesPost(vatMessage(vat))
       messagesPost(epayeMessage(epaye))
+      messagesPost(epayeMessage(epaye))
+      messagesPost(vpdMessage(vpd))
 
-      (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value)
+      (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value, vpd.value)
     }
   }
 
