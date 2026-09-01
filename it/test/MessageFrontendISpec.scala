@@ -439,7 +439,7 @@ class MessageFrontendISpec
       val pods = HmrcPodsOrg("A1234567")
       val vat = HmrcMtdVat("123456789")
       val epaye = EPaye("840Pd00123456")
-      val vpd = HmrcVpdOrg("840Pd00123456")
+      val vpd = HmrcVpdOrg("GBWK1234567WK")
       val authProvider = testAuthorisationProvider
         .governmentGatewayAuthority()
         .withNino(nino)
