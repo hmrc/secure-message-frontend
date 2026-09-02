@@ -357,6 +357,7 @@ class MessagesISpec extends MessageFrontendISpec with Inspectors {
           authContext.sessionCookie(authContext.bearerTokenHeader()._2),
           SessionKeys.authToken -> authContext.bearerTokenHeader()._2
         )
+
       val result = route(app, request).get
       status(result) must be(Status.OK)
       exactMessageCount(contentAsString(result), 1)
