@@ -459,7 +459,6 @@ class MessageFrontendISpec
       messagesPost(pptMessage(ppt))
       messagesPost(vatMessage(vat))
       messagesPost(epayeMessage(epaye))
-      messagesPost(epayeMessage(epaye))
       messagesPost(vpdMessage(vpd))
 
       (authProvider, nino.value, ctUtr.value, fhdds.value, vat.value, ppt.value, pods.value, epaye.value, vpd.value)
