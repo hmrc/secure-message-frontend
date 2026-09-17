@@ -20,6 +20,7 @@ import base.SpecBase
 import config.AppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import play.api.i18n.{ Messages, MessagesApi }
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -45,21 +46,25 @@ class LayoutSpec extends SpecBase {
       implicit val layoutContents: Document =
         Jsoup.parse(layout.apply(title, headBlock, scriptBlock)(content)(fakeRequest, messages, appConfig).body)
 
-      layoutContents.title() mustBe "title"
-
-      shouldContaniMainContent()
+      shouldContainCorrectTitle()
+      shouldContainMainContent()
       shouldContainBackLink()
+      shouldContainSignOutLink()
       shouldContainLanguageToggle()
     }
 
-    def shouldContaniMainContent(implicit viewAsDoc: Document) =
+    def shouldContainCorrectTitle(implicit viewAsDoc: Document): Assertion = viewAsDoc.title() mustBe "title"
+
+    def shouldContainMainContent(implicit viewAsDoc: Document): Assertion =
       viewAsDoc.getElementById("main-content").text() must include("test_body")
 
-    def shouldContainBackLink(implicit viewAsDoc: Document) =
+    def shouldContainBackLink(implicit viewAsDoc: Document): Assertion =
       viewAsDoc.getElementsByClass("govuk-back-link").text() mustBe "Back"
 
-    def shouldContainLanguageToggle(implicit viewAsDoc: Document) = {
+    def shouldContainSignOutLink(implicit viewAsDoc: Document): Assertion =
+      viewAsDoc.getElementsByClass("govuk-link hmrc-sign-out-nav__link").text() mustBe "Sign out"
 
+    def shouldContainLanguageToggle(implicit viewAsDoc: Document): Assertion = {
       val lanuageToggleBody = viewAsDoc.getElementsByClass("hmrc-service-navigation-language-select").text()
 
       lanuageToggleBody must include("ENG")
