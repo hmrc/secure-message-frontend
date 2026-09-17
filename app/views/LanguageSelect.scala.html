@@ -15,11 +15,10 @@
  *@
 
 @import views.helpers.HtmlUtil
-@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcLanguageSelect
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcServiceNavigationLanguageSelect
 
-@this(hmrcLanguageSelect: HmrcLanguageSelect)
+@this(hmrcServiceNavLanguageSelect: HmrcServiceNavigationLanguageSelect)
 
 @()(implicit messages: Messages, appConfig: AppConfig)
 
-@hmrcLanguageSelect(HtmlUtil.languageSelect(messages))
-
+@hmrcServiceNavLanguageSelect(HtmlUtil.languageSelect(messages))
