@@ -19,6 +19,7 @@ package views
 import base.SpecBase
 import config.AppConfig
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import play.api.i18n.{ Messages, MessagesApi }
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -27,7 +28,7 @@ import views.html.Layout
 class LayoutSpec extends SpecBase {
 
   "Layout" should {
-    "correct contents" in {
+    "display correct contents" in {
       val application = applicationBuilder().configure("metrics.enabled" -> "false").build()
 
       val fakeRequest = FakeRequest("GET", "test_path").withHeaders("X-Session-ID" -> "someSessionId")
@@ -41,10 +42,28 @@ class LayoutSpec extends SpecBase {
       val scriptBlock = Some(Html("test_content"))
       val content = Html("test_body")
 
-      val layoutContents =
+      implicit val layoutContents: Document =
         Jsoup.parse(layout.apply(title, headBlock, scriptBlock)(content)(fakeRequest, messages, appConfig).body)
 
       layoutContents.title() mustBe "title"
+
+      shouldContaniMainContent()
+      shouldContainBackLink()
+      shouldContainLanguageToggle()
+    }
+
+    def shouldContaniMainContent(implicit viewAsDoc: Document) =
+      viewAsDoc.getElementById("main-content").text() must include("test_body")
+
+    def shouldContainBackLink(implicit viewAsDoc: Document) =
+      viewAsDoc.getElementsByClass("govuk-back-link").text() mustBe "Back"
+
+    def shouldContainLanguageToggle(implicit viewAsDoc: Document) = {
+
+      val lanuageToggleBody = viewAsDoc.getElementsByClass("hmrc-service-navigation-language-select").text()
+
+      lanuageToggleBody must include("ENG")
+      lanuageToggleBody must include("CYM")
     }
   }
 }
