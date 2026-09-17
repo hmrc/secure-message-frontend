@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,11 +71,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     scalacOptions := scalacOptions.value.diff(Seq("-Wunused:all")),
     scalacOptions ++= Seq(
-      // Silence unused imports in template files
       "-Wconf:msg=unused import&src=.*:s",
-      // Silence "Flag -XXX set repeatedly"
       "-Wconf:msg=Flag.*repeatedly:s",
-      // Silence unused warnings on Play `routes` files
       "-Wconf:src=routes/.*:s"
     )
   )
@@ -86,7 +83,6 @@ lazy val it = (project in file("it"))
   .dependsOn(`microservice` % "test->test")
   .settings(
     scalacOptions ++= Seq(
-      // Silence "Flag -XXX set repeatedly"
       "-Wconf:msg=Flag.*repeatedly:s"
     )
   )
